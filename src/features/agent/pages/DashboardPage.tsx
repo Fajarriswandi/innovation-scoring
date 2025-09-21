@@ -6,6 +6,15 @@ export default function DashboardPage() {
     <>
       <Title level={3}>Selamat Datang, Agent!</Title>
       <Paragraph>Dashboard Agent</Paragraph>
+      content <br />content <br />content <br />content <br />content <br />content <br />
+      content <br />content <br />content <br />content <br />content <br />content <br />
+      content <br />content <br />content <br />content <br />content <br />content <br />
+      content <br />content <br />content <br />content <br />content <br />content <br />
+      content <br />content <br />content <br />content <br />content <br />content <br />
+      content <br />content <br />content <br />content <br />content <br />content <br />
+      content <br />content <br />content <br />content <br />content <br />content <br />
+      content <br />content <br />content <br />content <br />content <br />content <br />
+      content <br />content <br />content <br />content <br />content <br />content <br />
     </>
   );
 }

@@ -2,17 +2,12 @@ import React, { useState } from "react";
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  UploadOutlined,
   UserOutlined,
   RadarChartOutlined,
   DashboardOutlined,
   SettingOutlined,
   BarChartOutlined,
   MessageOutlined,
-  BellOutlined,
-  FileTextOutlined,
-  TeamOutlined,
-  QuestionCircleOutlined,
   PhoneOutlined,
 } from "@ant-design/icons";
 import { Button, Layout, Menu, theme, MenuProps, Grid } from "antd";
@@ -65,19 +60,25 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           top: 0,
           bottom: 0,
         }}
-        className="siderGlobal" // class custom
+        className="siderGlobal"
         onBreakpoint={(broken) => setCollapsed(broken)}
-        theme="light" // ← ubah jadi light
+        theme="light"
       >
-        <div style={{ padding: 16, textAlign: "center" }}>
+        <div className={`topSider ${collapsed ? "topSider--collapsed" : ""}`}>
           <img
             src="/src/assets/img/agent-profile.png"
             alt="Agent Profile"
             style={{ width: 30, borderRadius: "50%" }}
           />
+          <Button
+            type="text"
+            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            onClick={() => setCollapsed(!collapsed)}
+            style={{ fontSize: 16, width: 64, height: 64 }}
+          />
         </div>
         <Menu
-          theme="light" // ← menu ikut light
+          theme="light"
           mode="inline"
           defaultOpenKeys={["customers"]}
           defaultSelectedKeys={["dashboard"]}
@@ -87,31 +88,52 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
       <Layout style={{ marginLeft: screens.lg ? (collapsed ? 80 : 240) : 0 }}>
         <Header
+          className="headerGlobal"
           style={{
-            padding: 10,
-            background: colorBgContainer,
             position: "fixed",
             top: 0,
             left: screens.lg ? (collapsed ? 80 : 240) : 0,
             right: 0,
             zIndex: 1,
+            padding: 0,
           }}
         >
-          <Button
-            type="text"
-            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-            onClick={() => setCollapsed(!collapsed)}
-            style={{ fontSize: 16, width: 64, height: 64 }}
+          <div className="headerLeft">
+          <img
+            src="/src/assets/img/logo-dd.png"
+            alt="Agent Profile"
+            style={{ width: 'auto', height:25}}
           />
+            <Button
+              type="text"
+              icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+              onClick={() => setCollapsed(!collapsed)}
+              style={{ fontSize: 16, width: 64, height: 64 }}
+            />
+          </div>
+          <div className="headerRight">Right</div>
         </Header>
+
+        <div
+          className="subHeader"
+          style={{
+            marginLeft: screens.lg ? (collapsed ? 15 : 15) : 0,
+            position: "fixed",
+            top: -10,
+            left: screens.lg ? (collapsed ? 80 : 240) : 0,
+            right: 0,
+            zIndex: 0,
+            // padding: 0,
+          }}
+        >
+          Testing
+        </div>
 
         <Content
           style={{
-            padding: screens.lg ? 24 : 16,
+            // padding: screens.lg ? 24 : 16,
             minHeight: 280,
-            marginTop: 64, // agar tidak tertutup Header
-            background: colorBgContainer,
-            borderRadius: borderRadiusLG,
+            marginTop: 135, // agar tidak tertutup Header
           }}
         >
           {children}
