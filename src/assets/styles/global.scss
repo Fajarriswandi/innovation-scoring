@@ -86,6 +86,15 @@ h6 {
   }
 }
 
+.headerRight{
+  // background: red;
+  display: flex;
+  margin: 0 10px;
+  div{
+    margin: 0 5px;
+  }
+}
+
 .subHeader {
   background: rgba(255, 255, 255, 0.387);
   backdrop-filter: blur(10px);

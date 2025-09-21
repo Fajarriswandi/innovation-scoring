@@ -9,7 +9,7 @@ export default function DashboardPage() {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(setSmallTitle('Dashboard Agent 123'));
+    dispatch(setSmallTitle('Dashboard Agent'));
 
     // Reset title on component unmount
     return () => {
