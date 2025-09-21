@@ -10,13 +10,16 @@ import {
   MessageOutlined,
   PhoneOutlined,
   AppstoreAddOutlined,
-  FieldTimeOutlined
+  FieldTimeOutlined,
 } from "@ant-design/icons";
 import { Button, Layout, Menu, theme, MenuProps, Grid } from "antd";
+
+import { useAppSelector } from "@/hooks/redux";
 
 const { Header, Sider, Content } = Layout;
 
 const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { smallTitle } = useAppSelector((state) => state.layout);
   const [collapsed, setCollapsed] = useState(false);
   const {
     token: { colorBgContainer, borderRadiusLG },
@@ -71,7 +74,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             alt="Agent Profile"
             style={{ width: 30, borderRadius: "50%" }}
           /> */}
-          <h6>Navigation</h6>
+          {/* <h6>Navigation</h6> */}
           <Button
             type="text"
             icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
@@ -129,9 +132,12 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             // padding: 0,
           }}
         >
+          {/* Title Small Page */}
           <div className="smallTitlePage">
-            <AppstoreAddOutlined /> <span>Dashboard Agent</span>
+            <AppstoreAddOutlined /> <span>{smallTitle}</span>
           </div>
+          {/* End Title Small Page */}
+
           <div className="smallTitlePage">
             <FieldTimeOutlined />{" "}
             <span>Lates updated on 15:43PM, 10 Mar 24 </span>

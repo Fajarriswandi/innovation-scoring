@@ -1,7 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit';
-// contoh slice kosong, nanti ditambah per fitur
+import layoutReducer from './layoutSlice';
+
 export const store = configureStore({
-  reducer: {},
+  reducer: {
+    layout: layoutReducer,
+  },
   middleware: (getDefault) => getDefault(),
   devTools: import.meta.env.DEV,
 });
