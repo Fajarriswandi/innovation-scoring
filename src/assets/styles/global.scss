@@ -5,12 +5,10 @@
   font-family: $font-family-base;
   font-size: $font-size-base;
   margin: 0;
-  color: #333;
+  color: $TextColor;
   background: linear-gradient(45deg, #f2f3f6 1%, #dedede 100%);
   // background: red;
 }
-
-
 
 h1,
 h2,
@@ -22,11 +20,12 @@ h6 {
 }
 
 .ant-layout-content {
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 10px;
-  min-height: 280px;
+  // background: rgba(255, 255, 255, 0.8);
+  // border-radius: 10px;
+  // min-height: 280px;
   margin: 80px 16px 24px;
 }
+
 
 .bg-primary {
   background: $primary-color;
@@ -35,19 +34,39 @@ h6 {
   background: $secondary-color;
 }
 
-.topSider{
+.smallTitlePage{
+  .anticon{
+
+  }
+
+  span{
+    font-weight: 500;
+  }
+}
+
+.topSider {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  padding: 0 15px;
+  padding: 0;
+  h6{
+    color: #90919a;
+    margin-left: 15px;
+    font-size: 12px;
+    font-weight: 400;
+  }
 }
 
-.topSider--collapsed{
+.topSider--collapsed {
   flex-direction: column-reverse;
+  padding: 10px 0 0 0;
+  h6{
+    display: none;
+  }
 }
 
-.headerGlobal{
+.headerGlobal {
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(10px);
   display: flex;
@@ -57,14 +76,17 @@ h6 {
   margin-right: 15px;
   margin-top: 15px;
   border-radius: 15px;
-  .headerLeft{
+  box-shadow: -1px 10px 35px -15px rgba(0, 0, 0, 0.084);
+  -webkit-box-shadow: -1px 10px 35px -15px rgba(0, 0, 0, 0.084);
+  -moz-box-shadow: -1px 10px 35px -15px rgba(0, 0, 0, 0.084);
+  .headerLeft {
     margin-left: 20px;
     display: flex;
     align-items: center;
   }
 }
 
-.subHeader{
+.subHeader {
   background: rgba(255, 255, 255, 0.387);
   backdrop-filter: blur(10px);
   margin-top: 65px;
@@ -80,10 +102,10 @@ h6 {
 
 // Costume Sider
 .siderGlobal {
-// border-radius: 10px;
-
-  
-
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  height: 97vh;
 }
 
 .loginWrapper {

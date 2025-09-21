@@ -9,6 +9,8 @@ import {
   BarChartOutlined,
   MessageOutlined,
   PhoneOutlined,
+  AppstoreAddOutlined,
+  FieldTimeOutlined
 } from "@ant-design/icons";
 import { Button, Layout, Menu, theme, MenuProps, Grid } from "antd";
 
@@ -55,26 +57,26 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         collapsed={collapsed}
         style={{
           position: "fixed",
-          height: "100vh",
-          left: 0,
-          top: 0,
-          bottom: 0,
+          //   height: "100vh",
+          left: 15,
+          top: 15,
         }}
         className="siderGlobal"
         onBreakpoint={(broken) => setCollapsed(broken)}
         theme="light"
       >
         <div className={`topSider ${collapsed ? "topSider--collapsed" : ""}`}>
-          <img
+          {/* <img
             src="/src/assets/img/agent-profile.png"
             alt="Agent Profile"
             style={{ width: 30, borderRadius: "50%" }}
-          />
+          /> */}
+          <h6>Navigation</h6>
           <Button
             type="text"
             icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
             onClick={() => setCollapsed(!collapsed)}
-            style={{ fontSize: 16, width: 64, height: 64 }}
+            style={{ fontSize: 16, width: 60, height: 60 }}
           />
         </div>
         <Menu
@@ -83,27 +85,28 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           defaultOpenKeys={["customers"]}
           defaultSelectedKeys={["dashboard"]}
           items={menuItems}
+          style={{ padding: 15 }}
         />
       </Sider>
 
-      <Layout style={{ marginLeft: screens.lg ? (collapsed ? 80 : 240) : 0 }}>
+      <Layout style={{ marginLeft: screens.lg ? (collapsed ? 95 : 255) : 0 }}>
         <Header
           className="headerGlobal"
           style={{
             position: "fixed",
             top: 0,
-            left: screens.lg ? (collapsed ? 80 : 240) : 0,
+            left: screens.lg ? (collapsed ? 95 : 255) : 0,
             right: 0,
             zIndex: 1,
             padding: 0,
           }}
         >
           <div className="headerLeft">
-          <img
-            src="/src/assets/img/logo-dd.png"
-            alt="Agent Profile"
-            style={{ width: 'auto', height:25}}
-          />
+            <img
+              src="/src/assets/img/logo-dd.png"
+              alt="Agent Profile"
+              style={{ width: "auto", height: 25 }}
+            />
             <Button
               type="text"
               icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
@@ -117,7 +120,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         <div
           className="subHeader"
           style={{
-            marginLeft: screens.lg ? (collapsed ? 15 : 15) : 0,
+            marginLeft: screens.lg ? (collapsed ? 30 : 30) : 0,
             position: "fixed",
             top: -10,
             left: screens.lg ? (collapsed ? 80 : 240) : 0,
@@ -126,7 +129,13 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             // padding: 0,
           }}
         >
-          Testing
+          <div className="smallTitlePage">
+            <AppstoreAddOutlined /> <span>Dashboard Agent</span>
+          </div>
+          <div className="smallTitlePage">
+            <FieldTimeOutlined />{" "}
+            <span>Lates updated on 15:43PM, 10 Mar 24 </span>
+          </div>
         </div>
 
         <Content
