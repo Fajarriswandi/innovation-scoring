@@ -16,8 +16,7 @@ import {
   AppstoreOutlined,
   BellOutlined,
   SunOutlined,
-  MoonOutlined
-
+  MoonOutlined,
 } from "@ant-design/icons";
 import {
   Button,
@@ -39,8 +38,8 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   const [isDark, setIsDark] = useState<boolean>(() => {
-    const saved = localStorage.getItem('theme');
-    return saved === 'dark';
+    const saved = localStorage.getItem("theme");
+    return saved === "dark";
   });
 
   const handleFsChange = () => {
@@ -94,8 +93,11 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   }, []);
 
   React.useEffect(() => {
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    localStorage.setItem("theme", isDark ? "dark" : "light");
+    document.documentElement.setAttribute(
+      "data-theme",
+      isDark ? "dark" : "light"
+    );
   }, [isDark]);
 
   const { smallTitle } = useAppSelector((state) => state.layout);
@@ -129,7 +131,22 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   ];
 
   return (
-    <ConfigProvider theme={{ algorithm: isDark ? theme.darkAlgorithm : theme.defaultAlgorithm }}>
+    <ConfigProvider
+      theme={{
+        algorithm: isDark ? theme.darkAlgorithm : theme.defaultAlgorithm,
+        token: {
+          colorPrimary: "#40ACE2",
+          colorSuccess: "#52c41a",
+          colorWarning: "#faad14",
+          colorError: "#ff4d4f",
+          colorInfo: "#13c2c2",
+          borderRadius: 8,
+          colorText: "#3E5B70", 
+          colorTextSecondary: "#64869e",
+          colorTextHeading: "#3E5B70",
+        },
+      }}
+    >
       <Layout style={{ minHeight: "100vh" }}>
         <Sider
           width={240}
@@ -199,12 +216,6 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             </div>
             <div className="headerRight">
               <div>
-                {/* <Switch
-                  checkedChildren="Light"
-                  unCheckedChildren="Dark"
-                  defaultChecked
-                /> */}
-
                 <Switch
                   checkedChildren={<SunOutlined />}
                   unCheckedChildren={<MoonOutlined />}
@@ -215,7 +226,13 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               </div>
               <div>
                 <Tooltip title="Notification">
-                  <Button shape="circle" size={"large"} icon={<BellOutlined />} />
+                  <Button
+                    shape="circle"
+                    color="primary"
+                    variant="outlined"
+                    size={"large"}
+                    icon={<BellOutlined />}
+                  />
                 </Tooltip>
               </div>
               <div>
@@ -225,6 +242,8 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                   <Button
                     shape="circle"
                     size="large"
+                    color="primary"
+                    variant="outlined"
                     onClick={toggleFullscreen}
                     aria-label={
                       isFullscreen ? "Exit full screen" : "Enter full screen"
@@ -244,6 +263,8 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                   <Button
                     shape="circle"
                     size={"large"}
+                    color="primary"
+                    variant="outlined"
                     icon={<AppstoreOutlined />}
                   />
                 </Tooltip>
