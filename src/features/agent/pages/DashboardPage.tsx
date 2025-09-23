@@ -1,9 +1,14 @@
 import { useEffect } from "react";
-import { Typography } from "antd";
+import { Typography, List } from "antd";
 import { useAppDispatch } from "@/hooks/redux";
+import { cases } from "@/data/cases";
+import SmallStatCard from "@/components/SmallStatCard";
 import { setSmallTitle } from "@/store/layoutSlice";
 import { Card, Row, Col, Tooltip, Button, Flex } from "antd";
-import { MoreOutlined, ReloadOutlined, PlusOutlined, CalendarOutlined, CoffeeOutlined } from "@ant-design/icons";
+import { MoreOutlined, ReloadOutlined, PlusOutlined, CalendarOutlined, CoffeeOutlined, ArrowRightOutlined } from "@ant-design/icons";
+import { LineChart, Line, ResponsiveContainer } from "recharts";
+import { Helmet } from "react-helmet-async";
+
 
 const gutter: any = [16, { xs: 12, sm: 16, md: 20, lg: 24 }];
 
@@ -12,14 +17,20 @@ export default function DashboardPage() {
 
   useEffect(() => {
     dispatch(setSmallTitle("Dashboard Agent"));
+    document.title = "Dashboard Agent | AI Powered Call Center";
     // Reset title on component unmount
     return () => {
       dispatch(setSmallTitle("Dashboard"));
+      document.title = "AI Powered Call Center";
     };
   }, [dispatch]);
 
   return (
     <div className="dashboard-grid">
+      <Helmet>
+        <title>Dashboard Agent | AI Powered Call Center</title>
+      </Helmet>
+      
       <Row gutter={gutter}>
 
         {/* First Column */}
@@ -111,59 +122,95 @@ export default function DashboardPage() {
         <Col xs={24} lg={14} xl={16}>
           <Row gutter={gutter}>
             <Col xs={24} lg={8} xl={8}>
-              <Card className="noborderHeader smallCard" extra={<a href="#"> <ReloadOutlined /> </a>} title="Total Calls">
-                <span className="badge success">+ 4%</span>
-                <Flex justify="space-between" align="end">
-                  <div className="boxInfo">
-                    <h3>526</h3>
-                    <small>vs 325 prev. 7 days</small>
-                  </div>
-                  <div>
-                    chart here
-                  </div>
-                </Flex>
-              </Card>
+              <SmallStatCard
+                title="Total Calls"
+                value={526}
+                deltaLabel="+ 4%"
+                subtitle="vs 325 prev. 7 days"
+              />
             </Col>
             <Col xs={24} lg={8} xl={8}>
-              <Card className="noborderHeader smallCard" extra={<a href="#"> <ReloadOutlined /> </a>} title="Missed Calls">
-                <span className="badge success">+ 4%</span>
-                <Flex justify="space-between" align="end">
-                  <div className="boxInfo">
-                    <h3>526</h3>
-                    <small>vs 325 prev. 7 days</small>
-                  </div>
-                  <div>
-                    chart here
-                  </div>
-                </Flex>
-              </Card>
+              <SmallStatCard
+                title="Missed Calls"
+                value={228}
+                deltaLabel="+ 4%"
+                subtitle="vs 203 prev. 7 days"
+              />
             </Col>
+
             <Col xs={24} lg={8} xl={8}>
-              <Card className="noborderHeader smallCard" extra={<a href="#"> <ReloadOutlined /> </a>} title="AVG. Waiting Time">
-                <span className="badge success">+ 4%</span>
-                <Flex justify="space-between" align="end">
-                  <div className="boxInfo">
-                    <h3>526</h3>
-                    <small>vs 325 prev. 7 days</small>
-                  </div>
-                  <div>
-                    chart here
-                  </div>
-                </Flex>
+              <SmallStatCard
+                title="AVG. Waiting Time"
+                value={"01:14"}
+                deltaLabel="+ 4%"
+                subtitle="vs 01:25 prev. 7 days"
+              />
+            </Col>
+          </Row>
+
+          <Row gutter={gutter} style={{ marginTop: 15 }}>
+            <Col xs={24} lg={12} xl={12}>
+              <Card className="noborderHeader" extra={<a href="#"> <ReloadOutlined /> </a>} title="All My Case">
+                {/* All My Cases */}
+                <div className="allMyCase">
+                  <List
+                    size="small"
+                    className="listCostume"
+                    dataSource={cases}
+                    renderItem={(item) => {
+                      const statusMap: Record<string, string> = {
+                        Open: "approved",
+                        Pending: "pending",
+                        Resolved: "resolved",
+                        Escalated: "escalated",
+                        Closed: "closed",
+                      };
+
+                      return (
+                        <List.Item>
+                          <img
+                            src={item.profileImage}
+                            alt={item.title}
+                            width={40}
+                            height={40}
+                            style={{ borderRadius: "10px", marginRight: 8 }}
+                          />
+                          <div style={{ flex: 1 }}>
+                            <div><small style={{ color: "#999" }}>Case ID: {item.caseId}</small></div>
+                            <div>{item.title}</div>
+                          </div>
+                          <div className="time">
+                            <small>SLA Timer</small>
+                            {item.slaTimer}
+                          </div>
+                          <div className="time">
+                            <small>Status</small>
+                            <span className={`badge ${statusMap[item.status] || ""}`}>
+                              {item.status}
+                            </span>
+                          </div>
+                          <div>
+                            <Button className="btnLight" icon={<ArrowRightOutlined />} />
+                          </div>
+                        </List.Item>
+                      );
+                    }}
+                  />
+                </div>
               </Card>
             </Col>
 
             <Col xs={24} lg={12} xl={12}>
-              <Card className="noborderHeader" extra={<a href="#"> <ReloadOutlined /> </a>} title="All My Case">
-                ...
+              <Card extra={<a href="#"> <ReloadOutlined /> </a>} title="Talk / Listen Ration" style={{ marginBottom: 15, minHeight: "31vh" }} className="noborderHeader">
+                ....
               </Card>
-            </Col>
-            <Col xs={24} lg={12} xl={12}>
-              <Card className="noborderHeader" extra={<a href="#"> <ReloadOutlined /> </a>} title="Talk / Listen Ration">
+
+              <Card extra={<a href="#"> <ReloadOutlined /> </a>} title="Sentiment" style={{ marginBottom: 15, minHeight: "31vh" }}>
                 ....
               </Card>
             </Col>
           </Row>
+
         </Col>
 
       </Row>

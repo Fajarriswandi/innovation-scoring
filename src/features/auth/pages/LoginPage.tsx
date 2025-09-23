@@ -10,6 +10,8 @@ import {
   Typography,
 } from "antd";
 import { MailOutlined, LockOutlined, GoogleOutlined } from "@ant-design/icons";
+import { Helmet } from "react-helmet-async";
+import { useEffect } from "react";
 
 const { Title, Text } = Typography;
 
@@ -18,98 +20,111 @@ export default function LoginPage() {
     console.log("Submit:", values);
   };
 
+  useEffect(() => {
+    const prev = document.title;
+    document.title = "Login | AI Powered Call Center";
+    return () => {
+      document.title = prev || "AI Powered Call Center";
+    };
+  }, []);
+
   return (
-    <Row className="full-height-row" gutter={0}>
-      <Col xs={24} md={12} className="pane pane--left">
-        <Card bordered={false} className="login-hero">
-          <div className="login-hero__text">
-            <Title level={1}>
-              Serve <br /> With <br /> Excellence
-            </Title>
-            <Text>
-              Every call is a chance to create trust. Log in and make every
-              customer experience memorable.
-            </Text>
-          </div>
-        </Card>
-      </Col>
+    <>
+      <Helmet>
+        <title>Login | AI Powered Call Center</title>
+      </Helmet>
+      <Row className="full-height-row" gutter={0}>
+        <Col xs={24} md={12} className="pane pane--left">
+          <Card bordered={false} className="login-hero">
+            <div className="login-hero__text">
+              <Title level={1}>
+                Serve <br /> With <br /> Excellence
+              </Title>
+              <Text>
+                Every call is a chance to create trust. Log in and make every
+                customer experience memorable.
+              </Text>
+            </div>
+          </Card>
+        </Col>
 
-      <Col xs={24} md={12} className="pane pane--right">
-        <Card className="loginWrapper">
-          <div className="login-header">
-            <img
-              src="/src/assets/img/logo-dd.png"
-              alt="Digital Dubai"
-              className="login-logo"
-            />
-            <Title level={3}>Welcome Back</Title>
-            <Text type="secondary">
-              Enter your email and password to access your account
-            </Text>
-          </div>
-
-          <Form
-            layout="vertical"
-            onFinish={onFinish}
-            initialValues={{ remember: true }}
-          >
-            <Form.Item
-              label="Email"
-              name="email"
-              rules={[{ required: true, message: "Please input your email!" }]}
-            >
-              <Input
-                size="large"
-                placeholder="name@digitaldubai.ae"
-                prefix={<MailOutlined />}
+        <Col xs={24} md={12} className="pane pane--right">
+          <Card className="loginWrapper">
+            <div className="login-header">
+              <img
+                src="/src/assets/img/logo-dd.png"
+                alt="Digital Dubai"
+                className="login-logo"
               />
-            </Form.Item>
+              <Title level={3}>Welcome Back</Title>
+              <Text type="secondary">
+                Enter your email and password to access your account
+              </Text>
+            </div>
 
-            <Form.Item
-              label="Password"
-              name="password"
-              rules={[
-                { required: true, message: "Please input your password!" },
-              ]}
+            <Form
+              layout="vertical"
+              onFinish={onFinish}
+              initialValues={{ remember: true }}
             >
-              <Input.Password
-                size="large"
-                placeholder="••••••••"
-                prefix={<LockOutlined />}
-              />
-            </Form.Item>
+              <Form.Item
+                label="Email"
+                name="email"
+                rules={[{ required: true, message: "Please input your email!" }]}
+              >
+                <Input
+                  size="large"
+                  placeholder="name@digitaldubai.ae"
+                  prefix={<MailOutlined />}
+                />
+              </Form.Item>
 
-            <Row
-              justify="space-between"
-              align="middle"
-              className="login-metaRow"
-            >
-              <Col>
-                <Form.Item name="remember" valuePropName="checked" noStyle>
-                  <Checkbox>Remember me</Checkbox>
-                </Form.Item>
-              </Col>
-              <Col>
-                <a className="login-forgot" href="#">
-                  Forget your password?
-                </a>
-              </Col>
-            </Row>
+              <Form.Item
+                label="Password"
+                name="password"
+                rules={[
+                  { required: true, message: "Please input your password!" },
+                ]}
+              >
+                <Input.Password
+                  size="large"
+                  placeholder="••••••••"
+                  prefix={<LockOutlined />}
+                />
+              </Form.Item>
 
-            <Form.Item>
-              <Button type="primary" htmlType="submit" size="large" block>
-                Sign In
-              </Button>
-            </Form.Item>
+              <Row
+                justify="space-between"
+                align="middle"
+                className="login-metaRow"
+              >
+                <Col>
+                  <Form.Item name="remember" valuePropName="checked" noStyle>
+                    <Checkbox>Remember me</Checkbox>
+                  </Form.Item>
+                </Col>
+                <Col>
+                  <a className="login-forgot" href="#">
+                    Forget your password?
+                  </a>
+                </Col>
+              </Row>
 
-            <Form.Item>
-              <Button icon={<GoogleOutlined />} size="large" block>
-                Login with Google
-              </Button>
-            </Form.Item>
-          </Form>
-        </Card>
-      </Col>
-    </Row>
+              <Form.Item>
+                <Button type="primary" htmlType="submit" size="large" block>
+                  Sign In
+                </Button>
+              </Form.Item>
+
+              <Form.Item>
+                <Button icon={<GoogleOutlined />} size="large" block>
+                  Login with Google
+                </Button>
+              </Form.Item>
+            </Form>
+          </Card>
+        </Col>
+      </Row>
+    </>
   );
 }

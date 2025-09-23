@@ -7,7 +7,11 @@
   margin: 0;
   color: $TextColor;
   background: linear-gradient(45deg, #f2f3f6 1%, #dedede 100%);
-  // background: red;
+  transition: all 0.3s ease;
+}
+
+body {
+  transition: all 0.3s ease;
 }
 
 h1,
@@ -24,6 +28,13 @@ h6 {
     min-height: 48px;
     font-weight: normal;
     font-size: 14px;
+    transition: all 0.3s ease;
+  }
+
+  .ant-card-body {
+    // background: orange;
+    padding-top: 5px;
+    padding-bottom: 20px;
   }
 
   &.noborderHeader {
@@ -33,18 +44,64 @@ h6 {
   }
 }
 
-.smallCard{
+.smallCard {
   min-height: 180px;
-  .boxInfo{
-    h3{
+
+  .boxInfo {
+    h3 {
       font-size: 25px;
       margin: 5px 0 -5px 0;
     }
 
-    small{
+    small {
       color: rgb(176, 176, 176);
     }
 
+  }
+}
+
+.allMyCase {
+  min-height: 50vh;
+  height: 56vh;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  ::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.listCostume {
+  // background: orange;
+
+  .ant-list-items {
+    // UL
+
+    .ant-list-item {
+      // LI
+      margin-bottom: 8px;
+      border-radius: 10px;
+      border: 1px solid #dde4ea31;
+      transition: all 0.3s ease;
+
+      .time {
+        text-align: left;
+        margin: 15px 10px;
+
+        small {
+          display: block;
+          opacity: 50%;
+        }
+      }
+
+      &:hover {
+        box-shadow: 1px 5px 36px 0px rgba(0, 0, 0, 0.05);
+        -webkit-box-shadow: 1px 5px 36px 0px rgba(0, 0, 0, 0.05);
+        -moz-box-shadow: 1px 5px 36px 0px rgba(0, 0, 0, 0.05);
+        cursor: pointer;
+      }
+    }
   }
 }
 
@@ -178,9 +235,9 @@ h6 {
   margin-right: 15px;
   margin-top: 15px;
   border-radius: 15px;
-  box-shadow: -1px 10px 35px -15px rgba(0, 0, 0, 0.084);
-  -webkit-box-shadow: -1px 10px 35px -15px rgba(0, 0, 0, 0.084);
-  -moz-box-shadow: -1px 10px 35px -15px rgba(0, 0, 0, 0.084);
+  box-shadow: 1px 5px 36px 0px rgba(0, 0, 0, 0.05);
+  -webkit-box-shadow: 1px 5px 36px 0px rgba(0, 0, 0, 0.05);
+  -moz-box-shadow: 1px 5px 36px 0px rgba(0, 0, 0, 0.05);
 
   .headerLeft {
     margin-left: 20px;
@@ -304,7 +361,6 @@ h6 {
 
   .profileWrapper {
     background: linear-gradient(45deg, rgba(64, 172, 226, 0) 0%, rgba(64, 172, 226, 0) 1%, rgba(64, 172, 226, 0.15) 100%);
-    margin-top: -20px;
     border-radius: 15px;
     padding: 40px 20px 20px 20px;
 
@@ -386,15 +442,68 @@ h6 {
       ;
     }
   }
+
+  &.closed {
+    background: rgb(129, 251, 209);
+
+    position: relative;
+    padding-left: 18px;
+
+    &::before {
+      position: absolute;
+      top: 2px;
+      left: 3px;
+      content: "";
+      width: 15px;
+      height: 15px;
+      background: url('/src/assets/img/pending.png');
+      ;
+    }
+  }
+
+  &.resolved {
+    background: rgb(237, 237, 255);
+    position: relative;
+    padding-left: 18px;
+
+    &::before {
+      position: absolute;
+      top: 2px;
+      left: 3px;
+      content: "";
+      width: 15px;
+      height: 15px;
+      background: url('/src/assets/img/pending.png');
+      ;
+    }
+  }
+
+  &.escalated {
+    background: rgb(228, 254, 184);
+    position: relative;
+    padding-left: 18px;
+
+    &::before {
+      position: absolute;
+      top: 2px;
+      left: 3px;
+      content: "";
+      width: 15px;
+      height: 15px;
+      background: url('/src/assets/img/pending.png');
+      ;
+    }
+  }
+
 }
 
 .btnLight {
   background: white;
   border-radius: 5px;
   border-color: white;
-  box-shadow: 0px 2px 43px -12px rgba(0, 0, 0, 0.87);
-  -webkit-box-shadow: 0px 2px 43px -12px rgba(0, 0, 0, 0.87);
-  -moz-box-shadow: 0px 2px 43px -12px rgba(0, 0, 0, 0.87);
+  box-shadow: 1px 5px 36px 0px rgba(0, 0, 0, 0.05);
+  -webkit-box-shadow: 1px 5px 36px 0px rgba(0, 0, 0, 0.05);
+  -moz-box-shadow: 1px 5px 36px 0px rgba(0, 0, 0, 0.05);
 }
 
 .secondaryTitleCard {
@@ -418,11 +527,12 @@ h6 {
     align-items: center;
     margin-bottom: 2px;
     border-bottom: 1px solid #eeeeee3b;
+    transition: all 0.3s ease;
 
     &:hover {
-      box-shadow: -1px 10px 35px -15px rgba(0, 0, 0, 0.084);
-      -webkit-box-shadow: -1px 10px 35px -15px rgba(0, 0, 0, 0.084);
-      -moz-box-shadow: -1px 10px 35px -15px rgba(0, 0, 0, 0.084);
+      box-shadow: 1px 5px 36px 0px rgba(0, 0, 0, 0.05);
+      -webkit-box-shadow: 1px 5px 36px 0px rgba(0, 0, 0, 0.05);
+      -moz-box-shadow: 1px 5px 36px 0px rgba(0, 0, 0, 0.05);
       cursor: pointer;
     }
 

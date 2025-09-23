@@ -11,11 +11,13 @@
   },
   "dependencies": {
     "@ant-design/icons": "^6.0.2",
+    "@faker-js/faker": "^10.0.0",
     "@reduxjs/toolkit": "^2.9.0",
     "antd": "^5.27.4",
     "msw": "^2.11.3",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-helmet-async": "^2.0.5",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.9.1",
     "recharts": "^3.2.1",
@@ -40,5 +42,6 @@
     "workerDirectory": [
       "public"
     ]
-  }
+  },
+  "packageManager": "pnpm@10.15.1+sha512.34e538c329b5553014ca8e8f4535997f96180a1d0f614339357449935350d924e22f8614682191264ec33d1462ac21561aff97f6bb18065351c162c7e8f6de67"
 }
