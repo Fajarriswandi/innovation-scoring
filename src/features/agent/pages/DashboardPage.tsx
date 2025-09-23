@@ -3,10 +3,12 @@ import { Typography, List } from "antd";
 import { useAppDispatch } from "@/hooks/redux";
 import { cases } from "@/data/cases";
 import SmallStatCard from "@/components/SmallStatCard";
+import SentimentChart from "@/components/SentimentChart";
+import TalkListenRatio from "@/components/TalkListenRatio";
 import { setSmallTitle } from "@/store/layoutSlice";
 import { Card, Row, Col, Tooltip, Button, Flex } from "antd";
 import { MoreOutlined, ReloadOutlined, PlusOutlined, CalendarOutlined, CoffeeOutlined, ArrowRightOutlined } from "@ant-design/icons";
-import { LineChart, Line, ResponsiveContainer } from "recharts";
+import { LineChart, Line, ResponsiveContainer, BarChart, Bar, LabelList } from "recharts";
 import { Helmet } from "react-helmet-async";
 
 
@@ -30,7 +32,7 @@ export default function DashboardPage() {
       <Helmet>
         <title>Dashboard Agent | AI Powered Call Center</title>
       </Helmet>
-      
+
       <Row gutter={gutter}>
 
         {/* First Column */}
@@ -202,11 +204,20 @@ export default function DashboardPage() {
 
             <Col xs={24} lg={12} xl={12}>
               <Card extra={<a href="#"> <ReloadOutlined /> </a>} title="Talk / Listen Ration" style={{ marginBottom: 15, minHeight: "31vh" }} className="noborderHeader">
-                ....
+                <TalkListenRatio
+                  headline={25}
+                  deltaLabel="+12%"
+                  barValue={25}
+                  leftPercent={75}
+                  rightPercent={25}
+                  talkLabel="Talk: 10%"
+                  listenLabel="Listen: -5%"
+                />
               </Card>
 
-              <Card extra={<a href="#"> <ReloadOutlined /> </a>} title="Sentiment" style={{ marginBottom: 15, minHeight: "31vh" }}>
-                ....
+              <Card extra={<a href="#"> <ReloadOutlined /> </a>} title="Sentiment" style={{ marginBottom: 15, minHeight: "31vh", height: 'auto', paddingBottom: 20 }}>
+                {/* Sentiment Chart */}
+                <SentimentChart />
               </Card>
             </Col>
           </Row>

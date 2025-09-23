@@ -189,7 +189,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           />
         </Sider>
 
-        <Layout style={{ marginLeft: screens.lg ? (collapsed ? 95 : 255) : 0 }}>
+        <Layout style={{ marginLeft: screens.lg ? (collapsed ? 95 : 255) : 0 }} >
           <Header
             className="headerGlobal"
             style={{
@@ -199,6 +199,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               right: 0,
               zIndex: 999,
               padding: 0,
+              transition:"all 0.3s ease"
             }}
           >
             <div className="headerLeft">
@@ -281,7 +282,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               left: screens.lg ? (collapsed ? 80 : 240) : 0,
               right: 0,
               zIndex: 888,
-              // padding: 0,
+              transition:"all 0.3s ease"
             }}
           >
             {/* Title Small Page */}

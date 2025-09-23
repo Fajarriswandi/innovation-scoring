@@ -17,12 +17,12 @@ export default function SmallStatCard({
   deltaLabel = "+ 0%",
   subtitle,
   data = [
-    { value: 100 },
+    { value: 20 },
     { value: 120 },
-    { value: 115 },
+    { value: 300 },
     { value: 140 },
-    { value: 160 },
-    { value: 180 },
+    { value: 430 },
+    { value: 670 },
   ],
   className,
 }: Props) {
