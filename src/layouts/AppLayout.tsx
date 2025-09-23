@@ -197,7 +197,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               top: 0,
               left: screens.lg ? (collapsed ? 95 : 255) : 0,
               right: 0,
-              zIndex: 1,
+              zIndex: 999,
               padding: 0,
             }}
           >
@@ -280,7 +280,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               top: -10,
               left: screens.lg ? (collapsed ? 80 : 240) : 0,
               right: 0,
-              zIndex: 0,
+              zIndex: 888,
               // padding: 0,
             }}
           >

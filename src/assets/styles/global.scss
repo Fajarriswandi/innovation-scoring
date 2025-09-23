@@ -33,6 +33,21 @@ h6 {
   }
 }
 
+.smallCard{
+  min-height: 180px;
+  .boxInfo{
+    h3{
+      font-size: 25px;
+      margin: 5px 0 -5px 0;
+    }
+
+    small{
+      color: rgb(176, 176, 176);
+    }
+
+  }
+}
+
 .ant-btn-color-primary {
   background: $primary-color;
 }
@@ -281,5 +296,153 @@ h6 {
 
   .login-hero {
     min-height: auto;
+  }
+}
+
+.cardAgentProfile {
+  min-height: 84vh;
+
+  .profileWrapper {
+    background: linear-gradient(45deg, rgba(64, 172, 226, 0) 0%, rgba(64, 172, 226, 0) 1%, rgba(64, 172, 226, 0.15) 100%);
+    margin-top: -20px;
+    border-radius: 15px;
+    padding: 40px 20px 20px 20px;
+
+    img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 50%;
+      margin: 0 auto;
+      display: table;
+    }
+
+    h3 {
+      margin-top: 15px;
+      text-align: center;
+      font-size: 25px;
+    }
+
+    span {
+      text-align: center;
+      display: table;
+      margin: auto;
+    }
+
+
+
+    .time {
+      text-align: center;
+      margin: 15px 10px;
+
+      small {
+        display: block;
+        opacity: 50%;
+      }
+    }
+  }
+
+}
+
+.badge {
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+
+  &.success {
+    background: #5cdb1330;
+  }
+
+  &.approved {
+    background: #5cdb1330;
+    position: relative;
+    padding-left: 18px;
+
+    &::before {
+      position: absolute;
+      top: 2px;
+      left: 3px;
+      content: "";
+      width: 15px;
+      height: 15px;
+      background: url('/src/assets/img/approved.png');
+      ;
+    }
+  }
+
+  &.pending {
+    background: #f7fc9922;
+    position: relative;
+    padding-left: 18px;
+
+    &::before {
+      position: absolute;
+      top: 2px;
+      left: 3px;
+      content: "";
+      width: 15px;
+      height: 15px;
+      background: url('/src/assets/img/pending.png');
+      ;
+    }
+  }
+}
+
+.btnLight {
+  background: white;
+  border-radius: 5px;
+  border-color: white;
+  box-shadow: 0px 2px 43px -12px rgba(0, 0, 0, 0.87);
+  -webkit-box-shadow: 0px 2px 43px -12px rgba(0, 0, 0, 0.87);
+  -moz-box-shadow: 0px 2px 43px -12px rgba(0, 0, 0, 0.87);
+}
+
+.secondaryTitleCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 15px 0;
+
+  h4 {
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 0;
+  }
+
+}
+
+.listItems {
+  .item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2px;
+    border-bottom: 1px solid #eeeeee3b;
+
+    &:hover {
+      box-shadow: -1px 10px 35px -15px rgba(0, 0, 0, 0.084);
+      -webkit-box-shadow: -1px 10px 35px -15px rgba(0, 0, 0, 0.084);
+      -moz-box-shadow: -1px 10px 35px -15px rgba(0, 0, 0, 0.084);
+      cursor: pointer;
+    }
+
+    .left {
+      display: flex;
+      align-items: center;
+
+      .time {
+        text-align: start;
+        margin: 8px 10px;
+        font-size: 14px;
+
+        small {
+          margin-bottom: -2px;
+          display: block;
+          opacity: 50%;
+        }
+      }
+    }
+
+    .right {}
   }
 }
