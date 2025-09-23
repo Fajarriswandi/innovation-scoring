@@ -5,7 +5,7 @@ import { ConfigProvider } from 'antd';
 import AppRoutes from '@/pages/routes';
 import './App.css';
 
-export default function App() {
+export default function RootApp() {
   return (
     <Provider store={store}>
       <ConfigProvider>

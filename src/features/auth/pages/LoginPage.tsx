@@ -8,16 +8,27 @@ import {
   Button,
   Checkbox,
   Typography,
+  message,
 } from "antd";
 import { MailOutlined, LockOutlined, GoogleOutlined } from "@ant-design/icons";
 import { Helmet } from "react-helmet-async";
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const { Title, Text } = Typography;
 
 export default function LoginPage() {
+  const navigate = useNavigate();
   const onFinish = (values: any) => {
-    console.log("Submit:", values);
+    if (
+      values.email === "reem.alfalasi@digitaldubai.ae" &&
+      values.password === "#dubai2025"
+    ) {
+      message.success("Login successful!");
+      navigate("/dashboard");
+    } else {
+      message.error("Invalid credentials");
+    }
   };
 
   useEffect(() => {
