@@ -1,0 +1,75 @@
+stages:
+  - build
+  - build-image
+  - deploy
+
+variables:
+  DOCKER_IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+  DOCKER_IMAGE_LATEST: $CI_REGISTRY_IMAGE:latest
+  NODE_VERSION: "20"
+
+# Cache node_modules for faster builds
+cache:
+  key:
+    files:
+      - pnpm-lock.yaml
+  paths:
+    - node_modules/
+    - .pnpm-store/
+
+# Build and test the application
+build:
+  stage: build
+  image: node:20-alpine
+  before_script:
+    - npm install -g pnpm
+    - pnpm config set store-dir .pnpm-store
+  script:
+    - pnpm install --frozen-lockfile
+    - pnpm run build
+    - pnpm run lint
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 hour
+  only:
+    - main
+
+# Build and push Docker image
+build-image:
+  stage: build-image
+  image: docker:24.0.5
+  services:
+    - docker:24.0.5-dind
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+  before_script:
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+  script:
+    - docker build -f Dockerfile.prod -t $DOCKER_IMAGE_TAG -t $DOCKER_IMAGE_LATEST .
+    - docker push $DOCKER_IMAGE_TAG
+    - docker push $DOCKER_IMAGE_LATEST
+  only:
+    - main
+
+# Deploy to production
+deploy-production:
+  stage: deploy
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache curl
+  script:
+    - echo "Deploying to production environment..."
+    - echo "Image: $DOCKER_IMAGE_TAG"
+    - echo "Image: $DOCKER_IMAGE_LATEST"
+    # Add your deployment commands here
+    # Example: kubectl, docker-compose, or API calls to your deployment service
+    # kubectl set image deployment/app app=$DOCKER_IMAGE_TAG
+    # or
+    # curl -X POST "https://your-deploy-api.com/deploy" -d "image=$DOCKER_IMAGE_TAG"
+  environment:
+    name: production
+    url: https://your-domain.com
+  when: manual
+  only:
+    - main
