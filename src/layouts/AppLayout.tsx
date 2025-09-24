@@ -29,6 +29,7 @@ import {
   Switch,
   ConfigProvider,
 } from "antd";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { useAppSelector } from "@/hooks/redux";
 
@@ -108,6 +109,31 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   const screens = Grid.useBreakpoint();
 
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const routeKey = (() => {
+    if (location.pathname.startsWith("/dashboard")) return "dashboard";
+    if (location.pathname.startsWith("/anomaly")) return "realtime"; // Realtime Log Scanner = anomaly
+    return "dashboard";
+  })();
+
+  const onMenuClick: MenuProps['onClick'] = ({ key }) => {
+    const map: Record<string, string> = {
+      dashboard: "/dashboard",
+      realtime: "/anomaly",
+      calls: "/notavailable",
+      reports: "/notavailable",
+      messages: "/notavailable",
+      customers: "/notavailable",
+      "customers-list": "/notavailable",
+      "customers-segments": "/notavailable",
+      settings: "/notavailable",
+    };
+    const to = map[key as string];
+    if (to) navigate(to);
+  };
+
   const menuItems: MenuProps["items"] = [
     { key: "dashboard", icon: <DashboardOutlined />, label: "Dashboard" },
     {
@@ -182,10 +208,10 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           <Menu
             theme="light"
             mode="inline"
-            defaultOpenKeys={["customers"]}
-            defaultSelectedKeys={["dashboard"]}
             items={menuItems}
             style={{ padding: 15 }}
+            selectedKeys={[routeKey]}
+            onClick={onMenuClick}
           />
         </Sider>
 
@@ -301,7 +327,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             style={{
               // padding: screens.lg ? 24 : 16,
               minHeight: 280,
-              marginTop: 135, // agar tidak tertutup Header
+              marginTop: 145, // agar tidak tertutup Header
             }}
           >
             {children}

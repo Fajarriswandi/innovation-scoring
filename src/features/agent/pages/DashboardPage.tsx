@@ -37,7 +37,7 @@ export default function DashboardPage() {
 
         {/* First Column */}
         <Col xs={24} lg={10} xl={8}>
-          <Card className="noborderHeader cardAgentProfile" extra={<a href="#"> <MoreOutlined /> </a>} title="My Profile">
+          <Card className="noborderHeader cardAgentProfile" extra={<a href="#"> <MoreOutlined /> </a>} title="My Profile" >
             {/* Card Profile */}
             <div className="profileWrapper">
               <img src="/src/assets/img/agent-profile.png" alt="Agent Profile" />
