@@ -73,7 +73,21 @@ h6 {
 }
 
 .listCostume {
-  // background: orange;
+  // background: lightblue;
+
+  &.potentialProblems{
+    .ant-list-item-action{
+      // background: red;
+      li{
+        width: 100%;
+        padding: 0;
+      }
+    }
+    .aiSuggestItem{
+      // background: green;
+      padding: 15px;
+    }
+  }
 
   .ant-list-items {
     // UL
@@ -520,7 +534,13 @@ h6 {
 
 }
 
-.cardNotAvailable{
+.btnTab.active {
+  background: #e6f4ff4b;
+  color: #1677ff;
+  border-bottom: 4px solid $primary-color; // garis bawah merah
+}
+
+.cardNotAvailable {
   margin-top: 10px;
   display: flex;
   justify-content: center;
@@ -528,6 +548,38 @@ h6 {
   height: 84vh;
   text-align: center;
   background: rgba(255, 255, 255, 0.776);
+}
+
+.cardWithFooter {
+  position: relative;
+
+  .cardContent {
+    padding-bottom: 60px; // beri ruang untuk footer
+  }
+
+  .ant-table-body {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+
+    ::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .cardFooter {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 12px 24px;
+    border-top: 1px solid #f0f0f0;
+    background: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+  }
 }
 
 .listItems {

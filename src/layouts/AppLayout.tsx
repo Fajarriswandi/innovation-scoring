@@ -2,22 +2,15 @@ import React, { useState } from "react";
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  UserOutlined,
-  RadarChartOutlined,
-  DashboardOutlined,
-  SettingOutlined,
-  BarChartOutlined,
-  MessageOutlined,
-  PhoneOutlined,
   AppstoreAddOutlined,
   FieldTimeOutlined,
   FullscreenOutlined,
   FullscreenExitOutlined,
-  AppstoreOutlined,
   BellOutlined,
   SunOutlined,
   MoonOutlined,
 } from "@ant-design/icons";
+import { Icon } from "@iconify/react";
 import {
   Button,
   Layout,
@@ -135,25 +128,53 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   };
 
   const menuItems: MenuProps["items"] = [
-    { key: "dashboard", icon: <DashboardOutlined />, label: "Dashboard" },
+    {
+      key: "dashboard",
+      icon: <Icon icon="solar:home-2-bold-duotone" width={20} height={20} />,
+      label: "Dashboard",
+    },
     {
       key: "realtime",
-      icon: <RadarChartOutlined />,
+      icon: <Icon icon="streamline-flex:ai-scanner-robot-remix" width={20} height={20} />,
       label: "Realtime Log Scanner",
     },
-    { key: "calls", icon: <PhoneOutlined />, label: "Calls" },
-    { key: "reports", icon: <BarChartOutlined />, label: "Reports" },
-    { key: "messages", icon: <MessageOutlined />, label: "Messages" },
+    {
+      key: "calls",
+      icon: <Icon icon="solar:call-chat-rounded-bold-duotone" width={20} height={20} />,
+      label: "Calls",
+    },
+    {
+      key: "reports",
+      icon: <Icon icon="solar:chart-2-bold-duotone" width={20} height={20} />,
+      label: "Reports",
+    },
+    {
+      key: "messages",
+      icon: <Icon icon="duo-icons:message-2" width={20} height={20} />,
+      label: "Messages",
+    },
     {
       key: "customers",
-      icon: <UserOutlined />,
+      icon: <Icon icon="solar:users-group-rounded-bold-duotone" width={20} height={20} />,
       label: "Customers",
       children: [
-        { key: "customers-list", label: "List" },
-        { key: "customers-segments", label: "Segments" },
+        {
+          key: "customers-list",
+          label: "List",
+          icon: <Icon icon="solar:list-bold-duotone" width={18} height={18} />,
+        },
+        {
+          key: "customers-segments",
+          label: "Segments",
+          icon: <Icon icon="solar:bookmark-square-bold-duotone" width={18} height={18} />,
+        },
       ],
     },
-    { key: "settings", icon: <SettingOutlined />, label: "Settings" },
+    {
+      key: "settings",
+      icon: <Icon icon="lets-icons:setting-line-duotone" width={20} height={20} />,
+      label: "Settings",
+    },
   ];
 
   return (
@@ -167,7 +188,8 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           colorError: "#ff4d4f",
           colorInfo: "#13c2c2",
           borderRadius: 8,
-          colorText: "#3E5B70", 
+          colorTextBase: "#7D8497",
+          colorText: "#7D8497",
           colorTextSecondary: "#64869e",
           colorTextHeading: "#3E5B70",
         },
@@ -258,7 +280,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                     color="primary"
                     variant="outlined"
                     size={"large"}
-                    icon={<BellOutlined />}
+                    icon={<Icon icon="solar:bell-bing-bold-duotone" width={20} height={20} />}
                   />
                 </Tooltip>
               </div>
@@ -292,7 +314,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                     size={"large"}
                     color="primary"
                     variant="outlined"
-                    icon={<AppstoreOutlined />}
+                    icon={<Icon icon="solar:widget-6-bold-duotone" width={20} height={20} />}
                   />
                 </Tooltip>
               </div>
