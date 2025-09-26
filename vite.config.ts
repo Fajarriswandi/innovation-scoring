@@ -12,6 +12,7 @@ export default defineConfig({
   server: {
     host: true,
     port: 5173,
+    allowedHosts: ["demo-ai-powered-call-center.zafarlabs.com"],
     watch: {
       usePolling: true,
     },
