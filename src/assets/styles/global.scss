@@ -24,6 +24,10 @@ h6 {
 }
 
 .ant-card {
+  // background: orange;
+  // background: white;
+  background: rgba(255, 255, 255, 0.80);
+
   .ant-card-head {
     min-height: 48px;
     font-weight: normal;
@@ -75,29 +79,36 @@ h6 {
 .listCostume {
   // background: lightblue;
 
-  &.potentialProblems{
-    .ant-list-item-action{
-      // background: red;
-      li{
-        width: 100%;
-        padding: 0;
-      }
-    }
-    .aiSuggestItem{
-      // background: green;
-      padding: 15px;
-    }
+
+  .aiSuggestItem {
+    padding: 15px;
+  }
+
+  .aiSuggestItem .ant-list-item-action {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .aiSuggestItem .ant-list-item-action>li:first-child {
+    flex: 1;
+    display: flex;
+  }
+
+  .aiSuggestItem .triageAction {
+    width: 100%;
+    border-radius: 999px;
   }
 
   .ant-list-items {
-    // UL
+
 
     .ant-list-item {
-      // LI
       margin-bottom: 8px;
       border-radius: 10px;
       border: 1px solid #dde4ea31;
       transition: all 0.3s ease;
+      background: white;
 
       .time {
         text-align: left;
@@ -587,9 +598,12 @@ h6 {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2px;
+    margin-bottom: 5px;
     border-bottom: 1px solid #eeeeee3b;
     transition: all 0.3s ease;
+    background: white;
+    padding: 5px 10px;
+    border-radius: 10px;
 
     &:hover {
       box-shadow: 1px 5px 36px 0px rgba(0, 0, 0, 0.05);
@@ -616,5 +630,37 @@ h6 {
     }
 
     .right {}
+  }
+}
+
+.CardInCall {
+  .imageProfileInCall {
+    background: red;
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #f5f7fa;
+    min-height: 300px;
+    .imgProfile{
+      width: 100%;
+      height: 350px;
+      object-fit: cover;
+    }
+  }
+}
+
+.btnGlass{
+  // padding: 25px;
+  background: #ffffff4d;
+  backdrop-filter: blur(10px);
+  border-color: rgba(255, 255, 255, 0.176);
+  border-radius: 16px;
+
+  .ant-btn-icon{
+    color: white;
+  }
+  &:hover{
+    background: rgba(255, 255, 255, 0.413) !important;
+    border-color: rgba(255, 255, 255, 0.176) !important;
   }
 }

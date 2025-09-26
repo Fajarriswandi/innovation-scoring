@@ -4,6 +4,7 @@ import DashboardPage from "@/features/agent/pages/DashboardPage";
 import AppLayout from "@/layouts/AppLayout";
 import AnomalyPage from "@/features/anomaly/pages/AnomalyPage";
 import NotAvailablePage from "@/features/notavailable/pages/NotAvailablePage";
+import LiveCallAnalysisPage from "@/features/livecall/pages/LiveCallAnalysisPage";
 
 export default function AppRoutes() {
   return (
@@ -37,6 +38,16 @@ export default function AppRoutes() {
         element={
           <AppLayout>
             <NotAvailablePage />
+          </AppLayout>
+        }
+      />
+
+      {/* Live call analysist */}
+      <Route
+        path="/live-call"
+        element={
+          <AppLayout>
+            <LiveCallAnalysisPage />
           </AppLayout>
         }
       />

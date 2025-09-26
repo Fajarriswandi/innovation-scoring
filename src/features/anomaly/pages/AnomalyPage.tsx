@@ -26,6 +26,7 @@ export default function AnomalyPage() {
 
       <Row gutter={gutter}>
         <Col xs={24} lg={10} xl={12}>
+        {/* Realtime Log Scanner */}
           <RealtimeLogScanner />
         </Col>
 

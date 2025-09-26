@@ -108,6 +108,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const routeKey = (() => {
     if (location.pathname.startsWith("/dashboard")) return "dashboard";
     if (location.pathname.startsWith("/anomaly")) return "realtime"; // Realtime Log Scanner = anomaly
+    if (location.pathname.startsWith("/live-call")) return "calls";
     return "dashboard";
   })();
 
@@ -115,7 +116,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const map: Record<string, string> = {
       dashboard: "/dashboard",
       realtime: "/anomaly",
-      calls: "/notavailable",
+      calls: "/live-call",
       reports: "/notavailable",
       messages: "/notavailable",
       customers: "/notavailable",
