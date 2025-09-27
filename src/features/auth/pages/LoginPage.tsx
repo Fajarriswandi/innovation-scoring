@@ -17,9 +17,15 @@ import { useNavigate } from "react-router-dom";
 
 const { Title, Text } = Typography;
 
+type LoginFormValues = {
+  email: string;
+  password: string;
+  remember?: boolean;
+};
+
 export default function LoginPage() {
   const navigate = useNavigate();
-  const onFinish = (values: any) => {
+  const onFinish = (values: LoginFormValues) => {
     if (
       values.email === "reem.alfalasi@digitaldubai.ae" &&
       values.password === "#dubai2025"

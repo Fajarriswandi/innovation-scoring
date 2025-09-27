@@ -6,7 +6,6 @@ import {
   FieldTimeOutlined,
   FullscreenOutlined,
   FullscreenExitOutlined,
-  BellOutlined,
   SunOutlined,
   MoonOutlined,
 } from "@ant-design/icons";
@@ -28,6 +27,28 @@ import { useAppSelector } from "@/hooks/redux";
 
 const { Header, Sider, Content } = Layout;
 
+type FullscreenDocument = Document & {
+  webkitFullscreenElement?: Element | null;
+  mozFullScreenElement?: Element | null;
+  msFullscreenElement?: Element | null;
+  webkitExitFullscreen?: () => Promise<void>;
+  mozCancelFullScreen?: () => Promise<void>;
+  msExitFullscreen?: () => Promise<void>;
+};
+
+type FullscreenElement = HTMLElement & {
+  webkitRequestFullscreen?: () => Promise<void>;
+  mozRequestFullScreen?: () => Promise<void>;
+  msRequestFullscreen?: () => Promise<void>;
+};
+
+const fullscreenEvents = [
+  "fullscreenchange",
+  "webkitfullscreenchange",
+  "mozfullscreenchange",
+  "MSFullscreenChange",
+] as const;
+
 const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -37,19 +58,20 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   });
 
   const handleFsChange = () => {
-    const fs = !!(
-      document.fullscreenElement ||
-      (document as any).webkitFullscreenElement ||
-      (document as any).mozFullScreenElement ||
-      (document as any).msFullscreenElement
+    const doc = document as FullscreenDocument;
+    const fs = Boolean(
+      doc.fullscreenElement ||
+      doc.webkitFullscreenElement ||
+      doc.mozFullScreenElement ||
+      doc.msFullscreenElement
     );
     setIsFullscreen(fs);
   };
 
   const toggleFullscreen = async () => {
     try {
-      const doc: any = document;
-      const el: any = document.documentElement;
+      const doc = document as FullscreenDocument;
+      const el = document.documentElement as FullscreenElement;
 
       if (!isFullscreen) {
         if (el.requestFullscreen) await el.requestFullscreen();
@@ -68,21 +90,19 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   };
 
   React.useEffect(() => {
-    document.addEventListener("fullscreenchange", handleFsChange);
-    document.addEventListener("webkitfullscreenchange", handleFsChange as any);
-    document.addEventListener("mozfullscreenchange", handleFsChange as any);
-    document.addEventListener("MSFullscreenChange", handleFsChange as any);
+    fullscreenEvents.forEach((eventName) => {
+      document.addEventListener(
+        eventName as unknown as keyof DocumentEventMap,
+        handleFsChange as EventListener
+      );
+    });
     return () => {
-      document.removeEventListener("fullscreenchange", handleFsChange);
-      document.removeEventListener(
-        "webkitfullscreenchange",
-        handleFsChange as any
-      );
-      document.removeEventListener(
-        "mozfullscreenchange",
-        handleFsChange as any
-      );
-      document.removeEventListener("MSFullscreenChange", handleFsChange as any);
+      fullscreenEvents.forEach((eventName) => {
+        document.removeEventListener(
+          eventName as unknown as keyof DocumentEventMap,
+          handleFsChange as EventListener
+        );
+      });
     };
   }, []);
 
@@ -96,10 +116,6 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   const { smallTitle } = useAppSelector((state) => state.layout);
   const [collapsed, setCollapsed] = useState(false);
-  const {
-    token: { colorBgContainer, borderRadiusLG },
-  } = theme.useToken();
-
   const screens = Grid.useBreakpoint();
 
   const location = useLocation();

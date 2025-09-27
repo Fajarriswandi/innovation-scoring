@@ -634,32 +634,94 @@ h6 {
 }
 
 .CardInCall {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+
   .imageProfileInCall {
-    background: red;
     position: relative;
     border-radius: 12px;
     overflow: hidden;
     background: #f5f7fa;
     min-height: 300px;
-    .imgProfile{
+
+    .imgProfile {
       width: 100%;
       height: 350px;
       object-fit: cover;
     }
   }
+
+  .inCallInfo {
+    .btnQuickAction {
+      display: flex;
+      align-items: center;
+      gap: 12;
+      border: 1px solid #eef0f3;
+      transition: all 0.3s ease;
+      border-radius: 12px;
+      padding: 12px 14px;
+
+      &:hover {
+        box-shadow: 1px 5px 36px 0px rgba(0, 0, 0, 0.08);
+        -webkit-box-shadow: 1px 5px 36px 0px rgba(0, 0, 0, 0.08);
+        -moz-box-shadow: 1px 5px 36px 0px rgba(0, 0, 0, 0.08);
+        cursor: pointer;
+      }
+    }
+  }
 }
 
-.btnGlass{
+.listSmallCard {
+  height: 450px;
+  overflow: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  ::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.listMediumCard {
+  height: 630px;
+  overflow: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  ::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+
+.potentialProblems {
+  height: 720px;
+  margin-top: 15px;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  ::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.btnIconWidget{
+  background: blue !important;
+}
+
+.btnGlass {
   // padding: 25px;
   background: #ffffff4d;
   backdrop-filter: blur(10px);
   border-color: rgba(255, 255, 255, 0.176);
   border-radius: 16px;
 
-  .ant-btn-icon{
+  .ant-btn-icon {
     color: white;
   }
-  &:hover{
+
+  &:hover {
     background: rgba(255, 255, 255, 0.413) !important;
     border-color: rgba(255, 255, 255, 0.176) !important;
   }

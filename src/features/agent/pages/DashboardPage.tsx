@@ -1,18 +1,15 @@
 import { useEffect } from "react";
-import { Typography, List } from "antd";
 import { useAppDispatch } from "@/hooks/redux";
-import { cases } from "@/data/cases";
 import SmallStatCard from "@/components/SmallStatCard";
 import SentimentChart from "@/components/SentimentChart";
 import TalkListenRatio from "@/components/TalkListenRatio";
+import AllMyCasesRemote from "@/components/AllMyCases";
 import { setSmallTitle } from "@/store/layoutSlice";
-import { Card, Row, Col, Tooltip, Button, Flex } from "antd";
-import { MoreOutlined, ReloadOutlined, PlusOutlined, CalendarOutlined, CoffeeOutlined, ArrowRightOutlined } from "@ant-design/icons";
-import { LineChart, Line, ResponsiveContainer, BarChart, Bar, LabelList } from "recharts";
+import { Card, Row, Col, Button, Flex } from "antd";
+import { MoreOutlined, ReloadOutlined, PlusOutlined, CalendarOutlined, CoffeeOutlined } from "@ant-design/icons";
 import { Helmet } from "react-helmet-async";
 
-
-const gutter: any = [16, { xs: 12, sm: 16, md: 20, lg: 24 }];
+const gutter = [16, { xs: 12, sm: 16, md: 20, lg: 24 }] as const;
 
 export default function DashboardPage() {
   const dispatch = useAppDispatch();
@@ -153,51 +150,8 @@ export default function DashboardPage() {
           <Row gutter={gutter} style={{ marginTop: 15 }}>
             <Col xs={24} lg={12} xl={12}>
               <Card className="noborderHeader" extra={<a href="#"> <ReloadOutlined /> </a>} title="All My Case">
-                {/* All My Cases */}
                 <div className="allMyCase">
-                  <List
-                    size="small"
-                    className="listCostume"
-                    dataSource={cases}
-                    renderItem={(item) => {
-                      const statusMap: Record<string, string> = {
-                        Open: "approved",
-                        Pending: "pending",
-                        Resolved: "resolved",
-                        Escalated: "escalated",
-                        Closed: "closed",
-                      };
-
-                      return (
-                        <List.Item>
-                          <img
-                            src={item.profileImage}
-                            alt={item.title}
-                            width={40}
-                            height={40}
-                            style={{ borderRadius: "10px", marginRight: 8 }}
-                          />
-                          <div style={{ flex: 1 }}>
-                            <div><small style={{ color: "#999" }}>Case ID: {item.caseId}</small></div>
-                            <div>{item.title}</div>
-                          </div>
-                          <div className="time">
-                            <small>SLA Timer</small>
-                            {item.slaTimer}
-                          </div>
-                          <div className="time">
-                            <small>Status</small>
-                            <span className={`badge ${statusMap[item.status] || ""}`}>
-                              {item.status}
-                            </span>
-                          </div>
-                          <div>
-                            <Button className="btnLight" icon={<ArrowRightOutlined />} />
-                          </div>
-                        </List.Item>
-                      );
-                    }}
-                  />
+                  <AllMyCasesRemote />
                 </div>
               </Card>
             </Col>

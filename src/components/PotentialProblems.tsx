@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, List, Button, Tag, Row, Col, Flex } from "antd";
+import { Card, List, Button, Tag } from "antd";
 import { Icon } from "@iconify/react";
 
 
@@ -46,12 +46,28 @@ const suggestions: Suggestion[] = [
     impact: "High",
     status: "New",
   },
+  {
+    id: 5,
+    title: "Multiple Failed Attempts",
+    desc: "Several failed login attempts followed by a successful transaction.",
+    confidence: 75,
+    impact: "High",
+    status: "New",
+  },
+  {
+    id: 6,
+    title: "Large Transaction to New Recipient",
+    desc: "High-value transaction sent to a previously unknown recipient.",
+    confidence: 95,
+    impact: "High",
+    status: "New",
+  },
 ];
 
 const PotentialProblems: React.FC = () => {
   return (
     <Card
-      className="noborderHeader1 cardAgentProfile"
+      className="noborderHeader1"
       extra={
         <a href="#">
           <Icon icon="pepicons-pencil:dots-y" width={20} height={20} />
@@ -64,46 +80,51 @@ const PotentialProblems: React.FC = () => {
         </span>
       }
     >
-      <List
-        itemLayout="vertical"
-        className="listCostume potentialProblems"
-        style={{ marginTop: 15 }}
-        dataSource={suggestions}
-        renderItem={(item) => (
-          <List.Item
-            key={item.id}
-            className="aiSuggestItem"
-            actions={[
-              <Button
-                key="triage"
-                type="primary"
-                icon={<Icon icon="solar:flag-2-bold-duotone" width={16} height={16} />}
-                className="triageAction"
-                style={{ borderRadius: 999, width: "100%" }}
-              >
-                Triage
-              </Button>,
-              <Button key="eye" type="text" icon={<Icon icon="solar:eye-bold-duotone" width={18} height={18} />} />,
-              <Button key="close" type="text" icon={<Icon icon="mi:close" width={16} height={16} />} />,
-            ]}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <strong style={{ fontSize: 14 }}>{item.title}</strong>
-              <Tag color="green">{item.status}</Tag>
-            </div>
-            <div style={{ color: "#8c8c8c", marginTop: 4 }}>{item.desc}</div>
 
-            <div style={{ display: "flex", gap: 24, marginTop: 10, marginBottom: 8, fontSize: 12 }}>
-              <div>
-                <strong>Confidence :</strong> <span style={{ color: "#2f9e44" }}>{item.confidence}%</span>
+      <div className="potentialProblems">
+        <List
+          itemLayout="vertical"
+          className="listCostume"
+          style={{ marginTop: 15 }}
+          dataSource={suggestions}
+          renderItem={(item) => (
+            <List.Item
+              key={item.id}
+              className="aiSuggestItem"
+              actions={[
+                <Button
+                  key="triage"
+                  type="primary"
+                  icon={<Icon icon="solar:flag-2-bold-duotone" width={16} height={16} />}
+                  className="triageAction"
+                  style={{ borderRadius: 999, width: "100%" }}
+                >
+                  Triage
+                </Button>,
+                <Button key="eye" type="text" icon={<Icon icon="solar:eye-bold-duotone" width={18} height={18} />} />,
+                <Button key="close" type="text" icon={<Icon icon="mi:close" width={16} height={16} />} />,
+              ]}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <strong style={{ fontSize: 14 }}>{item.title}</strong>
+                <Tag color="green">{item.status}</Tag>
               </div>
-              <div>
-                <strong>Impact :</strong> <span style={{ color: "#cf1322" }}>{item.impact}</span>
+              <div style={{ color: "#8c8c8c", marginTop: 4 }}>{item.desc}</div>
+
+              <div style={{ display: "flex", gap: 24, marginTop: 10, marginBottom: 8, fontSize: 12 }}>
+                <div>
+                  <strong>Confidence :</strong> <span style={{ color: "#2f9e44" }}>{item.confidence}%</span>
+                </div>
+                <div>
+                  <strong>Impact :</strong> <span style={{ color: "#cf1322" }}>{item.impact}</span>
+                </div>
               </div>
-            </div>
-          </List.Item>
-        )}
-      />
+            </List.Item>
+          )}
+        />
+      </div>
+
+
     </Card>
   );
 };
