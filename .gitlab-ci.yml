@@ -52,9 +52,9 @@ deploy:
     - echo "Deploying to production server..."
     - ssh $DEPLOY_USER@$DEPLOY_HOST "
         cd /opt/ai-call-center &&
-        docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
-        docker service update --force ai_call_center_fe &&
-        echo 'Backend service updated successfully'"
+        sudo docker image pull registry.gitlab.com/zafarlabs/fe-ai-powered-call-center-demo/ai-call-center:latest &&
+        sudo docker service update --force ai_call_center_fe &&
+        echo 'Frontend service updated successfully'"
   environment:
     name: production
     url: https://demo-ai-powered-call-center.zafarlabs.com/dashboard
