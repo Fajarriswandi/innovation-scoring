@@ -17,9 +17,8 @@ build:
   before_script:
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
   script:
-    # Build the FastAPI application image with both tags in one command
-    - cd app
-    - docker build -t $IMAGE_NAME:$IMAGE_TAG -t $IMAGE_NAME:latest .
+    # Build the React application image with both tags in one command
+    - docker build -f Dockerfile -t $IMAGE_NAME:$IMAGE_TAG -t $IMAGE_NAME:latest .
 
     # Push to GitLab Container Registry
     - docker push $IMAGE_NAME:$IMAGE_TAG
