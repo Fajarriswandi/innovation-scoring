@@ -1,18 +1,20 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAppDispatch } from "@/hooks/redux";
 import SmallStatCard from "@/components/SmallStatCard";
 import SentimentChart from "@/components/SentimentChart";
 import TalkListenRatio from "@/components/TalkListenRatio";
 import AllMyCasesRemote from "@/components/AllMyCases";
 import { setSmallTitle } from "@/store/layoutSlice";
+import WidgetAnomaly from "@/components/widgetAnomaly";
 import { Card, Row, Col, Button, Flex } from "antd";
 import { MoreOutlined, ReloadOutlined, PlusOutlined, CalendarOutlined, CoffeeOutlined } from "@ant-design/icons";
 import { Helmet } from "react-helmet-async";
 
-const gutter = [16, { xs: 12, sm: 16, md: 20, lg: 24 }] as const;
+const gutter = [16, { xs: 12, sm: 16, md: 20, lg: 24 }] as [number, object];
 
 export default function DashboardPage() {
   const dispatch = useAppDispatch();
+  const [widgetOpen, setWidgetOpen] = useState(false);
 
   useEffect(() => {
     dispatch(setSmallTitle("Dashboard Agent"));
@@ -29,6 +31,9 @@ export default function DashboardPage() {
       <Helmet>
         <title>Dashboard Agent | AI Powered Call Center</title>
       </Helmet>
+
+      {/* Widget here */}
+      <WidgetAnomaly widgetOpen={widgetOpen} setWidgetOpen={setWidgetOpen} />
 
       <Row gutter={gutter}>
 

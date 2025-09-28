@@ -209,3 +209,52 @@ export async function fetchLogsHistory(
   if (Array.isArray(unknownPayload)) return unknownPayload as BELogItem[];
   return [];
 }
+
+// ===== Widget issues =====
+
+export interface WidgetIssueCorrelationItem {
+  time?: string | null;
+  event?: string | null;
+  status?: string | null;
+  flag?: string | null;
+  location?: string | null;
+  ip?: string | null;
+}
+
+export interface WidgetIssueCustomer {
+  event_id?: string | null;
+  account_age?: string | null;
+  phone?: string | null;
+  last_device?: string | null;
+  avg_transaction?: string | null;
+  [key: string]: unknown;
+}
+
+export interface WidgetIssueCase extends BECaseItem {
+  detail?: string | null;
+  issue_correlation?: WidgetIssueCorrelationItem[];
+  customer?: WidgetIssueCustomer | null;
+  available_actions?: string[];
+}
+
+export interface WidgetIssuesResponse {
+  has_open_issues?: boolean;
+  count?: number;
+  remaining_cases?: number;
+  timestamp?: string | null;
+  cached?: boolean;
+  current_case?: WidgetIssueCase | null;
+}
+
+export type FetchWidgetIssuesOptions = {
+  timeoutMs?: number;
+};
+
+export async function fetchWidgetIssues(
+  options?: FetchWidgetIssuesOptions
+): Promise<WidgetIssuesResponse> {
+  const res = await api.get<WidgetIssuesResponse>("/v1/logs/widget/issues", {
+    timeout: options?.timeoutMs ?? 60000,
+  });
+  return res.data ?? {};
+}

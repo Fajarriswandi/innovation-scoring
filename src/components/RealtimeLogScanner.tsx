@@ -253,7 +253,7 @@ const columns: TableProps<LogItem>["columns"] = [
   { title: "App", dataIndex: "app", key: "app", width: 80 },
   { title: "Department", dataIndex: "department", key: "department", width: 100 },
   { title: "Services", dataIndex: "services", key: "services", ellipsis: false, width: 150 },
-  { title: "Amount", dataIndex: "amount", key: "amount", width: 130, align: "right" },
+  { title: "Amount", dataIndex: "amount", key: "amount", width: 110, align: "right" },
   {
     title: "Status",
     dataIndex: "status",
