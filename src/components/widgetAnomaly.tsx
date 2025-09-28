@@ -509,7 +509,7 @@ export default function WidgetAnomaly({ widgetOpen, setWidgetOpen }: WidgetAnoma
                   columnGap: 16,
                   marginBottom: 18,
                 }}
-              >
+              > 
                 <div>
                   <div style={{ fontSize: 12, color: '#9aa7b2' }}>Event UID</div>
                   <div style={{ color: '#2b2f33' }}>{customerInfo.eventId}</div>
