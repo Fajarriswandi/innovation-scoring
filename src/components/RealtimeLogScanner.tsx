@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Card, Row, Col, Button, Flex, Input, Table, Space, TableProps } from "antd";
 import { Icon } from "@iconify/react";
-import type { BELogItem } from "@/api/handlers";
+import { fetchLogsHistory, type BELogItem } from "@/api/handlers";
 
 type LogStatus = "success" | "warning";
 
@@ -185,6 +185,7 @@ const mapBackendLogToRow = (log: BELogItem, fallbackKey: string): LogItem => {
   const timestamp =
     getString(log.timestamp) ??
     getString(log.created_at) ??
+    getString(getMetaValue(data, "created_at")) ??
     getString(getMetaValue(data, "timestamp")) ??
     getString(getMetaValue(meta, "timestamp"));
 
@@ -204,12 +205,23 @@ const mapBackendLogToRow = (log: BELogItem, fallbackKey: string): LogItem => {
     getString(getMetaValue(meta, "department")) ??
     "—";
 
-  const service =
+  const serviceName =
     getString(log.service) ??
     getString(log.service_name) ??
     getString(getMetaValue(data, "service")) ??
-    getString(getMetaValue(meta, "service")) ??
-    "";
+    getString(getMetaValue(data, "service_name")) ??
+    getString(getMetaValue(meta, "service"));
+
+  const serviceDetail =
+    getString(getMetaValue(data, "detail")) ??
+    getString(getMetaValue(meta, "detail"));
+
+  const service = (() => {
+    if (serviceName && serviceDetail) return `${serviceName} — ${serviceDetail}`;
+    if (serviceName) return serviceName;
+    if (serviceDetail) return serviceDetail;
+    return "";
+  })();
 
   const status = deriveStatus(log);
   const key = extractKey(log, fallbackKey);
@@ -227,10 +239,20 @@ const mapBackendLogToRow = (log: BELogItem, fallbackKey: string): LogItem => {
 };
 
 const columns: TableProps<LogItem>["columns"] = [
-  { title: "Time", dataIndex: "time", key: "time", width: 200 },
+  {
+    title: "Time",
+    dataIndex: "time",
+    key: "time",
+    width: 100,
+    render: (text) => (
+      <span style={{ fontSize: 10, fontWeight: 500 }}>
+        {text}
+      </span>
+    ),
+  },
   { title: "App", dataIndex: "app", key: "app", width: 120 },
-  { title: "Department", dataIndex: "department", key: "department", width: 200 },
-  { title: "Services", dataIndex: "services", key: "services", ellipsis: true },
+  { title: "Department", dataIndex: "department", key: "department", width: 150 },
+  { title: "Services", dataIndex: "services", key: "services", ellipsis: false, width: 150 },
   { title: "Amount", dataIndex: "amount", key: "amount", width: 130, align: "right" },
   {
     title: "Status",
@@ -267,6 +289,59 @@ const RealtimeLogScanner: React.FC = () => {
     const startStreaming = async () => {
       setLoading(true);
       try {
+        // Prime with historical data before starting stream
+        try {
+          const providers = ["dubai_pay", "uae_pass", "dubai_now"] as const;
+          const historyResponses = await Promise.all(
+            providers.map((provider) =>
+              fetchLogsHistory(
+                { provider, page: 1, page_size: 25 },
+                { timeoutMs: 20000 }
+              ).catch(() => [])
+            )
+          );
+
+          const historicalLogs = historyResponses
+            .flat()
+            .filter((item): item is BELogItem => Boolean(item));
+
+          historicalLogs.sort((a, b) => {
+            const dataA = getRecord(a.data);
+            const dataB = getRecord(b.data);
+            const timeA = Date.parse(
+              getString(a.timestamp) ??
+                getString(dataA?.timestamp) ??
+                getString(a.created_at) ??
+                getString(dataA?.created_at) ??
+                ""
+            );
+            const timeB = Date.parse(
+              getString(b.timestamp) ??
+                getString(dataB?.timestamp) ??
+                getString(b.created_at) ??
+                getString(dataB?.created_at) ??
+                ""
+            );
+            return (Number.isNaN(timeB) ? 0 : timeB) - (Number.isNaN(timeA) ? 0 : timeA);
+          });
+
+          const prepared = historicalLogs.map((item) =>
+            mapBackendLogToRow(item, `history-${Date.now()}-${fallbackCounterRef.current++}`)
+          );
+          setLogs((prev) => {
+            if (!prev.length) {
+              return prepared;
+            }
+            const map = new Map<string, LogItem>();
+            [...prepared, ...prev].forEach((row) => map.set(row.key, row));
+            return Array.from(map.values()).slice(0, 200);
+          });
+        } catch (historyError) {
+          if (import.meta.env.DEV) {
+            console.error("[RealtimeLogScanner] Failed to load history", historyError);
+          }
+        }
+
         const devBase = import.meta.env.VITE_API_DEV_BASE ?? "/__api";
         const prodBase = import.meta.env.VITE_API_BASE_URL ?? "";
         const baseUrl = (import.meta.env.DEV ? devBase : prodBase).replace(/\/$/, "");

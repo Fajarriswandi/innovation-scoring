@@ -179,3 +179,33 @@ export async function fetchRealtimeLogs(
   if (Array.isArray(payload)) return payload;
   return payload?.data ?? [];
 }
+
+// ===== Logs history =====
+
+export interface BELogHistoryResponse {
+  logs?: BELogItem[];
+  total?: number;
+  page?: number;
+  page_size?: number;
+  [key: string]: unknown;
+}
+
+export type FetchLogsHistoryParams = FetchRealtimeLogsParams & {
+  provider?: string;
+};
+
+export async function fetchLogsHistory(
+  params?: FetchLogsHistoryParams,
+  options?: FetchRealtimeLogsOptions
+): Promise<BELogItem[]> {
+  const provider = params?.provider ? `/${params.provider}` : "";
+  const res = await api.get<BELogHistoryResponse>(`/v1/logs/history${provider}`, {
+    params,
+    timeout: options?.timeoutMs ?? 15000,
+  });
+  if (Array.isArray(res.data)) return res.data as BELogItem[];
+  if (Array.isArray(res.data?.logs)) return res.data.logs as BELogItem[];
+  const unknownPayload: unknown = (res.data as Record<string, unknown>)?.data;
+  if (Array.isArray(unknownPayload)) return unknownPayload as BELogItem[];
+  return [];
+}
