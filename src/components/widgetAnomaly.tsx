@@ -429,9 +429,9 @@ export default function WidgetAnomaly({ widgetOpen, setWidgetOpen }: WidgetAnoma
             </div>
           ) : (
             <>
-              <div style={{ marginBottom: 10 }}>
+              {/* <div style={{ marginBottom: 10 }}>
                 {caseTitle}
-              </div>
+              </div> */}
               {caseDetail && (
                 <div style={{ fontWeight: 700, color: '#2b2f33', marginBottom: 12 }}>{caseDetail}</div>
               )}
