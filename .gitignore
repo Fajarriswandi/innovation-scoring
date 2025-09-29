@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Prevent accidental TS emits inside src
+src/**/*.js
+src/**/*.js.map
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

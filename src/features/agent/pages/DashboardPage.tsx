@@ -9,6 +9,7 @@ import { Card, Row, Col, Button, Flex } from "antd";
 import { MoreOutlined, ReloadOutlined, PlusOutlined, CalendarOutlined, CoffeeOutlined } from "@ant-design/icons";
 import { Helmet } from "react-helmet-async";
 import { ResponsiveContainer, PieChart, Pie, Cell, Label } from "recharts";
+import type { LabelProps } from "recharts";
 
 const gutter = [16, { xs: 12, sm: 16, md: 20, lg: 24 }] as [number, object];
 const sentimentValue = 72.35; // contoh; 0–100, bisa kamu binding dari state/API
@@ -16,8 +17,8 @@ const sentimentClamped = Math.max(0, Math.min(100, sentimentValue));
 
 // --- [REVISED] PieChartWithNeedle using user-provided example ---
 
-const PieChartWithNeedle: React.FC<{ value: number; label?: string }> = ({ value, label = "Sentiment" }) => {
-  const v = Math.max(0, Math.min(100, value));
+const PieChartWithNeedle: React.FC<{ value: number }> = ({ value }) => {
+  const clampedValue = Math.max(0, Math.min(100, value));
 
   const pieProps = {
     startAngle: 180,
@@ -35,54 +36,86 @@ const PieChartWithNeedle: React.FC<{ value: number; label?: string }> = ({ value
         {/* Animated value arc */}
         <Pie
           {...pieProps}
-          data={[{ name: "value", value: v }, { name: "rest", value: 100 - v }]}
+          data={[{ name: "value", value: clampedValue }, { name: "rest", value: 100 - clampedValue }]}
           isAnimationActive
         >
           <Cell fill="#69b1ff" />
           <Cell fill="#e9ecef" />
           <Label
             position="center"
-            content={({ viewBox }) => {
-              // @ts-ignore
-              const { cx, cy, x, y, width, height, innerRadius, outerRadius } = viewBox || {};
+            content={({ viewBox }: LabelProps) => {
+              if (!viewBox) return null;
 
-              // Hitung pusat: pakai cx/cy jika ada; jika tidak, gunakan x + width/2, y + height/2
-              const _cx = typeof cx === 'number' ? cx : (typeof x === 'number' && typeof width === 'number' ? x + width / 2 : 0);
-              const _cy = typeof cy === 'number' ? cy : (typeof y === 'number' && typeof height === 'number' ? y + height / 2 : 0);
+              const {
+                cx,
+                cy,
+                x,
+                y,
+                width,
+                height,
+                outerRadius: viewBoxOuterRadius,
+              } = viewBox as LabelProps["viewBox"] & {
+                cx?: number;
+                cy?: number;
+                x?: number;
+                y?: number;
+                width?: number;
+                height?: number;
+                outerRadius?: number;
+              };
 
-              // Radius: gunakan konstanta pieProps sebagai sumber kebenaran
-              const iR = 70;
-              const oR = 95;
+              const centerX = typeof cx === "number"
+                ? cx
+                : typeof x === "number" && typeof width === "number"
+                  ? x + width / 2
+                  : undefined;
+              const centerY = typeof cy === "number"
+                ? cy
+                : typeof y === "number" && typeof height === "number"
+                  ? y + height / 2
+                  : undefined;
 
-              // Sudut gauge (180 → 0)
-              const sA = 180;
-              const eA = 0;
+              if (typeof centerX !== "number" || typeof centerY !== "number") {
+                return null;
+              }
+
+              const outerRadius = typeof viewBoxOuterRadius === "number" ? viewBoxOuterRadius : pieProps.outerRadius;
+              const startAngle = pieProps.startAngle;
+              const endAngle = pieProps.endAngle;
               const RAD = Math.PI / 180;
-              const val = Math.max(0, Math.min(100, value));
-              const angle = sA + ((eA - sA) * val) / 100;
+              const angle = startAngle + ((endAngle - startAngle) * clampedValue) / 100;
 
-              // Ticks 0/25/50/75/100
-              const ticks = [0, 25, 50, 75, 100].map((t) => {
-                const a = sA + ((eA - sA) * t) / 100;
-                const rt1 = oR + 2;
-                const rt2 = oR + 10;
-                const tx1 = _cx + rt1 * Math.cos(a * RAD);
-                const ty1 = _cy - rt1 * Math.sin(a * RAD);
-                const tx2 = _cx + rt2 * Math.cos(a * RAD);
-                const ty2 = _cy - rt2 * Math.sin(a * RAD);
-                return <line key={t} x1={tx1} y1={ty1} x2={tx2} y2={ty2} stroke="#bfbfbf" strokeWidth={2} />;
+              const tickAngles = [0, 25, 50, 75, 100].map(
+                (tick) => startAngle + ((endAngle - startAngle) * tick) / 100
+              );
+
+              const ticks = tickAngles.map((tickAngle, index) => {
+                const inner = outerRadius + 2;
+                const outer = outerRadius + 10;
+                const x1 = centerX + inner * Math.cos(tickAngle * RAD);
+                const y1 = centerY - inner * Math.sin(tickAngle * RAD);
+                const x2 = centerX + outer * Math.cos(tickAngle * RAD);
+                const y2 = centerY - outer * Math.sin(tickAngle * RAD);
+                return <line key={`tick-${index}`} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#bfbfbf" strokeWidth={2} />;
               });
 
-              // Jarum: dari pusat ke sedikit di luar outerRadius
-              const r2 = oR + 8;
-              const x2 = _cx + r2 * Math.cos(angle * RAD);
-              const y2 = _cy - r2 * Math.sin(angle * RAD);
+              const needleRadius = outerRadius + 8;
+              const needleX = centerX + needleRadius * Math.cos(angle * RAD);
+              const needleY = centerY - needleRadius * Math.sin(angle * RAD);
 
               return (
                 <g>
                   {ticks}
-                  <line x1={_cx} y1={_cy} x2={x2} y2={y2} stroke="#262626" strokeWidth={3} strokeLinecap="round" />
-                  <circle cx={_cx} cy={_cy} r={6} fill="#262626" />
+                  <line
+                    x1={centerX}
+                    y1={centerY}
+                    x2={needleX}
+                    y2={needleY}
+                    stroke="#262626"
+                    strokeWidth={3}
+                    strokeLinecap="round"
+                  />
+                  <circle cx={centerX} cy={centerY} r={6} fill="#262626" />
                 </g>
               );
             }}
@@ -253,7 +286,7 @@ export default function DashboardPage() {
 
               <Card extra={<a href="#"> <ReloadOutlined /> </a>} title="Sentiment" style={{ marginBottom: 15, minHeight: "31vh", height: 'auto', paddingBottom: 20 }}>
                 <div style={{ width: "100%", height: 240, position: "relative" }}>
-                  <PieChartWithNeedle value={sentimentClamped} label="Sentiment" />
+                  <PieChartWithNeedle value={sentimentClamped} />
 
                   <div
                     style={{

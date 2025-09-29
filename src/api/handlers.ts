@@ -230,7 +230,7 @@ export interface WidgetIssueCustomer {
   [key: string]: unknown;
 }
 
-export interface WidgetIssueCase extends BECaseItem {
+export interface WidgetIssueCase extends Omit<BECaseItem, 'issue_correlation'> {
   detail?: string | null;
   issue_correlation?: WidgetIssueCorrelationItem[];
   customer?: WidgetIssueCustomer | null;

@@ -8,7 +8,8 @@
     "baseUrl": ".",
     "paths": { "@/*": ["src/*"] },
     "esModuleInterop": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "noEmit": true
   },
   "include": ["src"]
 }
