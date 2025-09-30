@@ -1,5 +1,5 @@
-@import "./variables";
-@import "./mixins";
+@use "./variables" as *;
+@use "./mixins" as *;
 
 .ant-layout {
   font-family: $font-family-base;
@@ -724,5 +724,321 @@ h6 {
   &:hover {
     background: rgba(255, 255, 255, 0.413) !important;
     border-color: rgba(255, 255, 255, 0.176) !important;
+  }
+}
+
+/* ===== DARK THEME OVERRIDES ===== */
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  body {
+    background: #0f172a;
+    color: #e2e8f0;
+  }
+
+  .ant-layout {
+    color: #e2e8f0;
+    background: linear-gradient(135deg, #0b1120 0%, #1f2937 100%);
+  }
+
+  .ant-card {
+    background: rgba(17, 25, 40, 0.9);
+    color: #e2e8f0;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+
+    .ant-card-head {
+      color: #f8fafc;
+      border-bottom-color: rgba(148, 163, 184, 0.18);
+    }
+
+    .ant-card-body {
+      color: inherit;
+    }
+  }
+
+  .smallCard .boxInfo small {
+    color: rgba(226, 232, 240, 0.65);
+  }
+
+  .headerGlobal {
+    background: rgba(15, 23, 42, 0.85);
+    box-shadow: 0 10px 30px rgba(2, 6, 23, 0.4);
+  }
+
+  .subHeader {
+    background: rgba(15, 23, 42, 0.7);
+    border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+  }
+
+  .siderGlobal {
+    background: linear-gradient(180deg, rgba(13, 23, 42, 0.92) 0%, rgba(8, 11, 19, 0.96) 100%);
+    color: #e2e8f0;
+    box-shadow: 0 18px 50px rgba(2, 6, 23, 0.55);
+    border: 1px solid rgba(30, 41, 59, 0.65);
+
+    .ant-layout-sider-children {
+      background: transparent;
+    }
+
+    .ant-menu {
+      background: transparent;
+      color: #cbd5f5;
+      padding-inline: 12px !important;
+    }
+
+    .ant-menu-item {
+      margin-inline: 4px;
+      border-radius: 12px;
+      color: inherit;
+      transition: all 0.2s ease;
+
+      .ant-menu-item-icon {
+        color: inherit;
+      }
+
+      &:hover {
+        background: rgba(59, 130, 246, 0.12);
+        color: #60a5fa;
+      }
+    }
+
+    .ant-menu-item::after {
+      border: none;
+    }
+
+    .ant-btn.ant-btn-text {
+      color: #cbd5f5;
+
+      &:hover {
+        color: #e0f2fe;
+        background: rgba(59, 130, 246, 0.12);
+      }
+    }
+
+    .ant-menu-item-selected {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.28) 0%, rgba(30, 64, 175, 0.35) 100%);
+      color: #e0f2fe;
+
+      .ant-menu-item-icon {
+        color: #e0f2fe;
+      }
+    }
+  }
+
+  .cardAgentProfile {
+    .profileWrapper {
+      background: linear-gradient(160deg, rgba(59, 130, 246, 0.18) 0%, rgba(15, 23, 42, 0.7) 100%);
+    }
+  }
+
+  .listCostume .ant-list-item,
+  .listItems .item {
+    background: rgba(17, 25, 40, 0.9);
+    border-color: rgba(148, 163, 184, 0.12);
+
+    &:hover {
+      box-shadow: 0 18px 42px rgba(2, 6, 23, 0.45);
+    }
+  }
+
+  .btnLight {
+    background: rgba(30, 41, 59, 0.9);
+    border-color: rgba(148, 163, 184, 0.2);
+    color: #e2e8f0;
+    box-shadow: 0 12px 32px rgba(2, 6, 23, 0.5);
+
+    &:hover {
+      background: rgba(59, 130, 246, 0.25);
+      border-color: rgba(59, 130, 246, 0.45);
+    }
+  }
+
+  .cardNotAvailable {
+    background: rgba(17, 25, 40, 0.88);
+    color: #e2e8f0;
+  }
+
+  .cardWithFooter {
+    .cardFooter {
+      background: rgba(15, 23, 42, 0.85);
+      border-top-color: rgba(148, 163, 184, 0.18);
+    }
+  }
+
+  .CardInCall {
+    background: rgba(17, 25, 40, 0.92);
+
+    .imageProfileInCall {
+      background: rgba(30, 41, 59, 0.65);
+    }
+
+    .inCallInfo .btnQuickAction {
+      border-color: rgba(148, 163, 184, 0.18);
+      background: rgba(30, 41, 59, 0.85);
+
+      &:hover {
+        box-shadow: 0 18px 42px rgba(2, 6, 23, 0.45);
+      }
+    }
+
+    .btnQuickAction .anticon {
+      color: #bae6fd;
+    }
+  }
+
+  .full-height-row {
+    background: linear-gradient(135deg, #0b1120 0%, #1f2937 100%);
+  }
+
+  .btnGlass {
+    background: rgba(15, 23, 42, 0.65);
+    border-color: rgba(71, 85, 105, 0.4);
+
+    .ant-btn-icon {
+      color: #cbd5f5;
+    }
+
+    &:hover {
+      background: rgba(59, 130, 246, 0.25) !important;
+      border-color: rgba(59, 130, 246, 0.45) !important;
+    }
+  }
+
+  .potentialProblems,
+  .listSmallCard,
+  .listMediumCard,
+  .allMyCase {
+    scrollbar-color: rgba(148, 163, 184, 0.5) transparent;
+  }
+
+  .realtimeTranscript,
+  .sentimentCard,
+  .aiIntentBox {
+    background: rgba(15, 23, 42, 0.92);
+    border: 1px solid rgba(100, 116, 139, 0.25);
+    color: #e2e8f0;
+
+    .ant-card-head-title,
+    .ant-card-extra {
+      color: #cbd5f5;
+    }
+
+    .transcriptItem {
+      background: rgba(30, 41, 59, 0.88);
+      color: inherit;
+
+      &.agent {
+        background: rgba(37, 99, 235, 0.18);
+      }
+
+      &.customer {
+        background: rgba(59, 130, 246, 0.14);
+      }
+    }
+  }
+
+  .analysisCard {
+    background: rgba(15, 23, 42, 0.92);
+    border: 1px solid rgba(100, 116, 139, 0.25);
+    color: #e2e8f0;
+
+    .analysisItem {
+      background: rgba(30, 41, 59, 0.88);
+      border: 1px solid rgba(71, 85, 105, 0.3);
+      color: inherit;
+    }
+  }
+
+  .intentListItem {
+    background: rgba(30, 41, 59, 0.88);
+    border: 1px solid rgba(71, 85, 105, 0.26);
+    color: inherit;
+
+    &:hover {
+      background: rgba(59, 130, 246, 0.18);
+    }
+  }
+
+  .badge.success,
+  .badge.approved {
+    background: rgba(34, 197, 94, 0.22);
+    color: #bbf7d0;
+  }
+
+  .badge.pending {
+    background: rgba(250, 204, 21, 0.18);
+    color: #fef08a;
+  }
+
+  .btnTab {
+    color: #94a3b8;
+
+    &:hover,
+    &.active {
+      color: #38bdf8;
+      background: rgba(59, 130, 246, 0.18);
+      border-bottom-color: #38bdf8;
+    }
+  }
+
+  .realtimeTable {
+    background: transparent;
+    color: #e2e8f0;
+
+    .ant-table {
+      background: transparent;
+      color: inherit;
+    }
+
+    .ant-table-thead > tr > th {
+      background: rgba(15, 23, 42, 0.85);
+      color: #cbd5f5;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+    }
+
+    .ant-table-tbody > tr > td {
+      background: rgba(17, 24, 39, 0.85);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+      color: inherit;
+    }
+
+    .ant-table-tbody > tr.row-flagged > td {
+      background: rgba(248, 113, 113, 0.12);
+    }
+
+    .ant-table-placeholder {
+      background: rgba(17, 24, 39, 0.7);
+      color: #cbd5f5;
+    }
+  }
+
+  .ant-input-affix-wrapper,
+  .ant-input {
+    background: rgba(15, 23, 42, 0.85);
+    border-color: rgba(148, 163, 184, 0.25);
+    color: #e2e8f0;
+
+    &::placeholder {
+      color: rgba(148, 163, 184, 0.6);
+    }
+  }
+
+  .ant-input-affix-wrapper:hover,
+  .ant-input:hover,
+  .ant-input-affix-wrapper:focus,
+  .ant-input:focus {
+    border-color: rgba(59, 130, 246, 0.55);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  }
+
+  .ant-btn-default {
+    background: rgba(15, 23, 42, 0.8);
+    color: #e2e8f0;
+    border-color: rgba(148, 163, 184, 0.25);
+
+    &:hover {
+      color: #38bdf8;
+      border-color: rgba(59, 130, 246, 0.45);
+    }
   }
 }

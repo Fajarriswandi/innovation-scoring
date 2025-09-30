@@ -29,9 +29,6 @@ export const useLocalStorage = () => {
     if (typeof window !== "undefined") {
       try {
         window.localStorage.setItem(WIDGET_CONFIG.DISMISS_STORAGE_KEY, caseId);
-        if (import.meta.env.DEV) {
-          console.log(`[useLocalStorage] Case ${caseId} dismissed`);
-        }
       } catch (error) {
         if (import.meta.env.DEV) {
           console.warn("[useLocalStorage] Unable to persist dismissal", error);
@@ -45,9 +42,6 @@ export const useLocalStorage = () => {
     if (typeof window !== "undefined") {
       try {
         window.localStorage.removeItem(WIDGET_CONFIG.DISMISS_STORAGE_KEY);
-        if (import.meta.env.DEV) {
-          console.log("[useLocalStorage] Dismissed case cleared");
-        }
       } catch (error) {
         if (import.meta.env.DEV) {
           console.warn("[useLocalStorage] Unable to clear dismissal", error);

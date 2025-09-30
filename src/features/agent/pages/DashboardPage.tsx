@@ -12,7 +12,7 @@ import { ResponsiveContainer, PieChart, Pie, Cell, Label } from "recharts";
 import type { LabelProps } from "recharts";
 
 const gutter = [16, { xs: 12, sm: 16, md: 20, lg: 24 }] as [number, object];
-const sentimentValue = 72.35; // contoh; 0–100, bisa kamu binding dari state/API
+const sentimentValue = 83.79; // contoh; 0–100, bisa binding dari state/API
 const sentimentClamped = Math.max(0, Math.min(100, sentimentValue));
 
 // --- [REVISED] PieChartWithNeedle using user-provided example ---
@@ -23,7 +23,7 @@ const PieChartWithNeedle: React.FC<{ value: number }> = ({ value }) => {
   const pieProps = {
     startAngle: 180,
     endAngle: 0,
-    innerRadius: 70,
+    innerRadius: 60,
     outerRadius: 95,
     dataKey: "value" as const,
     stroke: "none",
@@ -111,11 +111,11 @@ const PieChartWithNeedle: React.FC<{ value: number }> = ({ value }) => {
                     y1={centerY}
                     x2={needleX}
                     y2={needleY}
-                    stroke="#262626"
+                    stroke="#525B66"
                     strokeWidth={3}
                     strokeLinecap="round"
                   />
-                  <circle cx={centerX} cy={centerY} r={6} fill="#262626" />
+                  <circle cx={centerX} cy={centerY} r={6} fill="#525B66" />
                 </g>
               );
             }}

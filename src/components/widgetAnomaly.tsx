@@ -249,7 +249,6 @@ export default function WidgetAnomaly({ widgetOpen, setWidgetOpen }: WidgetAnoma
               }}
               onClick={() => {
                 // TODO: Implement action handler
-                console.log('Action clicked:', action);
               }}
             >
               {action}

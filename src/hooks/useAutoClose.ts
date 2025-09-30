@@ -16,18 +16,12 @@ export const useAutoClose = (onClose: () => void) => {
       onClose();
     }, WIDGET_CONFIG.AUTO_CLOSE_MS);
 
-    if (import.meta.env.DEV) {
-      console.log(`[WidgetAnomaly] Auto-close scheduled for case ${caseId} in ${WIDGET_CONFIG.AUTO_CLOSE_MS}ms`);
-    }
   }, [onClose]);
 
   const cancelAutoClose = useCallback(() => {
     if (autoCloseTimerRef.current) {
       window.clearTimeout(autoCloseTimerRef.current);
       autoCloseTimerRef.current = null;
-      if (import.meta.env.DEV) {
-        console.log("[WidgetAnomaly] Auto-close cancelled");
-      }
     }
   }, []);
 
