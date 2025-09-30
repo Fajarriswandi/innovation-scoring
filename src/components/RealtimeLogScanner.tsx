@@ -245,14 +245,14 @@ const columns: TableProps<LogItem>["columns"] = [
     key: "time",
     width: 100,
     render: (text) => (
-      <span style={{ fontSize: 10, fontWeight: 500 }}>
+      <span style={{ fontSize: 11, fontWeight: 500 }}>
         {text}
       </span>
     ),
   },
-  { title: "App", dataIndex: "app", key: "app", width: 80 },
-  { title: "Department", dataIndex: "department", key: "department", width: 100 },
-  { title: "Services", dataIndex: "services", key: "services", ellipsis: false, width: 150 },
+  { title: "App", dataIndex: "app", key: "app", width: 85 },
+  { title: "Department", dataIndex: "department", key: "department", width: 110 },
+  { title: "Services", dataIndex: "services", key: "services", ellipsis: false, width: 170 },
   { title: "Amount", dataIndex: "amount", key: "amount", width: 110, align: "right" },
   {
     title: "Status",

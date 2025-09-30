@@ -10,7 +10,7 @@ import {
   formatTimestamp,
   type TimelineItem 
 } from "@/utils/widgetUtils";
-import { WIDGET_CONFIG, WIDGET_STYLES } from "@/constants/widget";
+import { WIDGET_CONFIG } from "@/constants/widget";
 
 type WidgetAnomalyProps = {
   widgetOpen: boolean;
@@ -148,61 +148,38 @@ export default function WidgetAnomaly({ widgetOpen, setWidgetOpen }: WidgetAnoma
       <Fragment key={`timeline-${i}`}>
         <div style={{ position: 'relative' }}>
           {i < arr.length - 1 && (
-            <span
-              style={{
-                position: 'absolute',
-                left: 9,
-                top: 12,
-                bottom: -12,
-                width: 2,
-                background: '#e5eaf2',
-              }}
-            />
+            <span className="timeline-line" />
           )}
           <span
-            style={{
-              display: 'inline-block',
-              width: 12,
-              height: 12,
-              borderRadius: 6,
-              background: item.isFlagged ? '#f97316' : '#4f86ff',
-              border: '2px solid #dfe8ff',
-            }}
+            className="timeline-dot"
+            style={{ background: item.isFlagged ? '#f97316' : '#4f86ff' }}
           />
         </div>
         <div>
-          <div style={{ fontSize: 12, color: '#8c96a3' }}>{item.time}</div>
-          <div style={{ color: '#2b2f33' }}>{item.description}</div>
+          <div className="timeline-time">{item.time}</div>
+          <div className="timeline-desc">{item.description}</div>
         </div>
       </Fragment>
     ));
   };
 
   const renderCustomerInfo = () => (
-    <div
-      style={{
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
-        rowGap: 10,
-        columnGap: 16,
-        marginBottom: 18,
-      }}
-    > 
+    <div className="customerInfo">
       <div>
-        <div style={{ fontSize: 12, color: '#9aa7b2' }}>Event UID</div>
-        <div style={{ color: '#2b2f33' }}>{customerInfo.eventId}</div>
+        <div className="label">Event UID</div>
+        <div className="value">{customerInfo.eventId}</div>
       </div>
       <div>
-        <div style={{ fontSize: 12, color: '#9aa7b2' }}>Account Age</div>
-        <div style={{ color: '#2b2f33' }}>{customerInfo.accountAge}</div>
+        <div className="label">Account Age</div>
+        <div className="value">{customerInfo.accountAge}</div>
       </div>
       <div>
-        <div style={{ fontSize: 12, color: '#9aa7b2' }}>AVG. Transaction</div>
-        <div style={{ color: '#2b2f33' }}>{customerInfo.avgTransaction}</div>
+        <div className="label">AVG. Transaction</div>
+        <div className="value">{customerInfo.avgTransaction}</div>
       </div>
       <div>
-        <div style={{ fontSize: 12, color: '#9aa7b2' }}>Last Device</div>
-        <div style={{ color: '#2b2f33' }}>{customerInfo.lastDevice}</div>
+        <div className="label">Last Device</div>
+        <div className="value">{customerInfo.lastDevice}</div>
       </div>
     </div>
   );
@@ -212,41 +189,15 @@ export default function WidgetAnomaly({ widgetOpen, setWidgetOpen }: WidgetAnoma
 
     return (
       <div style={{ marginBottom: 18 }}>
-        <div style={{ fontWeight: 600, color: '#2b2f33', marginBottom: 8 }}>
+        <div className="sectionTitle">
           Recommended Actions
         </div>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-            gap: 8,
-          }}
-        >
+        <div className="actionsGrid">
           {currentCase.available_actions.map((action) => (
             <button
               key={action}
               type="button"
-              style={{
-                border: '1px solid #dbe3f0',
-                background: '#f7faff',
-                color: '#2b2f33',
-                padding: '8px 10px',
-                borderRadius: 10,
-                fontSize: 12,
-                textAlign: 'left',
-                cursor: 'pointer',
-                transition: 'background 0.2s ease, transform 0.2s ease',
-              }}
-              onMouseEnter={(e) => {
-                const target = e.currentTarget;
-                target.style.background = '#eef6ff';
-                target.style.transform = 'translateY(-1px)';
-              }}
-              onMouseLeave={(e) => {
-                const target = e.currentTarget;
-                target.style.background = '#f7faff';
-                target.style.transform = 'translateY(0)';
-              }}
+              className="actionButton"
               onClick={() => {
                 // TODO: Implement action handler
               }}
@@ -260,18 +211,17 @@ export default function WidgetAnomaly({ widgetOpen, setWidgetOpen }: WidgetAnoma
   };
 
   return (
-    <div style={{ 
-      position: "fixed", 
-      right: WIDGET_CONFIG.POSITION.RIGHT, 
-      bottom: WIDGET_CONFIG.POSITION.BOTTOM, 
-      zIndex: 1000 
-    }}>
+    <div 
+      className="widgetAnomaly"
+      style={{ 
+        right: WIDGET_CONFIG.POSITION.RIGHT, 
+        bottom: WIDGET_CONFIG.POSITION.BOTTOM, 
+      }}
+    >
       {/* Panel (card) */}
       <div
+        className="widgetPanel"
         style={{
-          width: WIDGET_CONFIG.PANEL_WIDTH,
-          maxWidth: "90vw",
-          ...WIDGET_STYLES.panel,
           opacity: panelVisible ? 1 : 0,
           transform: panelVisible ? "translateY(0)" : "translateY(8px)",
           maxHeight: panelVisible ? 1000 : 0,
@@ -280,49 +230,24 @@ export default function WidgetAnomaly({ widgetOpen, setWidgetOpen }: WidgetAnoma
         }}
       >
         {/* Header */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            padding: "10px 14px",
-            ...WIDGET_STYLES.header,
-          }}
-        >
+        <div className="widgetHeader">
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span
-              style={{
-                width: 28,
-                height: 28,
-                borderRadius: 8,
-                background: "rgba(255,255,255,0.2)",
-                display: "grid",
-                placeItems: "center",
-              }}
-            >
+            <span className="iconWrap">
               <Icon icon="solar:shield-warning-bold-duotone" width={18} height={18} />
             </span>
             <div>
               <strong>{noIssue ? "No Active Issues" : "Potential Issue Detected"}</strong>
               {isConnecting && (
-                <div style={{ fontSize: 11, opacity: 0.8 }}>Connecting...</div>
+                <div className="meta">Connecting...</div>
               )}
               {connectionError && (
-                <div style={{ fontSize: 11, opacity: 0.8 }}>Connection Error</div>
+                <div className="meta">Connection Error</div>
               )}
             </div>
           </div>
           <button
             aria-label="close"
-            style={{
-              width: 28,
-              height: 28,
-              borderRadius: 8,
-              border: 0,
-              background: "rgba(255,255,255,0.2)",
-              color: "#fff",
-              cursor: "pointer",
-            }}
+            className="closeButton"
             onClick={handleDismiss}
           >
             <Icon icon="mi:close" width={16} height={16} />
@@ -330,57 +255,44 @@ export default function WidgetAnomaly({ widgetOpen, setWidgetOpen }: WidgetAnoma
         </div>
 
         {/* Body */}
-        <div style={{ padding: 16 }}>
+        <div className="widgetBody">
           {noIssue ? (
             // Placeholder shown when there is no active issue but the panel is opened manually
-            <div style={{
-              display: 'grid',
-              placeItems: 'center',
-              minHeight: 160,
-              color: '#667085',
-              textAlign: 'center'
-            }}>
+            <div className="placeholder">
               <div>
-                <div style={{ fontWeight: 700, color: '#2b2f33', marginBottom: 6 }}>No active issues</div>
-                <div style={{ fontSize: 13 }}>You can keep this panel open. It will auto-populate here as soon as a new potential issue is detected.</div>
+                <div className="title">No active issues</div>
+                <div className="subtitle">You can keep this panel open. It will auto-populate here as soon as a new potential issue is detected.</div>
               </div>
             </div>
           ) : (
             <>
               {caseDetail && (
-                <div style={{ fontWeight: 700, color: '#2b2f33', marginBottom: 12 }}>
+                <div className="sectionTitle">
                   {caseDetail}
                 </div>
               )}
               
               {formattedTimestamp && (
-                <div style={{ fontSize: 12, color: '#8c96a3', marginBottom: 12 }}>
+                <div className="meta timestamp">
                   Last updated: {formattedTimestamp}
                   {typeof data?.cached === 'boolean' && ` • ${data.cached ? 'cached' : 'live'}`}
                 </div>
               )}
 
               {/* Timeline title */}
-              <div style={{ fontWeight: 600, color: '#2b2f33', marginBottom: 8 }}>
+              <div className="sectionTitle">
                 Cross-System Correlation Timeline
               </div>
 
               {/* Timeline */}
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: '20px 1fr',
-                  rowGap: 12,
-                  marginBottom: 16,
-                }}
-              >
+              <div className="timeline">
                 {renderTimelineItems(timelineItems)}
               </div>
 
-              <div style={{ height: 1, background: '#eef2f7', margin: '4px 0 14px' }} />
+              <div className="divider" />
 
               {/* 360 View */}
-              <div style={{ fontWeight: 700, color: '#2b2f33', marginBottom: 10 }}>
+              <div className="sectionTitle">
                 360-Degree Customer View
               </div>
               {renderCustomerInfo()}
@@ -397,21 +309,7 @@ export default function WidgetAnomaly({ widgetOpen, setWidgetOpen }: WidgetAnoma
         aria-label="widget"
         onClick={handleToggleWidget}
         aria-expanded={widgetOpen}
-        style={{
-          width: WIDGET_CONFIG.BUTTON_SIZE,
-          height: WIDGET_CONFIG.BUTTON_SIZE,
-          borderTopLeftRadius: 25,
-          borderTopRightRadius: 0,
-          borderBottomLeftRadius: 25,
-          borderBottomRightRadius: 25,
-          border: 0,
-          cursor: "pointer",
-          ...WIDGET_STYLES.button,
-          color: "#fff",
-          display: "grid",
-          placeItems: "center",
-          marginLeft: "auto",
-        }}
+        className="fab"
         title={widgetOpen ? "Hide details" : "Show details"}
       >
         {widgetOpen ? (

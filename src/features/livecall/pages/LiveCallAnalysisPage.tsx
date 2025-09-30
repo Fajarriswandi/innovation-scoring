@@ -65,7 +65,7 @@ export default function LiveCallAnalysisPage() {
                                         <div className="inCallInfo" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                                             {/* In call info box */}
                                             <div style={{ gridColumn: "1 / -1", padding: 10 }}>
-                                                <div style={{ fontWeight: 700, color: "#3f3f46", marginBottom: 8 }}>In call info</div>
+                                                <div style={{ fontWeight: 700, marginBottom: 8 }}>In call info</div>
                                                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", rowGap: 8, columnGap: 16 }}>
                                                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                                                         <Icon icon="solar:clock-circle-bold-duotone" width={18} height={18} color="#8c8c8c" />
@@ -78,7 +78,7 @@ export default function LiveCallAnalysisPage() {
                                                         <Icon icon="solar:user-id-bold-duotone" width={18} height={18} color="#8c8c8c" />
                                                         <div>
                                                             <div style={{ fontSize: 12, color: "#8c8c8c" }}>Operator ID</div>
-                                                            <div style={{ fontSize: 14, fontWeight: 600 }}>898a898iuy a87asdh&amp;</div>
+                                                            <div style={{ fontSize: 14, fontWeight: 600 }}>898a898iuy a87asdh&</div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -96,18 +96,8 @@ export default function LiveCallAnalysisPage() {
                                                 <div
                                                     key={idx}
                                                     className="btnQuickAction"
-                                                    style={{
-
-                                                    }}
                                                 >
-                                                    <span style={{
-                                                        width: 34,
-                                                        height: 34,
-                                                        borderRadius: 8,
-                                                        background: "#f5f7fa",
-                                                        display: "grid",
-                                                        placeItems: "center",
-                                                    }}>
+                                                    <span className="iconWrap">
                                                         <Icon icon={qa.icon} width={18} height={18} />
                                                     </span>
                                                     <span style={{ fontSize: 14 }}>{qa.label}</span>
@@ -121,7 +111,7 @@ export default function LiveCallAnalysisPage() {
 
                         <Col xs={24} lg={24} xl={12}>
                             <Card
-                                className="cardWithFooter"
+                                className="cardWithFooter realtimeTranscript"
                                 extra={<a href="#"><Icon icon="material-symbols:refresh-rounded" width={20} height={20} /></a>}
                                 title={<span style={{ display: "flex", alignItems: "center", gap: 8 }}><Icon icon="material-symbols:transcribe-outline-rounded" width={20} height={20} color="#40ACE2" />Realtime Transcript</span>}
                                 style={{ marginBottom: 15 }}
@@ -164,25 +154,17 @@ export default function LiveCallAnalysisPage() {
                                             },
                                         ];
 
-                                        const bubbleStyle: React.CSSProperties = {
-                                            background: "#f5f7fa",
-                                            border: "1px solid #eef0f3",
-                                            borderRadius: 12,
-                                            padding: "10px 12px",
-                                            lineHeight: 1.4,
-                                        };
-
                                         return (
                                             <div>
                                                 {msgs.map((m, i) => (
-                                                    <div key={i} style={{ marginBottom: 10 }}>
-                                                        <div style={{ color: "#9aa0a6", fontSize: 12, marginBottom: 6 }}>
+                                                    <div key={i} className="transcriptItem" style={{ marginBottom: 10 }}>
+                                                        <div className="time" style={{ fontSize: 12, marginBottom: 6 }}>
                                                             {m.time}
                                                             {m.role !== "User" && (
-                                                                <span style={{ marginLeft: 8, color: "#8c8c8c" }}>{m.role}</span>
+                                                                <span style={{ marginLeft: 8 }}>{m.role}</span>
                                                             )}
                                                         </div>
-                                                        <div style={bubbleStyle}>{m.text}</div>
+                                                        <div className="text">{m.text}</div>
                                                     </div>
                                                 ))}
                                             </div>
@@ -194,7 +176,7 @@ export default function LiveCallAnalysisPage() {
 
                         <Col xs={24} lg={24} xl={12}>
                             <Card
-                                className="cardWithFooter"
+                                className="cardWithFooter analysisCard"
                                 extra={<a href="#"><Icon icon="material-symbols:refresh-rounded" width={20} height={20} /></a>}
                                 title={<span style={{ display: "flex", alignItems: "center", gap: 8 }}><Icon icon="lineicons:gemini" width={20} height={20} color="#40ACE2" />Sentiment Analysis</span>}
                                 style={{ marginBottom: 15 }}
@@ -233,19 +215,6 @@ export default function LiveCallAnalysisPage() {
                                             },
                                         ];
 
-                                        const itemBox: React.CSSProperties = {
-                                            border: "1px solid #e7eef7",
-                                            background: "#fbfdff",
-                                            borderRadius: 12,
-                                            padding: 12,
-                                        };
-
-                                        const sectionTitle: React.CSSProperties = {
-                                            fontSize: 12,
-                                            color: "#95a0ad",
-                                            marginBottom: 6,
-                                        };
-
                                         return (
                                             <List
                                                 itemLayout="vertical"
@@ -253,23 +222,14 @@ export default function LiveCallAnalysisPage() {
                                                 dataSource={insights}
                                                 renderItem={(ins, idx) => (
                                                     <List.Item key={idx} style={{ padding: 0, marginBottom: 12 }}>
-                                                        <div style={itemBox}>
+                                                        <div className="analysisItem">
                                                             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                                                                <span style={{
-                                                                    width: 24,
-                                                                    height: 24,
-                                                                    borderRadius: 6,
-                                                                    background: "#e8f3ff",
-                                                                    display: "grid",
-                                                                    placeItems: "center",
-                                                                    color: "#40a9ff",
-                                                                    flex: "0 0 auto",
-                                                                }}>
+                                                                <span className="iconWrap">
                                                                     <Icon icon="solar:flag-2-bold-duotone" width={16} height={16} />
                                                                 </span>
-                                                                <span style={sectionTitle}>{ins.title}</span>
+                                                                <span className="title">{ins.title}</span>
                                                             </div>
-                                                            <div style={{ color: "#4b5563", lineHeight: 1.4 }}>
+                                                            <div style={{lineHeight: 1.4 }}>
                                                                 {ins.lines.map((ln, i) => (
                                                                     <div key={i}>{ln}</div>
                                                                 ))}
@@ -306,20 +266,20 @@ export default function LiveCallAnalysisPage() {
                                     />
                                     <div>
                                         <div style={{ fontSize: 12, color: "#a0a7b3" }}>First Name</div>
-                                        <div style={{ fontWeight: 700, color: "#2b2f33" }}>Rashid</div>
+                                        <div style={{ fontWeight: 700 }}>Rashid</div>
 
                                         <div style={{ fontSize: 12, color: "#a0a7b3", marginTop: 10 }}>Email</div>
-                                        <div style={{ color: "#2b2f33" }}>Rashid@gmail.com</div>
+                                        <div>Rashid@gmail.com</div>
 
                                         <div style={{ fontSize: 12, color: "#a0a7b3", marginTop: 10 }}>Phone</div>
-                                        <div style={{ color: "#2b2f33" }}>+971 55 5010650</div>
+                                        <div>+971 55 5010650</div>
                                     </div>
                                 </div>
                             </Card>
                         </Col>
                         <Col xs={24} lg={24} xl={24}>
                             <Card
-                                className="cardWithFooter"
+                                className="cardWithFooter aiIntentBox"
                                 extra={<a href="#"><Icon icon="material-symbols:refresh-rounded" width={20} height={20} /></a>}
                                 title={<span style={{ display: "flex", alignItems: "center", gap: 8 }}><Icon icon="lineicons:gemini" width={20} height={20} color="#40ACE2" />AI Intent Box</span>}
                                 style={{ marginBottom: 15 }}
@@ -351,13 +311,6 @@ export default function LiveCallAnalysisPage() {
                                             },
                                         ];
 
-                                        const boxStyle: React.CSSProperties = {
-                                            border: "1px solid #e7eef7",
-                                            background: "#fbfdff",
-                                            borderRadius: 12,
-                                            padding: 12,
-                                        };
-
                                         return (
                                             <List
                                                 itemLayout="vertical"
@@ -365,29 +318,18 @@ export default function LiveCallAnalysisPage() {
                                                 dataSource={intents}
                                                 renderItem={(it, idx) => (
                                                     <List.Item key={idx} style={{ padding: 0, marginBottom: 12 }}>
-                                                        <div style={boxStyle}>
+                                                        <div className="intentListItem">
                                                             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                                                                <span
-                                                                    style={{
-                                                                        width: 24,
-                                                                        height: 24,
-                                                                        borderRadius: 6,
-                                                                        background: "#e8f3ff",
-                                                                        display: "grid",
-                                                                        placeItems: "center",
-                                                                        color: "#40a9ff",
-                                                                        flex: "0 0 auto",
-                                                                    }}
-                                                                >
+                                                                <span className="iconWrap">
                                                                     <Icon icon="solar:flag-2-bold-duotone" width={16} height={16} />
                                                                 </span>
-                                                                <span style={{ fontWeight: 600, color: "#3f3f46" }}>{it.title}</span>
+                                                                <span style={{ fontWeight: 600 }}>{it.title}</span>
                                                             </div>
 
-                                                            <div style={{ color: "#4b5563", lineHeight: 1.5, marginBottom: 8 }}>{it.detail}</div>
+                                                            <div style={{ lineHeight: 1.5, marginBottom: 8 }}>{it.detail}</div>
 
-                                                            <div style={{ color: "#4b5563", lineHeight: 1.5 }}>
-                                                                <strong style={{ color: "#65728a" }}>Recommendation: </strong>
+                                                            <div style={{ lineHeight: 1.5 }}>
+                                                                <strong>Recommendation: </strong>
                                                                 {it.recommendation}
                                                             </div>
                                                         </div>
