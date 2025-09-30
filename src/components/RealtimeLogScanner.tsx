@@ -61,20 +61,22 @@ const formatDateTime = (value?: string | null): string => {
   if (Number.isNaN(date.getTime())) return value;
 
   const day = date.toLocaleString("en-GB", { day: "2-digit" });
-  const month = date
-    .toLocaleString("en-GB", { month: "short" })
-    .replace(".", "");
+  const month =
+    date
+      .toLocaleString("en-GB", { month: "short" })
+      .replace(".", "");
   const year = date.getFullYear();
-  const time = date
-    .toLocaleString("en-GB", {
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: true,
-    })
-    .replace(/,(?=\s)/, "")
-    .replace(" am", " AM")
-    .replace(" pm", " PM");
+  const time =
+    date
+      .toLocaleString("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true,
+      })
+      .replace(/,(?=\s)/, "")
+      .replace(" am", " AM")
+      .replace(" pm", " PM");
 
   return `${day}-${month}-${year} ${time}`;
 };
@@ -258,7 +260,8 @@ const columns: TableProps<LogItem>["columns"] = [
     title: "Status",
     dataIndex: "status",
     key: "status",
-    width: 120,
+    fixed: 'right',
+    width: 80,
     render: (s: LogStatus) => (
       <span className={`badge ${s === "success" ? "success" : "warning"}`}>
         {s === "success" ? "Success" : "Warning"}
@@ -268,7 +271,8 @@ const columns: TableProps<LogItem>["columns"] = [
   {
     title: "",
     key: "action",
-    width: 100,
+    width: 80,
+    fixed: 'right',
     render: () => (
       <Button size="small" className="btnLight">
         Details
@@ -344,7 +348,7 @@ const RealtimeLogScanner: React.FC = () => {
 
         const devBase = import.meta.env.VITE_API_DEV_BASE ?? "/__api";
         const prodBase = import.meta.env.VITE_API_BASE_URL ?? "";
-        const baseUrl = (import.meta.env.DEV ? devBase : prodBase).replace(/\/$/, "");
+        const baseUrl = (import.meta.env.DEV ? devBase : prodBase).replace(/\/$/,"");
         const token = import.meta.env.VITE_API_TOKEN as string | undefined;
         const url = `${baseUrl}/v1/logs/all`;
 
@@ -506,7 +510,7 @@ const RealtimeLogScanner: React.FC = () => {
           className="realtimeTable"
           rowClassName={(r) => (r.flagged ? "row-flagged" : "")}
           loading={loading}
-          scroll={{ y: 600 }}
+          scroll={{ y: 600, x: 'max-content' }}
         />
 
         {/* footer actions (user will style as fixed) */}

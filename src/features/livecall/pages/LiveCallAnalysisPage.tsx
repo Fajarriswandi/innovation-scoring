@@ -5,7 +5,7 @@ import { setSmallTitle } from "@/store/layoutSlice";
 import { Row, Col, Card, List, Button } from "antd";
 import { Icon } from "@iconify/react";
 
-const gutter = [16, { xs: 12, sm: 16, md: 20, lg: 24 }] as const;
+const gutter: [number, object] = [16, { xs: 12, sm: 16, md: 20, lg: 24 }];
 
 export default function LiveCallAnalysisPage() {
     const dispatch = useAppDispatch();

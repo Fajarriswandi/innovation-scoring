@@ -29,13 +29,13 @@ export default function AnomalyPage() {
       <WidgetAnomaly widgetOpen={widgetOpen} setWidgetOpen={setWidgetOpen} />
 
       <Row gutter={gutter}>
-        <Col xs={24} lg={12} xl={12}>
+        <Col xs={24} lg={14} xl={14}>
           {/* Realtime Log Scanner */}
           <RealtimeLogScanner />
         </Col>
 
         {/* AI Suggestions (Potential Problems) */}
-        <Col xs={24} lg={12} xl={12}>
+        <Col xs={24} lg={10} xl={10}>
           <PotentialProblems />
         </Col>
       </Row>
