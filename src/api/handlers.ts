@@ -17,10 +17,14 @@ export interface IssueCorrelationItem {
 }
 
 export interface BECustomer {
+  id?: string | null;
   name?: string | null;
   phone?: string | null;
   email?: string | null;
   image_url?: string | null;
+  photo?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
 }
 
 export interface BECaseItem {
@@ -63,6 +67,7 @@ export interface CaseSummary {
   createdAt?: string | null;
   customerName?: string | null;
   customerPhone?: string | null;
+  customerEmail?: string | null;
   issueCount: number;
   primaryFlag?: string | null;
   avatarUrl?: string;
@@ -77,9 +82,17 @@ const toLabelCase = (value?: string | null) => {
     .replace(/(^|\s)\w/g, (match) => match.toUpperCase());
 };
 
-const buildAvatarUrl = (name?: string | null) => {
-  if (!name) return undefined;
-  const encoded = encodeURIComponent(name.trim());
+const composeCustomerName = (customer?: BECustomer | null): string | undefined => {
+  if (!customer) return undefined;
+  const parts = [customer.first_name, customer.last_name].filter((part): part is string => Boolean(part && part.trim()));
+  if (parts.length) return parts.join(" ");
+  return customer.name ?? undefined;
+};
+
+const buildAvatarUrl = (customer?: BECustomer | null) => {
+  const fullName = composeCustomerName(customer);
+  if (!fullName) return undefined;
+  const encoded = encodeURIComponent(fullName.trim());
   return `https://ui-avatars.com/api/?background=E8F1FF&color=0B3C5D&name=${encoded}`;
 };
 
@@ -87,6 +100,7 @@ export function mapBECaseToUI(item: BECaseItem): CaseSummary {
   const issue = item.issue_correlation?.[0];
   const statusRaw = item.status ?? "UNKNOWN";
   const priorityRaw = item.priority ?? undefined;
+  const customerName = composeCustomerName(item.customer);
   return {
     id: item.id ?? item.case_id,
     caseId: item.case_id ?? item.id,
@@ -98,12 +112,13 @@ export function mapBECaseToUI(item: BECaseItem): CaseSummary {
     priorityLabel: toLabelCase(priorityRaw),
     slaTimer: item.sla_timer ?? undefined,
     createdAt: item.created_at ?? issue?.created_at ?? undefined,
-    customerName: item.customer?.name ?? undefined,
+    customerName,
     customerPhone: item.customer?.phone ?? undefined,
+    customerEmail: item.customer?.email ?? undefined,
     issueCount: item.issue_correlation?.length ?? 0,
     primaryFlag: issue?.flag_reason ?? undefined,
-    avatarUrl: item.customer?.image_url ?? buildAvatarUrl(item.customer?.name),
-    profileImage: item.customer?.image_url ?? buildAvatarUrl(item.customer?.name),
+    avatarUrl: item.customer?.image_url ?? buildAvatarUrl(item.customer),
+    profileImage: item.customer?.image_url ?? buildAvatarUrl(item.customer),
   };
 }
 
@@ -125,7 +140,8 @@ export async function fetchCases(params?: FetchCasesParams): Promise<BECaseItem[
  * GET /v1/cases/{case_id}/
  */
 export async function fetchCaseDetail(caseId: string): Promise<BECaseItem> {
-  const res = await api.get<BECaseItem>(`/v1/cases/${caseId}/`);
+  const normalizedId = caseId.replace(/\/?$/, "");
+  const res = await api.get<BECaseItem>(`/v1/cases/${normalizedId}`);
   return res.data;
 }
 
