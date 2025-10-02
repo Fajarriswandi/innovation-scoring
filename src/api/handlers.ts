@@ -1,4 +1,5 @@
 import api from "./browser";
+import type { RawAxiosRequestHeaders } from "axios";
 
 // ===== Types from BE (GET /v1/cases/?page=&page_size=) =====
 export interface IssueCorrelationItem {
@@ -264,6 +265,7 @@ export interface WidgetIssuesResponse {
 
 export type FetchWidgetIssuesOptions = {
   timeoutMs?: number;
+  suppressErrorLog?: boolean;
 };
 
 export async function fetchWidgetIssues(
@@ -271,6 +273,58 @@ export async function fetchWidgetIssues(
 ): Promise<WidgetIssuesResponse> {
   const res = await api.get<WidgetIssuesResponse>("/v1/logs/widget/issues", {
     timeout: options?.timeoutMs ?? 60000,
+    headers: options?.suppressErrorLog
+      ? ({ 'x-suppress-error-log': 'true' } as RawAxiosRequestHeaders)
+      : undefined,
   });
   return res.data ?? {};
+}
+
+// ===== Call management =====
+
+export interface CaseCallResponse {
+  message: string;
+  case_id: string;
+  room_name: string;
+  room_id: string;
+  livekit_token: string;
+  livekit_url: string;
+  sip_call_id: string;
+  participant_identity: string;
+  previous_status: string;
+  current_status: string;
+}
+
+export interface CaseDialCustomerResponse {
+  message: string;
+  case_id: string;
+  sip_call_id: string;
+  participant_identity: string;
+  phone_number: string;
+  room_name: string;
+  status: string;
+}
+
+export interface CaseCallStatusResponse {
+  message?: string;
+  status?: string;
+  [key: string]: unknown;
+}
+
+export async function initiateCaseCall(caseId: string): Promise<CaseCallResponse> {
+  const normalizedId = caseId.replace(/\/?$/, "");
+  const res = await api.post<CaseCallResponse>(`/v1/cases/${normalizedId}/call`);
+  return res.data;
+}
+
+export async function dialCaseCustomer(caseId: string): Promise<CaseDialCustomerResponse> {
+  const normalizedId = caseId.replace(/\/?$/, "");
+  const res = await api.post<CaseDialCustomerResponse>(`/v1/cases/${normalizedId}/dial-customer`);
+  return res.data;
+}
+
+export async function endCaseCall(caseId: string): Promise<CaseCallStatusResponse> {
+  const normalizedId = caseId.replace(/\/?$/, "");
+  const res = await api.post<CaseCallStatusResponse>(`/v1/cases/${normalizedId}/end-call`);
+  return res.data;
 }

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { WidgetIssuesResponse } from "@/api/handlers";
+import { fetchWidgetIssues } from "@/api/handlers";
 import { WIDGET_CONFIG } from "@/constants/widget";
 
 export const useWidgetIssues = () => {
@@ -8,6 +9,7 @@ export const useWidgetIssues = () => {
   const [connectionError, setConnectionError] = useState<string | null>(null);
   const reconnectTimer = useRef<number | null>(null);
   const retryDelayRef = useRef<number>(WIDGET_CONFIG.RETRY_DELAY_MS);
+  const lastSnapshotRef = useRef<WidgetIssuesResponse | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -22,6 +24,31 @@ export const useWidgetIssues = () => {
         reconnectTimer.current = null;
         connect();
       }, delay);
+    };
+
+    const updateData = (payload: WidgetIssuesResponse | null) => {
+      lastSnapshotRef.current = payload;
+      setData(payload);
+    };
+
+    const describeStatus = (status: number) => {
+      switch (status) {
+        case 401:
+        case 403:
+          return "Unauthorized to access widget issues endpoint";
+        case 404:
+          return "Widget issues endpoint not found";
+        case 429:
+          return "Too many requests – throttled by widget issues endpoint";
+        case 500:
+          return "Widget issues service encountered an error";
+        case 502:
+        case 503:
+        case 504:
+          return "Widget stream temporarily unavailable (gateway error)";
+        default:
+          return `Widget issues request failed (HTTP ${status})`;
+      }
     };
 
     const connect = async () => {
@@ -50,6 +77,10 @@ export const useWidgetIssues = () => {
 
         if (!response.ok) {
           const status = response.status;
+          const friendly = describeStatus(status);
+          if (!cancelled) {
+            setConnectionError(friendly);
+          }
           if (!cancelled && (status === 500 || status === 502)) {
             const delay = retryDelayRef.current;
             retryDelayRef.current = Math.min(delay * 2, WIDGET_CONFIG.MAX_RETRY_DELAY_MS);
@@ -85,7 +116,7 @@ export const useWidgetIssues = () => {
 
             try {
               const parsed = JSON.parse(payload) as WidgetIssuesResponse;
-              if (!cancelled) setData(parsed);
+              if (!cancelled) updateData(parsed);
             } catch (error) {
               if (import.meta.env.DEV) {
                 console.error("[useWidgetIssues] failed to parse update", error, payload);

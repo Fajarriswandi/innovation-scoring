@@ -346,6 +346,15 @@ export default function DashboardPage() {
         </Col>
 
       </Row>
+
+      {/* Start dial call customer overlay components */}
+      {/*
+      <div className="bgDialCall">
+        <div className="CallBox">Call Box</div>
+      </div>
+       */}
+
+      {/* End dial call customer overlay components */}
     </div>
   );
 }

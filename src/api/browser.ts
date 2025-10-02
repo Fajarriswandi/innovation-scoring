@@ -35,7 +35,8 @@ api.interceptors.response.use(
   (res) => res,
   (err: AxiosError) => {
     // Contoh logging dev
-    if (import.meta.env.DEV) {
+    const suppressLog = Boolean(err.config?.headers?.['x-suppress-error-log']);
+    if (import.meta.env.DEV && !suppressLog) {
       console.error("[API ERROR]", {
         url: err.config?.url,
         method: err.config?.method,

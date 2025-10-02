@@ -163,10 +163,6 @@ const AllMyCasesRemote: React.FC<AllMyCasesRemoteProps> = ({
     };
   }, [mergedParams]);
 
-  if (error) {
-    return <Alert type="error" message="Failed to load cases" description={error} />;
-  }
-
   const renderSkeletonList = () => (
     <List
       size="small"
@@ -245,6 +241,10 @@ const AllMyCasesRemote: React.FC<AllMyCasesRemoteProps> = ({
     },
     [loadCaseDetail, onItemAction]
   );
+
+  if (error) {
+    return <Alert type="error" message="Failed to load cases" description={error} />;
+  }
 
   const renderList = () => (
     <List
