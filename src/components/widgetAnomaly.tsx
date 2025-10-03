@@ -351,18 +351,15 @@ export default function WidgetAnomaly({ widgetOpen, setWidgetOpen }: WidgetAnoma
 
     try {
       const response = await initiateCaseCall(currentCase.id);
-      const activeCallState: ActiveCallState = {
-        ...response,
-        caseUuid: currentCase.id,
-      };
       const session = createLiveCallSession(response, currentCase.id, customerName, customerAvatarUrl);
 
-      setActiveCall(activeCallState);
-      setPendingCallSession(session);
       persistCallSession(session);
-      setShowDialCallModal(true);
-      setCallStatus("Call room ready. Click \"Contact now\" to dial the customer.");
-      message.success("Call session created successfully.");
+      message.success("Call session created. Redirecting...");
+
+      // Immediately navigate to the live call page
+      navigate(`/live-call?case=${encodeURIComponent(currentCase.id)}`, {
+        state: { callSession: session },
+      });
     } catch (error) {
       const errorMessage =
         (error as { response?: { data?: { message?: string } }; message?: string })?.response?.data?.message ||

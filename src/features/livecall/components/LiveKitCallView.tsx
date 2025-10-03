@@ -112,7 +112,7 @@ export function LiveKitCallView({
         }
       >
         <LiveKitRoom
-          data-lk-theme="default"
+          data-lk-theme="light"
           serverUrl={serverUrl}
           token={token}
           connect={connect}
