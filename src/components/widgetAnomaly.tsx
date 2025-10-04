@@ -23,10 +23,20 @@ import {
 import {
   LIVE_CALL_SESSION_STORAGE_KEY,
   type LiveCallSession,
+  type LiveCallDebugEntry,
 } from "@/constants/liveCall";
+import {
+  appendLiveCallDebugEntry,
+  clearLiveCallDebugEntries,
+} from "@/utils/liveCallDebug";
 
 const CONTACT_CUSTOMER_VALUE = "contact customer";
 const DEFAULT_CALL_STATUS = "Waiting for customer to pick up.";
+
+const createDebugEntryId = () =>
+  typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+    ? crypto.randomUUID()
+    : `livecall-${Date.now()}-${Math.random().toString(16).slice(2, 10)}`;
 
 const extractRecommendation = (
   caseData: WidgetIssuesResponse["current_case"]
@@ -345,26 +355,53 @@ export default function WidgetAnomaly({ widgetOpen, setWidgetOpen }: WidgetAnoma
 
     if (isInitiatingCall) return;
 
+    const caseUuid = currentCase.id;
+    const requestPayload: Record<string, unknown> = { caseId: caseUuid };
+
     setIsCallWorkflowActive(true);
     setIsInitiatingCall(true);
     setCallStatus("Connecting to call room...");
+    clearLiveCallDebugEntries();
 
     try {
-      const response = await initiateCaseCall(currentCase.id);
-      const session = createLiveCallSession(response, currentCase.id, customerName, customerAvatarUrl);
+      const response = await initiateCaseCall(caseUuid);
+      const session = createLiveCallSession(response, caseUuid, customerName, customerAvatarUrl);
+      const debugEntry: LiveCallDebugEntry = {
+        id: createDebugEntryId(),
+        timestamp: new Date().toISOString(),
+        action: "initiate-call",
+        caseId: caseUuid,
+        request: requestPayload,
+        response,
+        notes: "Call session created from widget recommendation.",
+      };
 
+      setActiveCall({ ...response, caseUuid });
+      setPendingCallSession(session);
+      appendLiveCallDebugEntry(debugEntry);
       persistCallSession(session);
+      setCallStatus("Call session created. Redirecting to live call...");
       message.success("Call session created. Redirecting...");
 
-      // Immediately navigate to the live call page
-      navigate(`/live-call?case=${encodeURIComponent(currentCase.id)}`, {
-        state: { callSession: session },
+      navigate(`/live-call?case=${encodeURIComponent(caseUuid)}`, {
+        state: { callSession: session, callDebugEntry: debugEntry },
       });
     } catch (error) {
       const errorMessage =
         (error as { response?: { data?: { message?: string } }; message?: string })?.response?.data?.message ||
         (error as { message?: string })?.message ||
         "Failed to start call.";
+
+      appendLiveCallDebugEntry({
+        id: createDebugEntryId(),
+        timestamp: new Date().toISOString(),
+        action: "initiate-call",
+        caseId: caseUuid,
+        request: requestPayload,
+        error: errorMessage,
+        notes: "initiateCaseCall failed.",
+      });
+
       setCallStatus("Unable to start call.");
       message.error(errorMessage);
       setIsCallWorkflowActive(false);

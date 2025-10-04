@@ -1,26 +1,44 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Row, Col, Card, List, Button, Spin, Alert, Empty, message, Tag } from "antd";
 import { useAppDispatch } from "@/hooks/redux";
 import { setSmallTitle } from "@/store/layoutSlice";
 import { Icon } from "@iconify/react";
 import { useCallStream } from "@/hooks/useCallStream";
-import { LIVE_CALL_SESSION_STORAGE_KEY, type LiveCallSession } from "@/constants/liveCall";
+import {
+    LIVE_CALL_SESSION_STORAGE_KEY,
+    LIVE_CALL_DEBUG_MAX_ENTRIES,
+    type LiveCallSession,
+    type LiveCallDebugEntry,
+} from "@/constants/liveCall";
 import LiveKitCallView from "@/features/livecall/components/LiveKitCallView";
-import { endCaseCall, dialCaseCustomer } from "@/api/handlers";
+import { endCaseCall, dialCaseCustomer, fetchCaseDetail, type BECaseItem } from "@/api/handlers";
 import { ConnectionState, Participant, DisconnectReason as DisconnectReasonEnum } from "livekit-client";
 import type { DisconnectReason } from "livekit-client";
+import {
+    appendLiveCallDebugEntry,
+    readLiveCallDebugEntries,
+    clearLiveCallDebugEntries,
+} from "@/utils/liveCallDebug";
 
 const gutter: [number, object] = [16, { xs: 12, sm: 16, md: 20, lg: 24 }];
+
+const createDebugEntryId = () =>
+    typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+        ? crypto.randomUUID()
+        : `livecall-${Date.now()}-${Math.random().toString(16).slice(2, 10)}`;
 
 export default function LiveCallAnalysisPage() {
     const dispatch = useAppDispatch();
     const location = useLocation();
-    const stateSession = (location.state as { callSession?: LiveCallSession } | null)?.callSession;
+    const navigate = useNavigate();
+    const locationState = location.state as { callSession?: LiveCallSession; callDebugEntry?: LiveCallDebugEntry } | null;
+    const stateSession = locationState?.callSession;
+    const stateDebugEntry = locationState?.callDebugEntry;
     const searchParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
     const caseId = useMemo(() => searchParams.get("case") ?? searchParams.get("case_id"), [searchParams]);
-    const { transcripts, isConnected, isLoading, error } = useCallStream(caseId);
+    const { transcripts, sentiments, isConnected, isLoading, error } = useCallStream(caseId);
     const [callSession, setCallSession] = useState<LiveCallSession | null>(null);
     const [isEndingCall, setIsEndingCall] = useState(false);
     const [isDialingCustomer, setIsDialingCustomer] = useState(false);
@@ -30,6 +48,10 @@ export default function LiveCallAnalysisPage() {
     const [disconnectReason, setDisconnectReason] = useState<DisconnectReason | null>(null);
     const [reconnectKey, setReconnectKey] = useState(0);
     const [livekitError, setLivekitError] = useState<Error | null>(null);
+    const [debugEntries, setDebugEntries] = useState<LiveCallDebugEntry[]>([]);
+    const [customerDetail, setCustomerDetail] = useState<BECaseItem | null>(null);
+    const [isCustomerLoading, setIsCustomerLoading] = useState(false);
+    const [customerError, setCustomerError] = useState<string | null>(null);
 
     useEffect(() => {
         dispatch(setSmallTitle("Live Call Analysis"));
@@ -44,6 +66,10 @@ export default function LiveCallAnalysisPage() {
             setRoomParticipants([]);
             setRoomState(ConnectionState.Disconnected);
             setLivekitError(null);
+            setDebugEntries([]);
+            setCustomerDetail(null);
+            setCustomerError(null);
+            setIsCustomerLoading(false);
             return;
         }
 
@@ -51,6 +77,12 @@ export default function LiveCallAnalysisPage() {
             hasEndedRef.current = false;
             setCallSession(stateSession);
             setLivekitError(null);
+            const storedEntries = readLiveCallDebugEntries();
+            if (storedEntries.length) {
+                setDebugEntries(storedEntries);
+            } else if (stateDebugEntry) {
+                setDebugEntries([stateDebugEntry]);
+            }
             return;
         }
 
@@ -61,6 +93,14 @@ export default function LiveCallAnalysisPage() {
                 setRoomParticipants([]);
                 setRoomState(ConnectionState.Disconnected);
                 setLivekitError(null);
+                const storedEntries = readLiveCallDebugEntries();
+                if (storedEntries.length) {
+                    setDebugEntries(storedEntries);
+                } else if (!stateDebugEntry) {
+                    setDebugEntries([]);
+                } else {
+                    setDebugEntries([stateDebugEntry]);
+                }
                 return;
             }
             const parsed = JSON.parse(raw) as LiveCallSession;
@@ -68,6 +108,12 @@ export default function LiveCallAnalysisPage() {
                 hasEndedRef.current = false;
                 setCallSession(parsed);
                 setLivekitError(null);
+                const storedEntries = readLiveCallDebugEntries();
+                if (storedEntries.length) {
+                    setDebugEntries(storedEntries);
+                } else if (stateDebugEntry) {
+                    setDebugEntries([stateDebugEntry]);
+                }
             } else {
                 hasEndedRef.current = false;
                 setCallSession(null);
@@ -79,8 +125,53 @@ export default function LiveCallAnalysisPage() {
             hasEndedRef.current = false;
             setCallSession(null);
             setLivekitError(err instanceof Error ? err : new Error("Failed to load call session"));
+            const storedEntries = readLiveCallDebugEntries();
+            if (storedEntries.length) {
+                setDebugEntries(storedEntries);
+            } else if (stateDebugEntry) {
+                setDebugEntries([stateDebugEntry]);
+            }
         }
-    }, [caseId, stateSession]);
+    }, [caseId, stateSession, stateDebugEntry]);
+
+    useEffect(() => {
+        const caseUuid = caseId?.trim();
+        if (!caseUuid) {
+            setCustomerDetail(null);
+            setCustomerError(null);
+            setIsCustomerLoading(false);
+            return;
+        }
+
+        let cancelled = false;
+
+        const load = async () => {
+            setIsCustomerLoading(true);
+            setCustomerError(null);
+            try {
+                const detail = await fetchCaseDetail(caseUuid);
+                if (cancelled) return;
+                setCustomerDetail(detail);
+            } catch (err) {
+                if (cancelled) return;
+                const errMsg =
+                    (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+                    (err as { message?: string })?.message ||
+                    "Gagal memuat detail pelanggan.";
+                setCustomerError(errMsg);
+            } finally {
+                if (!cancelled) {
+                    setIsCustomerLoading(false);
+                }
+            }
+        };
+
+        load();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [caseId]);
 
     const transcriptItems = useMemo(() => {
         if (!transcripts.length) return [];
@@ -103,6 +194,106 @@ export default function LiveCallAnalysisPage() {
             };
         });
     }, [transcripts]);
+
+    const sentimentItems = useMemo(() => {
+        if (!sentiments.length) return [];
+        const sorted = [...sentiments].sort((a, b) => {
+            const aTime = new Date(a.timestamp).getTime();
+            const bTime = new Date(b.timestamp).getTime();
+            return Number.isNaN(bTime) || Number.isNaN(aTime) ? 0 : bTime - aTime;
+        });
+        return sorted.map((item) => {
+            const formattedTime = (() => {
+                const date = new Date(item.timestamp);
+                return Number.isNaN(date.getTime())
+                    ? item.timestamp
+                    : date.toLocaleString("en-GB", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        second: "2-digit",
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                    });
+            })();
+
+            return {
+                id: item.id,
+                time: formattedTime,
+                overall: item.overallSentiment,
+                score: item.sentimentScore,
+                confidence: item.confidence,
+                lastUpdated: item.lastUpdated,
+                rawTimestamp: item.timestamp,
+            };
+        });
+    }, [sentiments]);
+
+    const toLabelCase = (value?: string | null) => {
+        if (!value) return undefined;
+        return value
+            .replace(/_/g, " ")
+            .toLowerCase()
+            .replace(/(^|\s)\w/g, (match) => match.toUpperCase());
+    };
+
+    const customerSummary = useMemo(() => {
+        const sessionName = callSession?.customerName?.trim();
+        const sessionAvatar = callSession?.customerAvatarUrl?.trim();
+        const sessionCaseId = callSession?.caseId;
+
+        const customer = customerDetail?.customer;
+        const names = [customer?.first_name, customer?.last_name]
+            .map((value) => (typeof value === "string" ? value.trim() : ""))
+            .filter(Boolean);
+        const nameFromRecord = names.length
+            ? names.join(" ")
+            : typeof customer?.name === "string" && customer.name.trim()
+                ? customer.name.trim()
+                : undefined;
+        const displayName = nameFromRecord ?? sessionName ?? "Customer";
+
+        const email = typeof customer?.email === "string" && customer.email.trim() ? customer.email.trim() : undefined;
+        const phone = typeof customer?.phone === "string" && customer.phone.trim() ? customer.phone.trim() : undefined;
+
+        const avatarCandidates = [customer?.image_url, customer?.photo, sessionAvatar].map((value) =>
+            typeof value === "string" && value.trim() ? value.trim() : undefined
+        );
+        let avatarUrl = avatarCandidates.find((value) => Boolean(value));
+        if (!avatarUrl) {
+            const encoded = encodeURIComponent(displayName);
+            avatarUrl = `https://ui-avatars.com/api/?background=E8F1FF&color=0B3C5D&name=${encoded}`;
+        }
+
+        const caseIdentifier = customerDetail?.case_id ?? sessionCaseId ?? caseId ?? undefined;
+        const statusLabel = toLabelCase(customerDetail?.status);
+        const priorityLabel = toLabelCase(customerDetail?.priority);
+
+        const openedAtRaw = customerDetail?.created_at ?? customerDetail?.updated_at ?? undefined;
+        const openedAt = (() => {
+            if (!openedAtRaw) return undefined;
+            const date = new Date(openedAtRaw);
+            if (Number.isNaN(date.getTime())) return openedAtRaw;
+            return date.toLocaleString("en-GB", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+            });
+        })();
+
+        return {
+            name: displayName,
+            email,
+            phone,
+            avatarUrl,
+            caseId: caseIdentifier,
+            status: statusLabel,
+            priority: priorityLabel,
+            openedAt,
+        };
+    }, [callSession?.caseId, callSession?.customerAvatarUrl, callSession?.customerName, caseId, customerDetail]);
 
     const connectionLabel = useMemo(() => {
         switch (roomState) {
@@ -175,6 +366,29 @@ export default function LiveCallAnalysisPage() {
         });
     }, [roomParticipants]);
 
+    const debugTimeline = useMemo(() => [...debugEntries].reverse(), [debugEntries]);
+
+    const recordDebugEntry = useCallback((entry: LiveCallDebugEntry) => {
+        appendLiveCallDebugEntry(entry);
+        setDebugEntries((prev) => {
+            const combined = [...prev, entry];
+            const seen = new Set<string>();
+            const deduped = combined.filter((item) => {
+                if (seen.has(item.id)) {
+                    return false;
+                }
+                seen.add(item.id);
+                return true;
+            });
+            return deduped.slice(-LIVE_CALL_DEBUG_MAX_ENTRIES);
+        });
+    }, []);
+
+    const handleClearDebugEntries = useCallback(() => {
+        clearLiveCallDebugEntries();
+        setDebugEntries([]);
+    }, []);
+
     useEffect(() => {
         if (!callSession) {
             setRoomParticipants([]);
@@ -206,12 +420,33 @@ export default function LiveCallAnalysisPage() {
         try {
             await endCaseCall(callSession.caseId);
             message.success("Call ended successfully.");
+            recordDebugEntry({
+                id: createDebugEntryId(),
+                timestamp: new Date().toISOString(),
+                action: "end-call",
+                caseId: callSession.caseId,
+                request: { caseId: callSession.caseId },
+                response: { message: "Call ended successfully." },
+                notes: "Call ended from live call page.",
+            });
+            navigate("/dashboard", {
+                state: { postCallMessage: "Telah selesai melakukan panggilan." },
+            });
         } catch (err) {
             const errMsg =
                 (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
                 (err as { message?: string })?.message ||
                 "Unable to end the call.";
             message.error(errMsg);
+            recordDebugEntry({
+                id: createDebugEntryId(),
+                timestamp: new Date().toISOString(),
+                action: "end-call",
+                caseId: callSession.caseId,
+                request: { caseId: callSession.caseId },
+                error: errMsg,
+                notes: "endCaseCall returned an error.",
+            });
         } finally {
             setIsEndingCall(false);
             hasEndedRef.current = true;
@@ -223,7 +458,7 @@ export default function LiveCallAnalysisPage() {
             setDisconnectReason(DisconnectReasonEnum.CLIENT_INITIATED);
             setReconnectKey(0);
         }
-    }, [callSession?.caseId, isEndingCall]);
+    }, [callSession?.caseId, isEndingCall, navigate, recordDebugEntry]);
 
     const handleDialCustomer = useCallback(async () => {
         if (!callSession?.caseId || isDialingCustomer) return;
@@ -232,6 +467,15 @@ export default function LiveCallAnalysisPage() {
             const result = await dialCaseCustomer(callSession.caseId);
             console.log("Dial customer response:", result);
             message.success(result.message || "Customer is being dialed.");
+            recordDebugEntry({
+                id: createDebugEntryId(),
+                timestamp: new Date().toISOString(),
+                action: "dial-customer",
+                caseId: callSession.caseId,
+                request: { caseId: callSession.caseId },
+                response: result,
+                notes: "Dial customer triggered from live call page.",
+            });
         } catch (err) {
             console.error("Dial customer error:", err);
             const errMsg =
@@ -239,17 +483,25 @@ export default function LiveCallAnalysisPage() {
                 (err as { message?: string })?.message ||
                 "Unable to dial customer.";
             message.error(errMsg);
+            recordDebugEntry({
+                id: createDebugEntryId(),
+                timestamp: new Date().toISOString(),
+                action: "dial-customer",
+                caseId: callSession?.caseId,
+                request: callSession?.caseId ? { caseId: callSession.caseId } : undefined,
+                error: errMsg,
+                notes: "dialCaseCustomer returned an error.",
+            });
         } finally {
             setIsDialingCustomer(false);
         }
-    }, [callSession?.caseId, isDialingCustomer]);
+    }, [callSession?.caseId, isDialingCustomer, recordDebugEntry]);
 
-    // This effect now ONLY runs on component unmount to prevent accidental calls
     useEffect(() => {
-        const sessionAtMount = callSession;
+        const sessionCaseId = callSession?.caseId;
         return () => {
-            if (!hasEndedRef.current && sessionAtMount?.caseId) {
-                endCaseCall(sessionAtMount.caseId).catch((err) => {
+            if (!hasEndedRef.current && sessionCaseId) {
+                endCaseCall(sessionCaseId).catch((err) => {
                     if (import.meta.env.DEV) {
                         console.error("[LiveCallAnalysisPage] failed to end call on unmount", err);
                     }
@@ -261,7 +513,7 @@ export default function LiveCallAnalysisPage() {
             setDisconnectReason(null);
             setReconnectKey(0);
         };
-    }, []);
+    }, [callSession?.caseId]);
 
     useEffect(() => () => {
         setRoomParticipants([]);
@@ -304,7 +556,7 @@ export default function LiveCallAnalysisPage() {
                             <Card className="noborderHeader CardInCall" style={{ marginBottom: 15, paddingTop: 15 }}>
                                 <Row gutter={16} align="stretch">
                                     {/* Video / Avatar Panel */}
-                                    <Col xs={24} md={14}>
+                                    <Col xs={24} md={12}>
                                         <div className="imageProfileInCall">
                                             {callSession ? (
                                                 <div style={{ position: "relative", width: "100%", height: "400px" }}>
@@ -402,7 +654,7 @@ export default function LiveCallAnalysisPage() {
                                     </Col>
 
                                     {/* Info + Quick Actions */}
-                                    <Col xs={24} md={10}>
+                                    <Col xs={24} md={12}>
                                         <div className="inCallInfo" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                                             {/* In call info box */}
                                             <div style={{ gridColumn: "1 / -1", padding: 10 }}>
@@ -512,73 +764,204 @@ export default function LiveCallAnalysisPage() {
                                 </div>
                             </Card>
                         </Col>
+                        
+                        {/* <Col xs={24} lg={24} xl={12}>
+                            <Card
+                                className="cardWithFooter"
+                                title={<span style={{ display: "flex", alignItems: "center", gap: 8 }}><Icon icon="mdi:console" width={20} height={20} color="#40ACE2" />Call API Debug</span>}
+                                extra={
+                                    <Button
+                                        size="small"
+                                        type="link"
+                                        onClick={handleClearDebugEntries}
+                                        disabled={!debugEntries.length}
+                                        style={{ padding: 0 }}
+                                    >
+                                        Clear
+                                    </Button>
+                                }
+                                style={{ marginBottom: 15 }}
+                            >
+                                {debugTimeline.length === 0 ? (
+                                    <Empty
+                                        image={Empty.PRESENTED_IMAGE_SIMPLE}
+                                        description="No call debug entries yet"
+                                        style={{ margin: "24px 0" }}
+                                    />
+                                ) : (
+                                    <List
+                                        split={false}
+                                        dataSource={debugTimeline}
+                                        renderItem={(entry) => {
+                                            const formattedTime = (() => {
+                                                const date = new Date(entry.timestamp);
+                                                return Number.isNaN(date.getTime())
+                                                    ? entry.timestamp
+                                                    : date.toLocaleString("en-GB", {
+                                                        hour: "2-digit",
+                                                        minute: "2-digit",
+                                                        second: "2-digit",
+                                                        day: "2-digit",
+                                                        month: "2-digit",
+                                                        year: "numeric",
+                                                    });
+                                            })();
+
+                                            const actionLabel = entry.action.replace(/-/g, " ");
+
+                                            return (
+                                                <List.Item key={entry.id} style={{ paddingLeft: 0, paddingRight: 0 }}>
+                                                    <div style={{ width: "100%" }}>
+                                                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
+                                                            <span style={{ fontSize: 13, fontWeight: 600, textTransform: "capitalize" }}>{actionLabel}</span>
+                                                            <span style={{ fontSize: 11, color: "#64748b" }}>{formattedTime}</span>
+                                                        </div>
+                                                        {entry.notes && (
+                                                            <div style={{ fontSize: 12, color: "#475569", marginBottom: 6 }}>
+                                                                {entry.notes}
+                                                            </div>
+                                                        )}
+                                                        {entry.request && (
+                                                            <div style={{ marginBottom: 8 }}>
+                                                                <div style={{ fontSize: 11, fontWeight: 600, color: "#334155", marginBottom: 4 }}>Request</div>
+                                                                <pre
+                                                                    style={{
+                                                                        background: "#0f172a0d",
+                                                                        padding: "8px 10px",
+                                                                        borderRadius: 6,
+                                                                        fontSize: 12,
+                                                                        lineHeight: 1.45,
+                                                                        overflowX: "auto",
+                                                                        margin: 0,
+                                                                    }}
+                                                                >
+                                                                    {JSON.stringify(entry.request, null, 2)}
+                                                                </pre>
+                                                            </div>
+                                                        )}
+                                                        {entry.response && (
+                                                            <div style={{ marginBottom: 8 }}>
+                                                                <div style={{ fontSize: 11, fontWeight: 600, color: "#334155", marginBottom: 4 }}>Response</div>
+                                                                <pre
+                                                                    style={{
+                                                                        background: "#0f172a0d",
+                                                                        padding: "8px 10px",
+                                                                        borderRadius: 6,
+                                                                        fontSize: 12,
+                                                                        lineHeight: 1.45,
+                                                                        overflowX: "auto",
+                                                                        margin: 0,
+                                                                    }}
+                                                                >
+                                                                    {JSON.stringify(entry.response, null, 2)}
+                                                                </pre>
+                                                            </div>
+                                                        )}
+                                                        {entry.error && (
+                                                            <Alert
+                                                                type="error"
+                                                                showIcon
+                                                                message="API error"
+                                                                description={entry.error}
+                                                                style={{ marginTop: 6 }}
+                                                            />
+                                                        )}
+                                                    </div>
+                                                </List.Item>
+                                            );
+                                        }}
+                                    />
+                                )}
+                            </Card>
+                        </Col> */}
 
                         <Col xs={24} lg={24} xl={12}>
                             <Card
                                 className="cardWithFooter analysisCard"
-                                extra={<a href="#"><Icon icon="material-symbols:refresh-rounded" width={20} height={20} /></a>}
                                 title={<span style={{ display: "flex", alignItems: "center", gap: 8 }}><Icon icon="lineicons:gemini" width={20} height={20} color="#40ACE2" />Sentiment Analysis</span>}
                                 style={{ marginBottom: 15 }}
                             >
+                                <div className="listSmallCard" style={{ marginTop: 15 }}>
+                                    {sentimentItems.length === 0 ? (
+                                        <Empty
+                                            image={Empty.PRESENTED_IMAGE_SIMPLE}
+                                            description="No sentiment data yet"
+                                            style={{ margin: "24px 0" }}
+                                        />
+                                    ) : (
+                                        <List
+                                            itemLayout="vertical"
+                                            split={false}
+                                            dataSource={sentimentItems}
+                                            renderItem={(item) => {
+                                                const normalized = item.overall.replace(/_/g, " ");
+                                                const overallLabel = normalized.charAt(0).toUpperCase() + normalized.slice(1);
+                                                const sentimentStyle = (() => {
+                                                    const key = item.overall.toLowerCase();
+                                                    if (key.includes("positive")) return { background: "#dcfce7", color: "#166534" };
+                                                    if (key.includes("negative")) return { background: "#fee2e2", color: "#991b1b" };
+                                                    if (key.includes("neutral")) return { background: "#e2e8f0", color: "#1e293b" };
+                                                    return { background: "#f1f5f9", color: "#475569" };
+                                                })();
 
-                                <div className="listSmallCard" style={{marginTop:15}}>
-                                    {(() => {
-                                        type Insight = { title: string; lines: string[] };
-                                        const insights: Insight[] = [
-                                            {
-                                                title: "Sentiment Analysis",
-                                                lines: [
-                                                    "Current Sentiment: Negative → Neutral (after agent intervention).",
-                                                    "Customer frustration reduced once the agent confirmed a case was raised.",
-                                                ],
-                                            },
-                                            {
-                                                title: "Compliance Check",
-                                                lines: [
-                                                    "Agent acknowledged the issue and confirmed action taken (case created).",
-                                                    "Standard escalation procedure followed.",
-                                                ],
-                                            },
-                                            {
-                                                title: "Risk / Escalation Alert",
-                                                lines: [
-                                                    "Keywords detected: ‘not received’, ‘still waiting’ → flagged as service delay.",
-                                                    "Risk Level: Medium (may escalate if resolution delayed).",
-                                                ],
-                                            },
-                                            {
-                                                title: "Audit Log",
-                                                lines: [
-                                                    "Case ID DD-2025-4321 generated at 09:56 AM. Status: Pending Provider Action.",
-                                                ],
-                                            },
-                                        ];
+                                                const scoreLabel =
+                                                    typeof item.score === "number"
+                                                        ? `${(item.score * 100).toFixed(0)}%`
+                                                        : "N/A";
+                                                const confidenceLabel =
+                                                    typeof item.confidence === "number"
+                                                        ? `${(item.confidence * 100).toFixed(0)}%`
+                                                        : "N/A";
+                                                const lastUpdatedTime = item.lastUpdated ? new Date(item.lastUpdated) : null;
+                                                const lastUpdatedLabel = lastUpdatedTime && !Number.isNaN(lastUpdatedTime.getTime())
+                                                    ? lastUpdatedTime.toLocaleTimeString("en-GB", {
+                                                        hour: "2-digit",
+                                                        minute: "2-digit",
+                                                        second: "2-digit",
+                                                    })
+                                                    : item.lastUpdated;
 
-                                        return (
-                                            <List
-                                                itemLayout="vertical"
-                                                split={false}
-                                                dataSource={insights}
-                                                renderItem={(ins, idx) => (
-                                                    <List.Item key={idx} style={{ padding: 0, marginBottom: 12 }}>
+                                                return (
+                                                    <List.Item key={item.id} style={{ padding: 0, marginBottom: 12 }}>
                                                         <div className="analysisItem">
-                                                            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                                                                <span className="iconWrap">
-                                                                    <Icon icon="solar:flag-2-bold-duotone" width={16} height={16} />
+                                                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
+                                                                <span
+                                                                    style={{
+                                                                        display: "inline-flex",
+                                                                        alignItems: "center",
+                                                                        gap: 8,
+                                                                        fontWeight: 600,
+                                                                        fontSize: 14,
+                                                                        padding: "4px 10px",
+                                                                        borderRadius: 999,
+                                                                        background: sentimentStyle.background,
+                                                                        color: sentimentStyle.color,
+                                                                    }}
+                                                                >
+                                                                    <Icon icon="mdi:chart-bubble" width={16} height={16} />
+                                                                    {overallLabel}
                                                                 </span>
-                                                                <span className="title">{ins.title}</span>
+                                                                <span style={{ fontSize: 11, color: "#64748b" }}>{item.time}</span>
                                                             </div>
-                                                            <div style={{lineHeight: 1.4 }}>
-                                                                {ins.lines.map((ln, i) => (
-                                                                    <div key={i}>{ln}</div>
-                                                                ))}
+                                                            <div style={{ display: "flex", flexWrap: "wrap", gap: 12, fontSize: 12, color: "#475569" }}>
+                                                                <span>
+                                                                    <strong>Score:</strong> {scoreLabel}
+                                                                </span>
+                                                                <span>
+                                                                    <strong>Confidence:</strong> {confidenceLabel}
+                                                                </span>
+                                                                {item.lastUpdated && (
+                                                                    <span>
+                                                                        <strong>Last updated:</strong> {lastUpdatedLabel ?? "—"}
+                                                                    </span>
+                                                                )}
                                                             </div>
                                                         </div>
                                                     </List.Item>
-                                                )}
-                                            />
-                                        );
-                                    })()}
+                                                );
+                                            }}
+                                        />
+                                    )}
                                 </div>
                             </Card>
                         </Col>
@@ -593,26 +976,60 @@ export default function LiveCallAnalysisPage() {
                         <Col xs={24} lg={24} xl={24}>
                             <Card
                                 className="cardWithFooter"
-
                                 title={<span>Customer 360 View</span>}
                                 style={{ marginBottom: 15 }}
                             >
-                                <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-                                    <img
-                                        src="/src/assets/img/client.jpg"
-                                        alt="profile"
-                                        style={{ width: 96, height: 96, borderRadius: "50%", objectFit: "cover" }}
-                                    />
-                                    <div>
-                                        <div style={{ fontSize: 12, color: "#a0a7b3" }}>First Name</div>
-                                        <div style={{ fontWeight: 700 }}>Rashid</div>
+                                <div style={{ minHeight: 128 }}>
+                                    {isCustomerLoading ? (
+                                        <div style={{ display: "flex", justifyContent: "center", padding: "32px 0" }}>
+                                            <Spin />
+                                        </div>
+                                    ) : customerError ? (
+                                        <Alert
+                                            type="error"
+                                            showIcon
+                                            message="Tidak dapat memuat data pelanggan"
+                                            description={customerError}
+                                        />
+                                    ) : (
+                                        <>
+                                            <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16 }}>
+                                                <img
+                                                    src={customerSummary.avatarUrl}
+                                                    alt={`${customerSummary.name} avatar`}
+                                                    style={{ width: 96, height: 96, borderRadius: "50%", objectFit: "cover" }}
+                                                />
+                                                <div>
+                                                    <div style={{ fontSize: 12, color: "#a0a7b3" }}>Name</div>
+                                                    <div style={{ fontWeight: 700 }}>{customerSummary.name}</div>
 
-                                        <div style={{ fontSize: 12, color: "#a0a7b3", marginTop: 10 }}>Email</div>
-                                        <div>Rashid@gmail.com</div>
+                                                    <div style={{ fontSize: 12, color: "#a0a7b3", marginTop: 10 }}>Email</div>
+                                                    <div>{customerSummary.email ?? "—"}</div>
 
-                                        <div style={{ fontSize: 12, color: "#a0a7b3", marginTop: 10 }}>Phone</div>
-                                        <div>+6285150920046</div>
-                                    </div>
+                                                    <div style={{ fontSize: 12, color: "#a0a7b3", marginTop: 10 }}>Phone</div>
+                                                    <div>{customerSummary.phone ?? "—"}</div>
+                                                </div>
+                                            </div>
+                                            <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))" }}>
+                                                <div>
+                                                    <div style={{ fontSize: 12, color: "#a0a7b3" }}>Case ID</div>
+                                                    <div style={{ fontWeight: 600 }}>{customerSummary.caseId ?? "—"}</div>
+                                                </div>
+                                                <div>
+                                                    <div style={{ fontSize: 12, color: "#a0a7b3" }}>Status</div>
+                                                    <div style={{ fontWeight: 600 }}>{customerSummary.status ?? "—"}</div>
+                                                </div>
+                                                <div>
+                                                    <div style={{ fontSize: 12, color: "#a0a7b3" }}>Priority</div>
+                                                    <div style={{ fontWeight: 600 }}>{customerSummary.priority ?? "—"}</div>
+                                                </div>
+                                                <div>
+                                                    <div style={{ fontSize: 12, color: "#a0a7b3" }}>Opened</div>
+                                                    <div style={{ fontWeight: 600 }}>{customerSummary.openedAt ?? "—"}</div>
+                                                </div>
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
                             </Card>
                         </Col>

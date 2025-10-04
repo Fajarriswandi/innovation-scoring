@@ -8,8 +8,19 @@ export type CallStreamTranscript = {
   raw: unknown;
 };
 
+export type CallStreamSentiment = {
+  id: string;
+  overallSentiment: string;
+  sentimentScore?: number;
+  confidence?: number;
+  lastUpdated?: string;
+  timestamp: string;
+  raw: unknown;
+};
+
 export type UseCallStreamResult = {
   transcripts: CallStreamTranscript[];
+  sentiments: CallStreamSentiment[];
   isLoading: boolean;
   isConnected: boolean;
   error: string | null;
@@ -103,6 +114,7 @@ const parseStreamLine = (payload: string, caseId: string, seed: () => string): C
 
 export const useCallStream = (caseId: string | null | undefined): UseCallStreamResult => {
   const [transcripts, setTranscripts] = useState<CallStreamTranscript[]>([]);
+  const [sentiments, setSentiments] = useState<CallStreamSentiment[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -113,6 +125,7 @@ export const useCallStream = (caseId: string | null | undefined): UseCallStreamR
     const caseUuid = caseId?.trim();
     if (!caseUuid) {
       setTranscripts([]);
+      setSentiments([]);
       setIsLoading(false);
       setIsConnected(false);
       setError(null);
@@ -134,6 +147,7 @@ export const useCallStream = (caseId: string | null | undefined): UseCallStreamR
       setIsConnected(false);
       setError(null);
       setTranscripts([]);
+      setSentiments([]);
 
       try {
         const headers: Record<string, string> = {
@@ -179,6 +193,56 @@ export const useCallStream = (caseId: string | null | undefined): UseCallStreamR
             const payload = line.startsWith("data:") ? line.slice(5).trim() : line;
             if (!payload) continue;
 
+            let parsed: Record<string, unknown> | null = null;
+            try {
+              parsed = JSON.parse(payload) as Record<string, unknown>;
+            } catch {
+              parsed = null;
+            }
+
+            if (parsed) {
+              const eventType = typeof parsed.type === "string" ? parsed.type : undefined;
+              const data =
+                eventType && parsed.data && typeof parsed.data === "object"
+                  ? (parsed.data as Record<string, unknown>)
+                  : parsed;
+
+              if (eventType === "sentiment") {
+                const timestamp =
+                  typeof data.last_updated === "string"
+                    ? data.last_updated
+                    : typeof parsed.timestamp === "string"
+                      ? parsed.timestamp
+                      : new Date().toISOString();
+
+                const id = `${caseUuid}-sentiment-${timestamp}-${Math.random().toString(16).slice(2, 8)}`;
+
+                setSentiments((prev) => [
+                  ...prev,
+                  {
+                    id,
+                    timestamp,
+                    overallSentiment:
+                      typeof data.overall_sentiment === "string"
+                        ? data.overall_sentiment
+                        : typeof data.sentiment === "string"
+                          ? data.sentiment
+                          : "unknown",
+                    sentimentScore:
+                      typeof data.sentiment_score === "number"
+                        ? data.sentiment_score
+                        : typeof data.score === "number"
+                          ? data.score
+                          : undefined,
+                    confidence: typeof data.confidence === "number" ? data.confidence : undefined,
+                    lastUpdated: typeof data.last_updated === "string" ? data.last_updated : undefined,
+                    raw: parsed,
+                  },
+                ]);
+                continue;
+              }
+            }
+
             const transcript = parseStreamLine(payload, caseUuid, seed);
             if (!transcript) continue;
 
@@ -208,5 +272,5 @@ export const useCallStream = (caseId: string | null | undefined): UseCallStreamR
     };
   }, [caseId]);
 
-  return { transcripts, isLoading, isConnected, error };
+  return { transcripts, sentiments, isLoading, isConnected, error };
 };

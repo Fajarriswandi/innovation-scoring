@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAppDispatch } from "@/hooks/redux";
 import SmallStatCard from "@/components/SmallStatCard";
 import TalkListenRatio from "@/components/TalkListenRatio";
@@ -10,6 +11,7 @@ import { MoreOutlined, ReloadOutlined, PlusOutlined, CalendarOutlined, CoffeeOut
 import { Helmet } from "react-helmet-async";
 import { ResponsiveContainer, PieChart, Pie, Cell, Label } from "recharts";
 import type { LabelProps } from "recharts";
+import { Icon } from "@iconify/react";
 
 const gutter = [16, { xs: 12, sm: 16, md: 20, lg: 24 }] as [number, object];
 const sentimentValue = 83.79; // contoh; 0–100, bisa binding dari state/API
@@ -129,7 +131,10 @@ const PieChartWithNeedle: React.FC<{ value: number }> = ({ value }) => {
 
 export default function DashboardPage() {
   const dispatch = useAppDispatch();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [widgetOpen, setWidgetOpen] = useState(false);
+  const [postCallNote, setPostCallNote] = useState<string | null>(null);
 
   useEffect(() => {
     dispatch(setSmallTitle("Dashboard Agent"));
@@ -140,6 +145,14 @@ export default function DashboardPage() {
     };
   }, [dispatch]);
 
+  useEffect(() => {
+    const note = (location.state as { postCallMessage?: string } | null)?.postCallMessage;
+    if (note) {
+      setPostCallNote(note);
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location, navigate]);
+
   return (
     <div className="dashboard-grid">
       <Helmet>
@@ -147,6 +160,23 @@ export default function DashboardPage() {
       </Helmet>
 
       <WidgetAnomaly widgetOpen={widgetOpen} setWidgetOpen={setWidgetOpen} />
+
+      {postCallNote && (
+        <div className="postCallBanner" role="status" aria-live="polite">
+          <span className="postCallBanner__icon" aria-hidden="true">
+            <Icon icon="mdi:check-circle" width={18} height={18} />
+          </span>
+          <span className="postCallBanner__message">{postCallNote}</span>
+          <button
+            type="button"
+            className="postCallBanner__close"
+            onClick={() => setPostCallNote(null)}
+            aria-label="Tutup notifikasi"
+          >
+            <Icon icon="mdi:close" width={16} height={16} />
+          </button>
+        </div>
+      )}
 
       <Row gutter={gutter}>
 

@@ -1717,3 +1717,50 @@ h6 {
     transform: translateY(20px) scale(0.96);
   }
 }
+
+.postCallBanner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f0fff4;
+  border: 1px solid #bbf7d0;
+  color: #1c4532;
+  padding: 10px 14px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  box-shadow: 0 6px 12px rgba(22, 101, 52, 0.08);
+  font-size: 14px;
+}
+
+.postCallBanner__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #dcfce7;
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  color: #15803d;
+}
+
+.postCallBanner__message {
+  flex: 1;
+}
+
+.postCallBanner__close {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  line-height: 0;
+  transition: background 0.2s ease;
+}
+
+.postCallBanner__close:hover,
+.postCallBanner__close:focus-visible {
+  background: rgba(22, 101, 52, 0.08);
+  outline: none;
+}
