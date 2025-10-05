@@ -18,9 +18,18 @@ export type CallStreamSentiment = {
   raw: unknown;
 };
 
+export type CallStreamMetadata = {
+  customerName?: string;
+  customerIdentifier?: string;
+  operatorName?: string;
+  operatorIdentifier?: string;
+  raw: unknown;
+};
+
 export type UseCallStreamResult = {
   transcripts: CallStreamTranscript[];
   sentiments: CallStreamSentiment[];
+  metadata: CallStreamMetadata | null;
   isLoading: boolean;
   isConnected: boolean;
   error: string | null;
@@ -115,6 +124,7 @@ const parseStreamLine = (payload: string, caseId: string, seed: () => string): C
 export const useCallStream = (caseId: string | null | undefined): UseCallStreamResult => {
   const [transcripts, setTranscripts] = useState<CallStreamTranscript[]>([]);
   const [sentiments, setSentiments] = useState<CallStreamSentiment[]>([]);
+  const [metadata, setMetadata] = useState<CallStreamMetadata | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -126,6 +136,7 @@ export const useCallStream = (caseId: string | null | undefined): UseCallStreamR
     if (!caseUuid) {
       setTranscripts([]);
       setSentiments([]);
+      setMetadata(null);
       setIsLoading(false);
       setIsConnected(false);
       setError(null);
@@ -148,6 +159,7 @@ export const useCallStream = (caseId: string | null | undefined): UseCallStreamR
       setError(null);
       setTranscripts([]);
       setSentiments([]);
+      setMetadata(null);
 
       try {
         const headers: Record<string, string> = {
@@ -241,6 +253,42 @@ export const useCallStream = (caseId: string | null | undefined): UseCallStreamR
                 ]);
                 continue;
               }
+
+              if (eventType === "metadata") {
+                const customer = data.customer && typeof data.customer === "object"
+                  ? (data.customer as Record<string, unknown>)
+                  : undefined;
+                const operator = data.operator && typeof data.operator === "object"
+                  ? (data.operator as Record<string, unknown>)
+                  : undefined;
+
+                const customerNameCandidate =
+                  (typeof customer?.name === "string" && customer.name.trim()) ||
+                  (typeof customer?.full_name === "string" && customer.full_name.trim()) ||
+                  (typeof customer?.display_name === "string" && customer.display_name.trim()) ||
+                  undefined;
+
+                const operatorNameCandidate =
+                  (typeof operator?.name === "string" && operator.name.trim()) ||
+                  (typeof operator?.full_name === "string" && operator.full_name.trim()) ||
+                  (typeof operator?.display_name === "string" && operator.display_name.trim()) ||
+                  undefined;
+
+                setMetadata({
+                  customerName: customerNameCandidate,
+                  customerIdentifier:
+                    (typeof customer?.id === "string" && customer.id.trim()) ||
+                    (typeof customer?.identifier === "string" && customer.identifier.trim()) ||
+                    undefined,
+                  operatorName: operatorNameCandidate,
+                  operatorIdentifier:
+                    (typeof operator?.id === "string" && operator.id.trim()) ||
+                    (typeof operator?.identifier === "string" && operator.identifier.trim()) ||
+                    undefined,
+                  raw: parsed,
+                });
+                continue;
+              }
             }
 
             const transcript = parseStreamLine(payload, caseUuid, seed);
@@ -272,5 +320,5 @@ export const useCallStream = (caseId: string | null | undefined): UseCallStreamR
     };
   }, [caseId]);
 
-  return { transcripts, sentiments, isLoading, isConnected, error };
+  return { transcripts, sentiments, metadata, isLoading, isConnected, error };
 };

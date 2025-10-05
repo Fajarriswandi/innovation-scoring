@@ -112,7 +112,7 @@ export function LiveKitCallView({
         }
       >
         <LiveKitRoom
-          data-lk-theme="light"
+          data-lk-theme="dark"
           serverUrl={serverUrl}
           token={token}
           connect={connect}
@@ -128,7 +128,7 @@ export function LiveKitCallView({
           <RoomAudioRenderer />
           <div style={{ flexGrow: 1 }} />
           <div style={{ padding: "12px 0" }}>
-            <ControlBar variation="minimal" controls={{ screenShare: false, camera: false, microphone: true }} />
+            <ControlBar variation="minimal" controls={{ screenShare: false, camera: false, microphone: true, leave:false }} />
           </div>
         </LiveKitRoom>
       </LiveKitErrorBoundary>

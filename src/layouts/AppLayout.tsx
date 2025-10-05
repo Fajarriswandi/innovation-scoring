@@ -132,7 +132,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const map: Record<string, string> = {
       dashboard: "/dashboard",
       realtime: "/anomaly",
-      calls: "/live-call",
+      // calls: "/live-call",
       reports: "/notavailable",
       messages: "/notavailable",
       customers: "/notavailable",
@@ -155,11 +155,11 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       icon: <Icon icon="streamline-flex:ai-scanner-robot-remix" width={20} height={20} />,
       label: "Realtime Log Scanner",
     },
-    {
-      key: "calls",
-      icon: <Icon icon="solar:call-chat-rounded-bold-duotone" width={20} height={20} />,
-      label: "Calls",
-    },
+    // {
+    //   key: "calls",
+    //   icon: <Icon icon="solar:call-chat-rounded-bold-duotone" width={20} height={20} />,
+    //   label: "Calls",
+    // },
     {
       key: "reports",
       icon: <Icon icon="solar:chart-2-bold-duotone" width={20} height={20} />,

@@ -38,7 +38,7 @@ export default function LiveCallAnalysisPage() {
     const stateDebugEntry = locationState?.callDebugEntry;
     const searchParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
     const caseId = useMemo(() => searchParams.get("case") ?? searchParams.get("case_id"), [searchParams]);
-    const { transcripts, sentiments, isConnected, isLoading, error } = useCallStream(caseId);
+    const { transcripts, sentiments, metadata: streamMetadata, isConnected, isLoading, error } = useCallStream(caseId);
     const [callSession, setCallSession] = useState<LiveCallSession | null>(null);
     const [isEndingCall, setIsEndingCall] = useState(false);
     const [isDialingCustomer, setIsDialingCustomer] = useState(false);
@@ -52,6 +52,7 @@ export default function LiveCallAnalysisPage() {
     const [customerDetail, setCustomerDetail] = useState<BECaseItem | null>(null);
     const [isCustomerLoading, setIsCustomerLoading] = useState(false);
     const [customerError, setCustomerError] = useState<string | null>(null);
+    const [callDuration, setCallDuration] = useState<string>("00:00");
 
     useEffect(() => {
         dispatch(setSmallTitle("Live Call Analysis"));
@@ -173,6 +174,50 @@ export default function LiveCallAnalysisPage() {
         };
     }, [caseId]);
 
+    useEffect(() => {
+        let timer: number | undefined;
+
+        const updateDuration = () => {
+            const startedAt = callSession?.createdAt;
+            if (!startedAt) {
+                setCallDuration("00:00");
+                return;
+            }
+
+            const startTimestamp = new Date(startedAt).getTime();
+            if (Number.isNaN(startTimestamp)) {
+                setCallDuration("00:00");
+                return;
+            }
+
+            const diffMs = Date.now() - startTimestamp;
+            if (diffMs <= 0) {
+                setCallDuration("00:00");
+                return;
+            }
+
+            const totalSeconds = Math.floor(diffMs / 1000);
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+
+            const formatted = hours > 0
+                ? `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`
+                : `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+
+            setCallDuration(formatted);
+        };
+
+        updateDuration();
+        timer = window.setInterval(updateDuration, 1000);
+
+        return () => {
+            if (timer) {
+                window.clearInterval(timer);
+            }
+        };
+    }, [callSession?.createdAt]);
+
     const transcriptItems = useMemo(() => {
         if (!transcripts.length) return [];
         return transcripts.map((item) => {
@@ -192,7 +237,7 @@ export default function LiveCallAnalysisPage() {
                 role: item.speaker,
                 text: item.text,
             };
-        });
+        }).reverse();
     }, [transcripts]);
 
     const sentimentItems = useMemo(() => {
@@ -241,6 +286,8 @@ export default function LiveCallAnalysisPage() {
         const sessionName = callSession?.customerName?.trim();
         const sessionAvatar = callSession?.customerAvatarUrl?.trim();
         const sessionCaseId = callSession?.caseId;
+        const metadataName = streamMetadata?.customerName?.trim();
+        const metadataIdentifier = streamMetadata?.customerIdentifier?.trim();
 
         const customer = customerDetail?.customer;
         const names = [customer?.first_name, customer?.last_name]
@@ -251,7 +298,7 @@ export default function LiveCallAnalysisPage() {
             : typeof customer?.name === "string" && customer.name.trim()
                 ? customer.name.trim()
                 : undefined;
-        const displayName = nameFromRecord ?? sessionName ?? "Customer";
+        const displayName = metadataName ?? nameFromRecord ?? sessionName ?? "Customer";
 
         const email = typeof customer?.email === "string" && customer.email.trim() ? customer.email.trim() : undefined;
         const phone = typeof customer?.phone === "string" && customer.phone.trim() ? customer.phone.trim() : undefined;
@@ -265,7 +312,7 @@ export default function LiveCallAnalysisPage() {
             avatarUrl = `https://ui-avatars.com/api/?background=E8F1FF&color=0B3C5D&name=${encoded}`;
         }
 
-        const caseIdentifier = customerDetail?.case_id ?? sessionCaseId ?? caseId ?? undefined;
+        const caseIdentifier = metadataIdentifier ?? customerDetail?.case_id ?? sessionCaseId ?? caseId ?? undefined;
         const statusLabel = toLabelCase(customerDetail?.status);
         const priorityLabel = toLabelCase(customerDetail?.priority);
 
@@ -293,7 +340,7 @@ export default function LiveCallAnalysisPage() {
             priority: priorityLabel,
             openedAt,
         };
-    }, [callSession?.caseId, callSession?.customerAvatarUrl, callSession?.customerName, caseId, customerDetail]);
+    }, [callSession?.caseId, callSession?.customerAvatarUrl, callSession?.customerName, caseId, customerDetail, streamMetadata]);
 
     const connectionLabel = useMemo(() => {
         switch (roomState) {
@@ -359,8 +406,8 @@ export default function LiveCallAnalysisPage() {
                             : participant.sid;
             const color = participant.isSpeaking ? "green" : "blue";
             return (
-                <Tag key={participant.sid} color={color} style={{ marginBottom: 4 }}>
-                    {label}
+                <Tag key={participant.sid} color={color} style={{ marginBottom: 4, display:"flex", justifyContent:'center', alignItems:"center" }}>
+                    <Icon icon="duo-icons:user" width={10} height={10} />  {label}
                 </Tag>
             );
         });
@@ -559,7 +606,7 @@ export default function LiveCallAnalysisPage() {
                                     <Col xs={24} md={12}>
                                         <div className="imageProfileInCall">
                                             {callSession ? (
-                                                <div style={{ position: "relative", width: "100%", height: "400px" }}>
+                                                <div style={{ position: "relative", width: "100%", height: "300px" }}>
                                                     <LiveKitCallView
                                                         key={`${callSession.roomName}-${reconnectKey}`}
                                                         serverUrl={callSession.livekitUrl}
@@ -571,8 +618,8 @@ export default function LiveCallAnalysisPage() {
                                                     />
                                                     <div style={{ position: "absolute", top: 12, right: 12, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
                                                         <Tag color={connectionLabel.color}>{connectionLabel.text}</Tag>
-                                                        <div style={{ display: "flex", flexWrap: "wrap", gap: 4, justifyContent: "flex-end" }}>
-                                                            {participantBadges}
+                                                        <div style={{ display: "flex", gap: 4, justifyContent: "flex-end" }}>
+                                                         {participantBadges}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -584,7 +631,7 @@ export default function LiveCallAnalysisPage() {
                                                 />
                                             )}
                                             {/* Top-left status */}
-                                            <div style={{ position: "absolute", top: 15, left: 15, display: "flex", alignItems: "center", gap: 8, background: "#ffffff20", padding: "4px 10px", borderRadius: 20 }}>
+                                            <div style={{ position: "absolute", top: 15, left: 15, display: "flex", alignItems: "center", gap: 8, background: "#33333320", padding: "4px 10px", borderRadius: 20 }}>
                                                 <span
                                                     style={{
                                                         width: 8,
@@ -628,7 +675,7 @@ export default function LiveCallAnalysisPage() {
                                             onClick={handleDialCustomer}
                                             disabled={!callSession || isDialingCustomer || roomState !== ConnectionState.Connected}
                                             loading={isDialingCustomer}
-                                            style={{ marginTop: 12, width: '100%' }}
+                                            style={{ marginTop: 12, width: '100%', paddingTop:20, paddingBottom:20, borderRadius:50 }}
                                             icon={<Icon icon="mdi:phone-outgoing" />}
                                         >
                                             Dial Customer
@@ -662,19 +709,19 @@ export default function LiveCallAnalysisPage() {
                                                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", rowGap: 8, columnGap: 16 }}>
                                                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                                                         <Icon icon="solar:clock-circle-bold-duotone" width={18} height={18} color="#8c8c8c" />
-                                                        <div>
-                                                            <div style={{ fontSize: 12, color: "#8c8c8c" }}>Time</div>
-                                                            <div style={{ fontSize: 14, fontWeight: 600 }}>12:52 Minutes</div>
-                                                        </div>
+                                                                <div>
+                                                                    <div style={{ fontSize: 12, color: "#8c8c8c" }}>Duration</div>
+                                                                    <div style={{ fontSize: 14, fontWeight: 600 }}>{callDuration}</div>
+                                                                </div>
                                                     </div>
                                                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                                                         <Icon icon="solar:user-id-bold-duotone" width={18} height={18} color="#8c8c8c" />
                                                         <div>
-                                                            <div style={{ fontSize: 12, color: "#8c8c8c" }}>Operator ID</div>
-                                                            <div style={{ fontSize: 14, fontWeight: 600 }}>898a898iuy a87asdh&</div>
+                                                                    <div style={{ fontSize: 12, color: "#8c8c8c" }}>Live Room ID</div>
+                                                                    <div style={{ fontSize: 14, fontWeight: 600 }}>{callSession?.roomName ?? "—"}</div>
+                                                                </div>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                </div>
                                             </div>
 
                                             {/* Quick Actions grid (2 columns) */}
@@ -713,9 +760,9 @@ export default function LiveCallAnalysisPage() {
                                     {callSession && (
                                         <div style={{ marginBottom: 12, fontSize: 12, color: "#64748b" }}>
                                             Live room: <strong>{callSession.roomName}</strong>
-                                            {callSession.customerName && (
+                                            {customerSummary.name && (
                                                 <span style={{ marginLeft: 6 }}>
-                                                    • Customer: {callSession.customerName}
+                                                    • Customer: {customerSummary.name}
                                                 </span>
                                             )}
                                         </div>
@@ -1011,10 +1058,10 @@ export default function LiveCallAnalysisPage() {
                                                 </div>
                                             </div>
                                             <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))" }}>
-                                                <div>
+                                                {/* <div>
                                                     <div style={{ fontSize: 12, color: "#a0a7b3" }}>Case ID</div>
                                                     <div style={{ fontWeight: 600 }}>{customerSummary.caseId ?? "—"}</div>
-                                                </div>
+                                                </div> */}
                                                 <div>
                                                     <div style={{ fontSize: 12, color: "#a0a7b3" }}>Status</div>
                                                     <div style={{ fontWeight: 600 }}>{customerSummary.status ?? "—"}</div>

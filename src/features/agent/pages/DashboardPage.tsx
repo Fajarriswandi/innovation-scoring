@@ -148,7 +148,7 @@ export default function DashboardPage() {
   useEffect(() => {
     const note = (location.state as { postCallMessage?: string } | null)?.postCallMessage;
     if (note) {
-      setPostCallNote(note);
+      setPostCallNote(null);
       navigate(location.pathname, { replace: true, state: {} });
     }
   }, [location, navigate]);
@@ -161,7 +161,7 @@ export default function DashboardPage() {
 
       <WidgetAnomaly widgetOpen={widgetOpen} setWidgetOpen={setWidgetOpen} />
 
-      {postCallNote && (
+      {false && postCallNote && (
         <div className="postCallBanner" role="status" aria-live="polite">
           <span className="postCallBanner__icon" aria-hidden="true">
             <Icon icon="mdi:check-circle" width={18} height={18} />
