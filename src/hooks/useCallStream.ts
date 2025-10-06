@@ -26,10 +26,22 @@ export type CallStreamMetadata = {
   raw: unknown;
 };
 
+export type CallStreamIntent = {
+  id: string;
+  title: string;
+  detail?: string;
+  recommendation?: string;
+  iconEmoji?: string;
+  severity?: string;
+  timestamp: string;
+  raw: unknown;
+};
+
 export type UseCallStreamResult = {
   transcripts: CallStreamTranscript[];
   sentiments: CallStreamSentiment[];
   metadata: CallStreamMetadata | null;
+  intents: CallStreamIntent[];
   isLoading: boolean;
   isConnected: boolean;
   error: string | null;
@@ -125,6 +137,7 @@ export const useCallStream = (caseId: string | null | undefined): UseCallStreamR
   const [transcripts, setTranscripts] = useState<CallStreamTranscript[]>([]);
   const [sentiments, setSentiments] = useState<CallStreamSentiment[]>([]);
   const [metadata, setMetadata] = useState<CallStreamMetadata | null>(null);
+  const [intents, setIntents] = useState<CallStreamIntent[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -137,6 +150,7 @@ export const useCallStream = (caseId: string | null | undefined): UseCallStreamR
       setTranscripts([]);
       setSentiments([]);
       setMetadata(null);
+      setIntents([]);
       setIsLoading(false);
       setIsConnected(false);
       setError(null);
@@ -160,6 +174,7 @@ export const useCallStream = (caseId: string | null | undefined): UseCallStreamR
       setTranscripts([]);
       setSentiments([]);
       setMetadata(null);
+      setIntents([]);
 
       try {
         const headers: Record<string, string> = {
@@ -206,25 +221,27 @@ export const useCallStream = (caseId: string | null | undefined): UseCallStreamR
             if (!payload) continue;
 
             let parsed: Record<string, unknown> | null = null;
-            try {
-              parsed = JSON.parse(payload) as Record<string, unknown>;
-            } catch {
-              parsed = null;
-            }
+          try {
+            parsed = JSON.parse(payload) as Record<string, unknown>;
+          } catch {
+            parsed = null;
+          }
 
-            if (parsed) {
-              const eventType = typeof parsed.type === "string" ? parsed.type : undefined;
-              const data =
-                eventType && parsed.data && typeof parsed.data === "object"
-                  ? (parsed.data as Record<string, unknown>)
-                  : parsed;
+          if (parsed) {
+            const eventType = typeof parsed.type === "string" ? parsed.type : undefined;
+            const rawData = eventType && Object.prototype.hasOwnProperty.call(parsed, "data")
+              ? (parsed as { data?: unknown }).data
+              : parsed;
 
-              if (eventType === "sentiment") {
-                const timestamp =
-                  typeof data.last_updated === "string"
-                    ? data.last_updated
-                    : typeof parsed.timestamp === "string"
-                      ? parsed.timestamp
+            if (eventType === "sentiment") {
+              const data = rawData && typeof rawData === "object" && !Array.isArray(rawData)
+                ? (rawData as Record<string, unknown>)
+                : ({} as Record<string, unknown>);
+              const timestamp =
+                typeof data.last_updated === "string"
+                  ? data.last_updated
+                  : typeof parsed.timestamp === "string"
+                    ? parsed.timestamp
                       : new Date().toISOString();
 
                 const id = `${caseUuid}-sentiment-${timestamp}-${Math.random().toString(16).slice(2, 8)}`;
@@ -255,10 +272,13 @@ export const useCallStream = (caseId: string | null | undefined): UseCallStreamR
               }
 
               if (eventType === "metadata") {
-                const customer = data.customer && typeof data.customer === "object"
+                const data = rawData && typeof rawData === "object" && !Array.isArray(rawData)
+                  ? (rawData as Record<string, unknown>)
+                  : undefined;
+                const customer = data?.customer && typeof data.customer === "object"
                   ? (data.customer as Record<string, unknown>)
                   : undefined;
-                const operator = data.operator && typeof data.operator === "object"
+                const operator = data?.operator && typeof data.operator === "object"
                   ? (data.operator as Record<string, unknown>)
                   : undefined;
 
@@ -287,6 +307,68 @@ export const useCallStream = (caseId: string | null | undefined): UseCallStreamR
                     undefined,
                   raw: parsed,
                 });
+                continue;
+              }
+
+              if (eventType === "ai.intent.card") {
+                const cardsRaw = Array.isArray(rawData)
+                  ? rawData
+                  : rawData && typeof rawData === "object" && !Array.isArray(rawData)
+                    ? Array.isArray((rawData as Record<string, unknown>).cards)
+                      ? ((rawData as Record<string, unknown>).cards as unknown[])
+                      : Array.isArray((rawData as Record<string, unknown>).items)
+                        ? ((rawData as Record<string, unknown>).items as unknown[])
+                        : [rawData]
+                    : [rawData];
+
+                const mapped = cardsRaw
+                  .map((card, index) => {
+                    if (!card || typeof card !== "object") return null;
+                    const cardRecord = card as Record<string, unknown>;
+
+                    const title =
+                      (typeof cardRecord.title === "string" && cardRecord.title.trim()) ||
+                      (typeof cardRecord.name === "string" && cardRecord.name.trim()) ||
+                      undefined;
+                    const detail =
+                      (typeof cardRecord.detail === "string" && cardRecord.detail.trim()) ||
+                      (typeof cardRecord.description === "string" && cardRecord.description.trim()) ||
+                      undefined;
+                    const recommendation =
+                      (typeof cardRecord.recommendation === "string" && cardRecord.recommendation.trim()) ||
+                      (typeof cardRecord.next_step === "string" && cardRecord.next_step.trim()) ||
+                      undefined;
+
+                    const timestamp =
+                      (typeof cardRecord.timestamp === "string" && cardRecord.timestamp.trim()) ||
+                      (typeof parsed.timestamp === "string" && parsed.timestamp.trim()) ||
+                      new Date().toISOString();
+
+                    const id = `${caseUuid}-intent-${Date.now()}-${index}-${Math.random().toString(16).slice(2)}`;
+
+                    if (!title && !detail && !recommendation) return null;
+
+                    return {
+                      id,
+                      title: title ?? "AI Insight",
+                      detail,
+                      recommendation,
+                      iconEmoji:
+                        (typeof cardRecord.icon_emoji === "string" && cardRecord.icon_emoji.trim()) ||
+                        (typeof cardRecord.icon === "string" && cardRecord.icon.trim()) ||
+                        undefined,
+                      severity:
+                        (typeof cardRecord.severity === "string" && cardRecord.severity.trim()) ||
+                        undefined,
+                      timestamp,
+                      raw: cardRecord,
+                    } satisfies CallStreamIntent;
+                  })
+                  .filter((value): value is CallStreamIntent => Boolean(value));
+
+                if (mapped.length) {
+                  setIntents(mapped);
+                }
                 continue;
               }
             }
@@ -320,5 +402,5 @@ export const useCallStream = (caseId: string | null | undefined): UseCallStreamR
     };
   }, [caseId]);
 
-  return { transcripts, sentiments, metadata, isLoading, isConnected, error };
+  return { transcripts, sentiments, metadata, intents, isLoading, isConnected, error };
 };

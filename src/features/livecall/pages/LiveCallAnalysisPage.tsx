@@ -38,7 +38,7 @@ export default function LiveCallAnalysisPage() {
     const stateDebugEntry = locationState?.callDebugEntry;
     const searchParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
     const caseId = useMemo(() => searchParams.get("case") ?? searchParams.get("case_id"), [searchParams]);
-    const { transcripts, sentiments, metadata: streamMetadata, isConnected, isLoading, error } = useCallStream(caseId);
+    const { transcripts, sentiments, metadata: streamMetadata, intents, isConnected, isLoading, error } = useCallStream(caseId);
     const [callSession, setCallSession] = useState<LiveCallSession | null>(null);
     const [isEndingCall, setIsEndingCall] = useState(false);
     const [isDialingCustomer, setIsDialingCustomer] = useState(false);
@@ -273,6 +273,61 @@ export default function LiveCallAnalysisPage() {
             };
         });
     }, [sentiments]);
+
+    const intentItems = useMemo(() => {
+        if (!intents.length) return [];
+        const sorted = [...intents].sort((a, b) => {
+            const aTime = new Date(a.timestamp).getTime();
+            const bTime = new Date(b.timestamp).getTime();
+            return Number.isNaN(bTime) || Number.isNaN(aTime) ? 0 : bTime - aTime;
+        });
+        return sorted.map((item) => {
+            const severityNormalized = item.severity?.toLowerCase().trim();
+            const severityLabel = severityNormalized
+                ? severityNormalized.replace(/_/g, " ").replace(/(^|\s)\w/g, (match) => match.toUpperCase())
+                : undefined;
+
+            const severityTone = (() => {
+                switch (severityNormalized) {
+                    case "critical":
+                        return "critical";
+                    case "high":
+                        return "high";
+                    case "medium":
+                        return "medium";
+                    case "low":
+                        return "low";
+                    default:
+                        return undefined;
+                }
+            })();
+
+            const formattedTime = (() => {
+                const date = new Date(item.timestamp);
+                return Number.isNaN(date.getTime())
+                    ? item.timestamp
+                    : date.toLocaleString("en-GB", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        second: "2-digit",
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                    });
+            })();
+
+            return {
+                id: item.id,
+                title: item.title,
+                detail: item.detail,
+                recommendation: item.recommendation,
+                time: formattedTime,
+                iconEmoji: item.iconEmoji,
+                severityLabel,
+                severityTone,
+            };
+        });
+    }, [intents]);
 
     const toLabelCase = (value?: string | null) => {
         if (!value) return undefined;
@@ -1088,59 +1143,44 @@ export default function LiveCallAnalysisPage() {
                                 style={{ marginBottom: 15 }}
                             >
                                 <div className="listMediumCard" style={{marginTop:15}}>
-                                    {(() => {
-                                        type Intent = { title: string; detail: string; recommendation: string };
-                                        const intents: Intent[] = [
-                                            {
-                                                title: "Payment Status Issue",
-                                                detail:
-                                                    "Customer reports AED 150 was deducted yesterday, but service not delivered.",
-                                                recommendation:
-                                                    "Verify payment record, link case ID to billing, and inform customer of expected resolution timeline.",
-                                            },
-                                            {
-                                                title: "Case Creation",
-                                                detail:
-                                                    "System confirms case ticket has been generated.",
-                                                recommendation:
-                                                    "Track Case ID: DD-2025-4321 in Case Management Panel. Keep customer updated on provider's response.",
-                                            },
-                                            {
-                                                title: "Refund / Compensation Guidance",
-                                                detail:
-                                                    "If provider cannot deliver service within SLA, initiate refund inquiry or compensation process.",
-                                                recommendation:
-                                                    "Offer customer refund inquiry option and set reminder for follow-up.",
-                                            },
-                                        ];
-
-                                        return (
-                                            <List
-                                                itemLayout="vertical"
-                                                split={false}
-                                                dataSource={intents}
-                                                renderItem={(it, idx) => (
-                                                    <List.Item key={idx} style={{ padding: 0, marginBottom: 12 }}>
-                                                        <div className="intentListItem">
-                                                            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                                                                <span className="iconWrap">
-                                                                    <Icon icon="solar:flag-2-bold-duotone" width={16} height={16} />
+                                    {intentItems.length === 0 ? (
+                                        <Empty
+                                            description="AI intents belum tersedia"
+                                            image={Empty.PRESENTED_IMAGE_SIMPLE}
+                                        />
+                                    ) : (
+                                        <List
+                                            itemLayout="vertical"
+                                            split={false}
+                                            dataSource={intentItems}
+                                            renderItem={(item) => (
+                                                <List.Item key={item.id} style={{ padding: 0, marginBottom: 12 }}>
+                                                    <div className="intentListItem">
+                                                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, flexWrap: "wrap" }}>
+                                                            <span style={{ fontWeight: 600, fontSize: 14, display:"block", width:"100%" }}>{item.title}</span>
+                                                            {item.severityLabel && (
+                                                                <span className={`intentSeverity intentSeverity--${item.severityTone ?? "default"}`}>
+                                                                    {item.severityLabel}
                                                                 </span>
-                                                                <span style={{ fontWeight: 600 }}>{it.title}</span>
-                                                            </div>
+                                                            )}
+                                                            <span style={{ marginLeft: "auto", fontSize: 11, color: "#94a3b8" }}>{item.time}</span>
+                                                        </div>
 
-                                                            <div style={{ lineHeight: 1.5, marginBottom: 8 }}>{it.detail}</div>
+                                                        {item.detail && (
+                                                            <div style={{ lineHeight: 1.5, marginBottom: 8 }}>{item.detail}</div>
+                                                        )}
 
+                                                        {item.recommendation && (
                                                             <div style={{ lineHeight: 1.5 }}>
                                                                 <strong>Recommendation: </strong>
-                                                                {it.recommendation}
+                                                                {item.recommendation}
                                                             </div>
-                                                        </div>
-                                                    </List.Item>
-                                                )}
-                                            />
-                                        );
-                                    })()}
+                                                        )}
+                                                    </div>
+                                                </List.Item>
+                                            )}
+                                        />
+                                    )}
                                 </div>
                             </Card>
                         </Col>

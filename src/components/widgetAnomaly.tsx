@@ -506,7 +506,7 @@ export default function WidgetAnomaly({ widgetOpen, setWidgetOpen }: WidgetAnoma
       <Fragment key={`timeline-${i}`}>
         <div style={{ position: 'relative' }}>
           {i < arr.length - 1 && (
-            <span className="timeline-line" />
+            <span className="timeline-line" style={{marginLeft:"-4px", marginTop:5}} />
           )}
           <span
             className="timeline-dot"
@@ -515,7 +515,7 @@ export default function WidgetAnomaly({ widgetOpen, setWidgetOpen }: WidgetAnoma
         </div>
         <div>
           <div className="timeline-time">{item.time}</div>
-          <div className="timeline-desc">{item.description}</div>
+          <div className="timeline-desc"style={{fontSize:14}}>{item.description}</div>
         </div>
       </Fragment>
     ));
@@ -551,22 +551,35 @@ export default function WidgetAnomaly({ widgetOpen, setWidgetOpen }: WidgetAnoma
           Recommended Actions
         </div>
         <div className="actionsGrid">
-          {currentCase.available_actions.map((action) => (
-            <button
-              key={action}
-              type="button"
-              className="actionButton"
-              onClick={() => handleRecommendedAction(action)}
-              disabled={
-                action.trim().toLowerCase() === CONTACT_CUSTOMER_VALUE &&
-                (isInitiatingCall || isDialingCustomer || isEndingCall)
-              }
-            >
-              {isInitiatingCall && action.trim().toLowerCase() === CONTACT_CUSTOMER_VALUE
-                ? "Connecting call..."
-                : action}
-            </button>
-          ))}
+          {currentCase.available_actions.map((action) => {
+            const normalized = action.trim().toLowerCase();
+            const isContact = normalized === CONTACT_CUSTOMER_VALUE;
+            const isLoading = isContact && (isInitiatingCall || isDialingCustomer);
+
+            return (
+              <button
+                key={action}
+                type="button"
+                className={`actionButton actionButton--outlined${isContact ? " actionButton--primary1" : ""}`}
+                onClick={() => handleRecommendedAction(action)}
+                disabled={
+                  (isContact && (isInitiatingCall || isDialingCustomer || isEndingCall)) ||
+                  isLoading
+                }
+              >
+                {isContact ? (
+                  <>
+                    {isLoading && (
+                      <Icon icon="eos-icons:three-dots-loading" width={16} height={16} style={{ marginRight: 6 }} />
+                    )}
+                    {isLoading ? "Contacting..." : action}
+                  </>
+                ) : (
+                  action
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
     );

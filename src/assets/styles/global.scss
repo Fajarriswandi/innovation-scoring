@@ -833,6 +833,36 @@ h6 {
   }
 }
 
+.intentSeverity {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.08);
+  color: #1f2937;
+  text-transform: capitalize;
+}
+
+.intentSeverity--critical {
+  background: rgba(239, 68, 68, 0.16);
+  color: #b91c1c;
+}
+
+.intentSeverity--high {
+  background: rgba(234, 88, 12, 0.16);
+  color: #c2410c;
+}
+
+.intentSeverity--medium {
+  background: rgba(250, 204, 21, 0.18);
+  color: #b45309;
+}
+
+.intentSeverity--low {
+  background: rgba(59, 130, 246, 0.16);
+  color: #1d4ed8;
+}
+
 /* ===== DARK THEME OVERRIDES ===== */
 [data-theme='dark'] {
   color-scheme: dark;
@@ -1081,6 +1111,31 @@ h6 {
     }
   }
 
+  .intentSeverity {
+    background: rgba(148, 163, 184, 0.15);
+    color: #e2e8f0;
+  }
+
+  .intentSeverity--critical {
+    background: rgba(239, 68, 68, 0.22);
+    color: #fecaca;
+  }
+
+  .intentSeverity--high {
+    background: rgba(249, 115, 22, 0.22);
+    color: #fed7aa;
+  }
+
+  .intentSeverity--medium {
+    background: rgba(234, 179, 8, 0.22);
+    color: #fde68a;
+  }
+
+  .intentSeverity--low {
+    background: rgba(59, 130, 246, 0.24);
+    color: #bfdbfe;
+  }
+
   .badge.success,
   .badge.approved {
     background: rgba(34, 197, 94, 0.22);
@@ -1295,7 +1350,7 @@ h6 {
   .customerInfo {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    row-gap: 10px;
+    row-gap: 2px;
     column-gap: 16px;
     margin-bottom: 18px;
 
@@ -1327,9 +1382,37 @@ h6 {
     transition: background 0.2s ease, transform 0.2s ease;
 
     &:hover {
-      background: #eef6ff;
+      background: #669fe1;
       transform: translateY(-1px);
     }
+  }
+
+  .actionButton--outlined {
+    background: transparent;
+    border-radius: 999px;
+    border: 1.5px solid rgba(43, 47, 51, 0.4);
+    color: #1f3f6f;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 14px;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  .actionButton--outlined:hover {
+    background: rgba(31, 63, 111, 0.06);
+    transform: translateY(-1px);
+  }
+
+  .actionButton--primary {
+    color: #1e55ff;
+    border-color: rgba(30, 85, 255, 0.45);
+  }
+
+  .actionButton--primary:hover {
+    background: rgba(30, 85, 255, 0.08);
+    // background: $primary-color;
   }
 
   .fab {
