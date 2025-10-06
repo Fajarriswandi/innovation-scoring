@@ -427,8 +427,6 @@ export default function LiveCallAnalysisPage() {
             case DisconnectReasonEnum.ROOM_CLOSED:
                 return "Room was closed by the server.";
             case DisconnectReasonEnum.CONNECTION_TIMEOUT:
-            case DisconnectReasonEnum.SESSION_TIMEOUT:
-                return "Session timed out.";
             case DisconnectReasonEnum.USER_UNAVAILABLE:
                 return "Customer did not answer the call.";
             case DisconnectReasonEnum.USER_REJECTED:
