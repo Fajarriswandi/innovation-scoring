@@ -528,10 +528,6 @@ export default function WidgetAnomaly({ widgetOpen, setWidgetOpen }: WidgetAnoma
         <div className="value">{customerInfo.eventId}</div>
       </div>
       <div>
-        <div className="label">Case ID</div>
-        <div className="value">{displayCaseId ?? 'N/A'}</div>
-      </div>
-      <div>
         <div className="label">Account Age</div>
         <div className="value">{customerInfo.accountAge}</div>
       </div>
@@ -740,7 +736,9 @@ export default function WidgetAnomaly({ widgetOpen, setWidgetOpen }: WidgetAnoma
                       <Icon icon="mdi:phone-in-talk" width={22} height={22} />
                     )}
                   </span>
-                  <span className="widgetAnomalyModal__controlLabel">Contact now</span>
+                  <span className="widgetAnomalyModal__controlLabel">
+                    {isDialingCustomer ? "Dialing..." : "Contact now"}
+                  </span>
                 </button>
               </div>
               <div className="widgetAnomalyModal__status">{callStatus}</div>
