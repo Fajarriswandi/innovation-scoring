@@ -6,6 +6,7 @@ import { useAppDispatch } from "@/hooks/redux";
 import { setSmallTitle } from "@/store/layoutSlice";
 import { Icon } from "@iconify/react";
 import { useCallStream } from "@/hooks/useCallStream";
+import SentimentGaugeLiveCall from "@/features/livecall/components/SentimentGaugeLiveCall";
 import {
     LIVE_CALL_SESSION_STORAGE_KEY,
     LIVE_CALL_DEBUG_MAX_ENTRIES,
@@ -459,7 +460,7 @@ export default function LiveCallAnalysisPage() {
                             : participant.sid;
             const color = participant.isSpeaking ? "green" : "blue";
             return (
-                <Tag key={participant.sid} color={color} style={{ marginBottom: 4, display:"flex", justifyContent:'center', alignItems:"center" }}>
+                <Tag key={participant.sid} color={color} style={{ marginBottom: 4, display: "flex", justifyContent: 'center', alignItems: "center" }}>
                     <Icon icon="duo-icons:user" width={10} height={10} />  {label}
                 </Tag>
             );
@@ -672,7 +673,7 @@ export default function LiveCallAnalysisPage() {
                                                     <div style={{ position: "absolute", top: 12, right: 12, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
                                                         <Tag color={connectionLabel.color}>{connectionLabel.text}</Tag>
                                                         <div style={{ display: "flex", gap: 4, justifyContent: "flex-end" }}>
-                                                         {participantBadges}
+                                                            {participantBadges}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -709,7 +710,7 @@ export default function LiveCallAnalysisPage() {
                                             </div>*/}
                                             {/* Bottom controls */}
                                             <div style={{ position: "absolute", bottom: 80, left: 0, right: 0, display: "flex", justifyContent: "center", gap: 12 }}>
-                                               {/* <Button className="btnGlass" size="large" icon={<Icon icon="material-symbols:mic" width={18} height={18} />} />
+                                                {/* <Button className="btnGlass" size="large" icon={<Icon icon="material-symbols:mic" width={18} height={18} />} />
                                                 <Button className="btnGlass" size="large" icon={<Icon icon="mdi:volume-high" width={18} height={18} />} />
                                                 <Button className="btnGlass" size="large" icon={<Icon icon="solar:videocamera-record-bold" width={18} height={18} />} />*/}
                                                 <Button
@@ -728,7 +729,7 @@ export default function LiveCallAnalysisPage() {
                                             onClick={handleDialCustomer}
                                             disabled={!callSession || isDialingCustomer || roomState !== ConnectionState.Connected}
                                             loading={isDialingCustomer}
-                                            style={{ marginTop: 12, width: '100%', paddingTop:20, paddingBottom:20, borderRadius:50 }}
+                                            style={{ marginTop: 12, width: '100%', paddingTop: 20, paddingBottom: 20, borderRadius: 50 }}
                                             icon={<Icon icon="mdi:phone-outgoing" />}
                                         >
                                             Dial Customer
@@ -762,19 +763,19 @@ export default function LiveCallAnalysisPage() {
                                                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", rowGap: 8, columnGap: 16 }}>
                                                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                                                         <Icon icon="solar:clock-circle-bold-duotone" width={18} height={18} color="#8c8c8c" />
-                                                                <div>
-                                                                    <div style={{ fontSize: 12, color: "#8c8c8c" }}>Duration</div>
-                                                                    <div style={{ fontSize: 14, fontWeight: 600 }}>{callDuration}</div>
-                                                                </div>
+                                                        <div>
+                                                            <div style={{ fontSize: 12, color: "#8c8c8c" }}>Duration</div>
+                                                            <div style={{ fontSize: 14, fontWeight: 600 }}>{callDuration}</div>
+                                                        </div>
                                                     </div>
                                                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                                                         <Icon icon="solar:user-id-bold-duotone" width={18} height={18} color="#8c8c8c" />
                                                         <div>
-                                                                    <div style={{ fontSize: 12, color: "#8c8c8c" }}>Live Room ID</div>
-                                                                    <div style={{ fontSize: 14, fontWeight: 600 }}>{callSession?.roomName ?? "—"}</div>
-                                                                </div>
-                                                            </div>
+                                                            <div style={{ fontSize: 12, color: "#8c8c8c" }}>Live Room ID</div>
+                                                            <div style={{ fontSize: 14, fontWeight: 600 }}>{callSession?.roomName ?? "—"}</div>
                                                         </div>
+                                                    </div>
+                                                </div>
                                             </div>
 
                                             {/* Quick Actions grid (2 columns) */}
@@ -809,7 +810,7 @@ export default function LiveCallAnalysisPage() {
                                 title={<span style={{ display: "flex", alignItems: "center", gap: 8 }}><Icon icon="material-symbols:transcribe-outline-rounded" width={20} height={20} color="#40ACE2" />Realtime Transcript</span>}
                                 style={{ marginBottom: 15 }}
                             >
-                                <div className="listSmallCard" style={{marginTop:15}}>
+                                <div className="listSmallCard" style={{ marginTop: 15 }}>
                                     {callSession && (
                                         <div style={{ marginBottom: 12, fontSize: 12, color: "#64748b" }}>
                                             Live room: <strong>{callSession.roomName}</strong>
@@ -864,7 +865,7 @@ export default function LiveCallAnalysisPage() {
                                 </div>
                             </Card>
                         </Col>
-                        
+
                         {/* <Col xs={24} lg={24} xl={12}>
                             <Card
                                 className="cardWithFooter"
@@ -976,12 +977,69 @@ export default function LiveCallAnalysisPage() {
                         </Col> */}
 
                         <Col xs={24} lg={24} xl={12}>
+
                             <Card
                                 className="cardWithFooter analysisCard"
                                 title={<span style={{ display: "flex", alignItems: "center", gap: 8 }}><Icon icon="lineicons:gemini" width={20} height={20} color="#40ACE2" />Sentiment Analysis</span>}
                                 style={{ marginBottom: 15 }}
                             >
                                 <div className="listSmallCard" style={{ marginTop: 15 }}>
+
+                                    {/* Gauge Chart */}
+                                    {(() => {
+                                        const latest = sentimentItems[0];
+                                        const rawScore = typeof latest?.score === "number" ? latest.score : 0;
+                                        const gaugeValue = Math.max(0, Math.min(100, Math.abs(rawScore) * 100));
+                                        const sentimentLabel = rawScore >= 0.25 ? "Positive" : rawScore <= -0.25 ? "Negative" : "Neutral";
+
+                                        const scoreDisplay = `${(rawScore * 100).toFixed(2)}%`;
+                                        const gaugeColor = rawScore < 0 ? "#ea625d" : "#69b1ff";
+
+                                        return (
+                                            <div style={{ height: 220, position: "relative" }}>
+                                                <SentimentGaugeLiveCall value={gaugeValue} color={gaugeColor} />
+                                                <div
+                                                    style={{
+                                                        position: "absolute",
+                                                        left: 0,
+                                                        right: 0,
+                                                        bottom: 32,
+                                                        display: "flex",
+                                                        flexDirection: "column",
+                                                        alignItems: "center",
+                                                        gap: 4,
+                                                        pointerEvents: "none",
+                                                    }}
+                                                >
+                                                    <div style={{ fontSize: 22, fontWeight: 700, lineHeight: 1 }}>{scoreDisplay}</div>
+                                                    <div style={{ fontSize: 12, color: "#8c8c8c" }}>
+                                                        Sentiment · {sentimentLabel}
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    style={{
+                                                        position: "absolute",
+                                                        bottom: 6,
+                                                        left: 0,
+                                                        right: 0,
+                                                        display: "flex",
+                                                        justifyContent: "space-between",
+                                                        padding: "0 12px",
+                                                        color: "#8c8c8c",
+                                                        fontSize: 12,
+                                                        fontWeight: 500,
+                                                    }}
+                                                >
+                                                    <span>0%</span>
+                                                    <span>100%</span>
+                                                </div>
+                                            </div>
+                                        );
+                                    })()}
+
+                                    {/* History sentiment analysis */}
+
+
                                     {sentimentItems.length === 0 ? (
                                         <Empty
                                             image={Empty.PRESENTED_IMAGE_SIMPLE}
@@ -1140,7 +1198,7 @@ export default function LiveCallAnalysisPage() {
                                 title={<span style={{ display: "flex", alignItems: "center", gap: 8 }}><Icon icon="lineicons:gemini" width={20} height={20} color="#40ACE2" />AI Intent Box</span>}
                                 style={{ marginBottom: 15 }}
                             >
-                                <div className="listMediumCard" style={{marginTop:15}}>
+                                <div className="listMediumCard" style={{ marginTop: 15 }}>
                                     {intentItems.length === 0 ? (
                                         <Empty
                                             description="AI intents belum tersedia"
@@ -1155,7 +1213,7 @@ export default function LiveCallAnalysisPage() {
                                                 <List.Item key={item.id} style={{ padding: 0, marginBottom: 12 }}>
                                                     <div className="intentListItem">
                                                         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, flexWrap: "wrap" }}>
-                                                            <span style={{ fontWeight: 600, fontSize: 14, display:"block", width:"100%" }}>{item.title}</span>
+                                                            <span style={{ fontWeight: 600, fontSize: 14, display: "block", width: "100%" }}>{item.title}</span>
                                                             {item.severityLabel && (
                                                                 <span className={`intentSeverity intentSeverity--${item.severityTone ?? "default"}`}>
                                                                     {item.severityLabel}
