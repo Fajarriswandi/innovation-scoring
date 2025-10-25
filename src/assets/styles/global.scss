@@ -863,6 +863,164 @@ h6 {
   color: #1d4ed8;
 }
 
+/* ===== INCOMING CALL WIDGET ===== */
+.incoming-call-widget {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 2000;
+  width: min(360px, calc(100% - 32px));
+  display: flex;
+  gap: 12px;
+  padding: 18px 20px 20px 18px;
+  border-radius: 20px;
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
+  color: #0f172a;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  animation: incoming-call-slide-in 0.35s ease-out;
+}
+
+.incoming-call-widget__alert {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: rgba(99, 102, 241, 0.12);
+  color: #2563eb;
+  font-size: 20px;
+}
+
+.incoming-call-widget__content {
+  flex: 1;
+}
+
+.incoming-call-widget__identity {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.incoming-call-widget__avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: linear-gradient(145deg, #e2e8f0, #cbd5f5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+  text-transform: uppercase;
+}
+
+.incoming-call-widget__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.incoming-call-widget__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.incoming-call-widget__name {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  color: inherit;
+}
+
+.incoming-call-widget__status {
+  margin: 0;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.incoming-call-widget__actions {
+  margin-top: 16px;
+  display: flex;
+  gap: 10px;
+}
+
+.incoming-call-widget__button {
+  flex: 1;
+  border: none;
+  border-radius: 12px;
+  height: 44px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.incoming-call-widget__button:focus-visible {
+  outline: 2px solid rgba(37, 99, 235, 0.4);
+  outline-offset: 2px;
+}
+
+.incoming-call-widget__button--accept {
+  background: linear-gradient(135deg, #34d399, #059669);
+  color: #052e1b;
+  box-shadow: 0 10px 18px rgba(5, 150, 105, 0.25);
+}
+
+.incoming-call-widget__button--reject {
+  background: linear-gradient(135deg, #f87171, #dc2626);
+  color: #5f0a07;
+  box-shadow: 0 10px 18px rgba(220, 38, 38, 0.15);
+}
+
+.incoming-call-widget__button:hover {
+  transform: translateY(-1px);
+}
+
+.incoming-call-widget__button:active {
+  transform: translateY(1px);
+}
+
+@keyframes incoming-call-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 576px) {
+  .incoming-call-widget {
+    top: 16px;
+    right: 16px;
+    left: 16px;
+    width: auto;
+  }
+
+  .incoming-call-widget__identity {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .incoming-call-widget__avatar {
+    border-radius: 999px;
+  }
+
+  .incoming-call-widget__actions {
+    flex-direction: column;
+  }
+}
+
 /* ===== DARK THEME OVERRIDES ===== */
 [data-theme='dark'] {
   color-scheme: dark;
@@ -1846,4 +2004,37 @@ h6 {
 .postCallBanner__close:focus-visible {
   background: rgba(22, 101, 52, 0.08);
   outline: none;
+}
+
+[data-theme='dark'] {
+  .incoming-call-widget {
+    background: #1f2733;
+    border: 1px solid rgba(148, 163, 184, 0.32);
+    box-shadow: 0 20px 40px rgba(2, 6, 23, 0.55);
+    color: #f6f7fb;
+  }
+
+  .incoming-call-widget__status {
+    color: #a5afc0;
+  }
+
+  .incoming-call-widget__alert {
+    background: rgba(80, 147, 255, 0.2);
+    color: #68b3ff;
+  }
+
+  .incoming-call-widget__avatar {
+    background: linear-gradient(145deg, #405368, #2f3b4a);
+    color: #f1f5f9;
+  }
+
+  .incoming-call-widget__button--accept {
+    color: #e9fff5;
+    box-shadow: 0 12px 24px rgba(47, 210, 142, 0.3);
+  }
+
+  .incoming-call-widget__button--reject {
+    color: #ffeaea;
+    box-shadow: 0 12px 24px rgba(244, 123, 85, 0.35);
+  }
 }

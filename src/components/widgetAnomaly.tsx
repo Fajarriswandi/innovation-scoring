@@ -295,9 +295,11 @@ export default function WidgetAnomaly({ widgetOpen, setWidgetOpen }: WidgetAnoma
     caseUuid: string,
     customerNameValue: string,
     avatarUrl: string,
-    createdAt?: string
+    createdAt?: string,
+    caseNumber?: string
   ): LiveCallSession => ({
     caseId: caseUuid,
+    caseNumber,
     roomName: payload.room_name,
     livekitToken: payload.livekit_token,
     livekitUrl: payload.livekit_url,

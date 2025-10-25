@@ -1,7 +1,8 @@
 export const LIVE_CALL_SESSION_STORAGE_KEY = "livecall:session";
 
 export type LiveCallSession = {
-  caseId: string;
+  caseId: string; // always BE case UUID
+  caseNumber?: string; // human-readable case number (#xxxx)
   roomName: string;
   livekitToken: string;
   livekitUrl: string;
@@ -17,6 +18,7 @@ export const LIVE_CALL_DEBUG_MAX_ENTRIES = 20;
 
 export type LiveCallDebugAction =
   | "initiate-call"
+  | "join-inbound-call"
   | "dial-customer"
   | "end-call"
   | "error";

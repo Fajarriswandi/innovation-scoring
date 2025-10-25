@@ -30,6 +30,15 @@ const createDebugEntryId = () =>
         ? crypto.randomUUID()
         : `livecall-${Date.now()}-${Math.random().toString(16).slice(2, 10)}`;
 
+const isHumanReadableCaseId = (value?: string | null) => Boolean(value && value.startsWith("#"));
+
+const toApiCaseId = (value?: string | null) => {
+    if (!value) return undefined;
+    const trimmed = value.trim();
+    if (!trimmed || isHumanReadableCaseId(trimmed)) return undefined;
+    return trimmed;
+};
+
 export default function LiveCallAnalysisPage() {
     const dispatch = useAppDispatch();
     const location = useLocation();
@@ -39,8 +48,13 @@ export default function LiveCallAnalysisPage() {
     const stateDebugEntry = locationState?.callDebugEntry;
     const searchParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
     const caseId = useMemo(() => searchParams.get("case") ?? searchParams.get("case_id"), [searchParams]);
-    const { transcripts, sentiments, metadata: streamMetadata, intents, isConnected, isLoading, error } = useCallStream(caseId);
     const [callSession, setCallSession] = useState<LiveCallSession | null>(null);
+    const preferredCaseUuid = useMemo(
+        () => toApiCaseId(caseId) ?? toApiCaseId(stateSession?.caseId) ?? toApiCaseId(callSession?.caseId),
+        [caseId, stateSession?.caseId, callSession?.caseId]
+    );
+    const streamCaseId = preferredCaseUuid ?? caseId ?? undefined;
+    const { transcripts, sentiments, metadata: streamMetadata, intents, isConnected, isLoading, error } = useCallStream(streamCaseId);
     const [isEndingCall, setIsEndingCall] = useState(false);
     const [isDialingCustomer, setIsDialingCustomer] = useState(false);
     const hasEndedRef = useRef(false);
@@ -54,6 +68,10 @@ export default function LiveCallAnalysisPage() {
     const [isCustomerLoading, setIsCustomerLoading] = useState(false);
     const [customerError, setCustomerError] = useState<string | null>(null);
     const [callDuration, setCallDuration] = useState<string>("00:00");
+    const resolvedCaseUuid = useMemo(
+        () => preferredCaseUuid ?? toApiCaseId(customerDetail?.id),
+        [preferredCaseUuid, customerDetail?.id]
+    );
 
     useEffect(() => {
         dispatch(setSmallTitle("Live Call Analysis"));
@@ -137,7 +155,7 @@ export default function LiveCallAnalysisPage() {
     }, [caseId, stateSession, stateDebugEntry]);
 
     useEffect(() => {
-        const caseUuid = caseId?.trim();
+        const caseUuid = preferredCaseUuid;
         if (!caseUuid) {
             setCustomerDetail(null);
             setCustomerError(null);
@@ -173,7 +191,7 @@ export default function LiveCallAnalysisPage() {
         return () => {
             cancelled = true;
         };
-    }, [caseId]);
+    }, [preferredCaseUuid]);
 
     useEffect(() => {
         let timer: number | undefined;
@@ -516,17 +534,17 @@ export default function LiveCallAnalysisPage() {
     }, []);
 
     const handleEndCall = useCallback(async () => {
-        if (!callSession?.caseId || isEndingCall || hasEndedRef.current) return;
+        if (!resolvedCaseUuid || isEndingCall || hasEndedRef.current) return;
         setIsEndingCall(true);
         try {
-            await endCaseCall(callSession.caseId);
+            await endCaseCall(resolvedCaseUuid);
             message.success("Call ended successfully.");
             recordDebugEntry({
                 id: createDebugEntryId(),
                 timestamp: new Date().toISOString(),
                 action: "end-call",
-                caseId: callSession.caseId,
-                request: { caseId: callSession.caseId },
+                caseId: resolvedCaseUuid,
+                request: { caseId: resolvedCaseUuid },
                 response: { message: "Call ended successfully." },
                 notes: "Call ended from live call page.",
             });
@@ -543,8 +561,8 @@ export default function LiveCallAnalysisPage() {
                 id: createDebugEntryId(),
                 timestamp: new Date().toISOString(),
                 action: "end-call",
-                caseId: callSession.caseId,
-                request: { caseId: callSession.caseId },
+                caseId: resolvedCaseUuid,
+                request: { caseId: resolvedCaseUuid },
                 error: errMsg,
                 notes: "endCaseCall returned an error.",
             });
@@ -559,21 +577,21 @@ export default function LiveCallAnalysisPage() {
             setDisconnectReason(DisconnectReasonEnum.CLIENT_INITIATED);
             setReconnectKey(0);
         }
-    }, [callSession?.caseId, isEndingCall, navigate, recordDebugEntry]);
+    }, [resolvedCaseUuid, isEndingCall, navigate, recordDebugEntry]);
 
     const handleDialCustomer = useCallback(async () => {
-        if (!callSession?.caseId || isDialingCustomer) return;
+        if (!resolvedCaseUuid || isDialingCustomer) return;
         setIsDialingCustomer(true);
         try {
-            const result = await dialCaseCustomer(callSession.caseId);
+            const result = await dialCaseCustomer(resolvedCaseUuid);
             console.log("Dial customer response:", result);
             message.success(result.message || "Customer is being dialed.");
             recordDebugEntry({
                 id: createDebugEntryId(),
                 timestamp: new Date().toISOString(),
                 action: "dial-customer",
-                caseId: callSession.caseId,
-                request: { caseId: callSession.caseId },
+                caseId: resolvedCaseUuid,
+                request: { caseId: resolvedCaseUuid },
                 response: result,
                 notes: "Dial customer triggered from live call page.",
             });
@@ -588,18 +606,18 @@ export default function LiveCallAnalysisPage() {
                 id: createDebugEntryId(),
                 timestamp: new Date().toISOString(),
                 action: "dial-customer",
-                caseId: callSession?.caseId,
-                request: callSession?.caseId ? { caseId: callSession.caseId } : undefined,
+                caseId: resolvedCaseUuid ?? callSession?.caseId,
+                request: resolvedCaseUuid ? { caseId: resolvedCaseUuid } : undefined,
                 error: errMsg,
                 notes: "dialCaseCustomer returned an error.",
             });
         } finally {
             setIsDialingCustomer(false);
         }
-    }, [callSession?.caseId, isDialingCustomer, recordDebugEntry]);
+    }, [resolvedCaseUuid, isDialingCustomer, recordDebugEntry, callSession?.caseId]);
 
     useEffect(() => {
-        const sessionCaseId = callSession?.caseId;
+        const sessionCaseId = resolvedCaseUuid;
         return () => {
             if (!hasEndedRef.current && sessionCaseId) {
                 endCaseCall(sessionCaseId).catch((err) => {
@@ -614,7 +632,7 @@ export default function LiveCallAnalysisPage() {
             setDisconnectReason(null);
             setReconnectKey(0);
         };
-    }, [callSession?.caseId]);
+    }, [resolvedCaseUuid]);
 
     useEffect(() => () => {
         setRoomParticipants([]);
@@ -623,6 +641,21 @@ export default function LiveCallAnalysisPage() {
         setDisconnectReason(null);
         setReconnectKey(0);
     }, []);
+
+    useEffect(() => {
+        if (preferredCaseUuid && caseId && isHumanReadableCaseId(caseId)) {
+            const params = new URLSearchParams(location.search);
+            params.set("case", preferredCaseUuid);
+            params.delete("case_id");
+            navigate(
+                {
+                    pathname: location.pathname,
+                    search: params.toString(),
+                },
+                { replace: true, state: location.state }
+            );
+        }
+    }, [preferredCaseUuid, caseId, location.pathname, location.search, location.state, navigate]);
 
     useEffect(() => {
         if (callSession) {
@@ -636,7 +669,7 @@ export default function LiveCallAnalysisPage() {
                 <title>Live Call Analysis | AI Powered Call Center</title>
             </Helmet>
 
-            {!caseId && (
+            {!preferredCaseUuid && (
                 <Alert
                     type="warning"
                     showIcon

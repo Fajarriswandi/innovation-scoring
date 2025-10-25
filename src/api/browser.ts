@@ -8,7 +8,8 @@ const baseURL = import.meta.env.DEV
   : (import.meta.env.VITE_API_BASE_URL as string);
 
 // Bisa pakai Bearer dari env (dev) atau dari Redux/Storage di kemudian hari
-const getAuthToken = () => {
+export const API_BASE_URL = baseURL;
+export const getApiAuthToken = () => {
   const token = import.meta.env.VITE_API_TOKEN; // optional
   return token ? `Bearer ${token}` : undefined;
 };
@@ -25,7 +26,7 @@ export const api: AxiosInstance = axios.create({
 
 // Request interceptor (tambahkan auth header jika ada)
 api.interceptors.request.use((config) => {
-  const auth = getAuthToken();
+  const auth = getApiAuthToken();
   if (auth) config.headers.Authorization = auth;
   return config;
 });

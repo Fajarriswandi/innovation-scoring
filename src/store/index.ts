@@ -1,9 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit';
 import layoutReducer from './layoutSlice';
+import inboundReducer from './inboundSlice';
 
 export const store = configureStore({
   reducer: {
     layout: layoutReducer,
+    inbound: inboundReducer,
   },
   middleware: (getDefault) => getDefault(),
   devTools: import.meta.env.DEV,
