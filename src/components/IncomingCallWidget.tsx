@@ -27,9 +27,9 @@ export default function IncomingCallWidget({
 
   return (
     <aside className="incoming-call-widget">
-      <div className="incoming-call-widget__alert">
+      {/* <div className="incoming-call-widget__alert">
         <Icon icon="solar:bell-bing-bold" />
-      </div>
+      </div> */}
       <div className="incoming-call-widget__content">
         <div className="incoming-call-widget__identity">
           <div className="incoming-call-widget__avatar">
