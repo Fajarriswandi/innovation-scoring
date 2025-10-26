@@ -52,6 +52,7 @@ deploy:
     - echo "Deploying to production server..."
     - ssh $DEPLOY_USER@$DEPLOY_HOST "
         cd /opt/ai-call-center &&
+        echo $CI_REGISTRY_PASSWORD | sudo docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY &&
         sudo docker image pull registry.gitlab.com/zafarlabs/fe-ai-powered-call-center-demo/ai-call-center:latest &&
         sudo docker service update --force ai_call_center_fe &&
         echo 'Frontend service updated successfully'"
