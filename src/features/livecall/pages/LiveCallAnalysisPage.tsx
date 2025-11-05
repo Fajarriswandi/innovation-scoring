@@ -296,8 +296,10 @@ export default function LiveCallAnalysisPage() {
     const intentItems = useMemo(() => {
         if (!intents.length) return [];
         const sorted = [...intents].sort((a, b) => {
-            const aTime = new Date(a.timestamp).getTime();
-            const bTime = new Date(b.timestamp).getTime();
+            const aTimestamp = a.createdAt ?? a.timestamp;
+            const bTimestamp = b.createdAt ?? b.timestamp;
+            const aTime = new Date(aTimestamp).getTime();
+            const bTime = new Date(bTimestamp).getTime();
             return Number.isNaN(bTime) || Number.isNaN(aTime) ? 0 : bTime - aTime;
         });
         return sorted.map((item) => {
@@ -321,10 +323,11 @@ export default function LiveCallAnalysisPage() {
                 }
             })();
 
+            const rawTimestamp = item.createdAt ?? item.timestamp;
             const formattedTime = (() => {
-                const date = new Date(item.timestamp);
+                const date = new Date(rawTimestamp);
                 return Number.isNaN(date.getTime())
-                    ? item.timestamp
+                    ? rawTimestamp
                     : date.toLocaleString("en-GB", {
                         hour: "2-digit",
                         minute: "2-digit",
@@ -341,6 +344,7 @@ export default function LiveCallAnalysisPage() {
                 detail: item.detail,
                 recommendation: item.recommendation,
                 time: formattedTime,
+                rawTimestamp,
                 iconEmoji: item.iconEmoji,
                 severityLabel,
                 severityTone,

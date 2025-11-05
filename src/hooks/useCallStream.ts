@@ -33,6 +33,7 @@ export type CallStreamIntent = {
   recommendation?: string;
   iconEmoji?: string;
   severity?: string;
+  createdAt?: string;
   timestamp: string;
   raw: unknown;
 };
@@ -339,7 +340,13 @@ export const useCallStream = (caseId: string | null | undefined): UseCallStreamR
                       (typeof cardRecord.next_step === "string" && cardRecord.next_step.trim()) ||
                       undefined;
 
+                    const createdAt =
+                      (typeof cardRecord.created_at === "string" && cardRecord.created_at.trim()) ||
+                      (typeof cardRecord.createdAt === "string" && cardRecord.createdAt.trim()) ||
+                      undefined;
+
                     const timestamp =
+                      createdAt ||
                       (typeof cardRecord.timestamp === "string" && cardRecord.timestamp.trim()) ||
                       (typeof parsed.timestamp === "string" && parsed.timestamp.trim()) ||
                       new Date().toISOString();
@@ -361,6 +368,7 @@ export const useCallStream = (caseId: string | null | undefined): UseCallStreamR
                         (typeof cardRecord.severity === "string" && cardRecord.severity.trim()) ||
                         undefined,
                       timestamp,
+                      createdAt,
                       raw: cardRecord,
                     } satisfies CallStreamIntent;
                   })
