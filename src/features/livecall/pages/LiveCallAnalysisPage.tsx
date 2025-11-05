@@ -877,7 +877,7 @@ export default function LiveCallAnalysisPage() {
 
                                     {!isLoading && !transcriptItems.length && (
                                         <Empty description="No transcript yet" />
-                                    )}
+                                    )} 
 
                                     {transcriptItems.length > 0 && (
                                         <div>
