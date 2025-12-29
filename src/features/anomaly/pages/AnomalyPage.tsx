@@ -22,7 +22,7 @@ export default function AnomalyPage() {
   return (
     <div>
       <Helmet>
-        <title>Anomaly Detection | AI Powered Call Center</title>
+        <title>Anomaly Detection | AI Innovation Scoring Dashboard</title>
       </Helmet>
 
       {/* Widget here */}

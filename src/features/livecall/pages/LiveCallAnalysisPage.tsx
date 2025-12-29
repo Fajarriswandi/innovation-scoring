@@ -670,7 +670,7 @@ export default function LiveCallAnalysisPage() {
     return (
         <div>
             <Helmet>
-                <title>Live Call Analysis | AI Powered Call Center</title>
+                <title>Live Call Analysis | AI Innovation Scoring Dashboard</title>
             </Helmet>
 
             {!preferredCaseUuid && (

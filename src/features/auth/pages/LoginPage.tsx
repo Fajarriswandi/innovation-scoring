@@ -39,16 +39,16 @@ export default function LoginPage() {
 
   useEffect(() => {
     const prev = document.title;
-    document.title = "Login | AI Powered Call Center";
+    document.title = "Login | AI Innovation Scoring Dashboard";
     return () => {
-      document.title = prev || "AI Powered Call Center";
+      document.title = prev || "AI Innovation Scoring Dashboard";
     };
   }, []);
 
   return (
     <>
       <Helmet>
-        <title>Login | AI Powered Call Center</title>
+        <title>Login | AI Innovation Scoring Dashboard</title>
       </Helmet>
       <Row className="full-height-row" gutter={0}>
         <Col xs={24} md={12} className="pane pane--left">

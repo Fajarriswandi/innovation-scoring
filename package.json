@@ -1,5 +1,6 @@
 {
-  "name": "dubai-ai-app",
+  "name": "innovation-scoring",
+  "description": "AI-powered innovation scoring dashboard",
   "private": true,
   "version": "0.0.0",
   "type": "module",

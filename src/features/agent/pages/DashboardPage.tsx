@@ -25,10 +25,10 @@ export default function DashboardPage() {
 
   useEffect(() => {
     dispatch(setSmallTitle("Dashboard Agent"));
-    document.title = "Dashboard Agent | AI Powered Call Center";
+    document.title = "Dashboard Agent | AI Innovation Scoring Dashboard";
     return () => {
       dispatch(setSmallTitle("Dashboard"));
-      document.title = "AI Powered Call Center";
+      document.title = "AI Innovation Scoring Dashboard";
     };
   }, [dispatch]);
 
@@ -43,7 +43,7 @@ export default function DashboardPage() {
   return (
     <div className="dashboard-grid">
       <Helmet>
-        <title>Dashboard Agent | AI Powered Call Center</title>
+        <title>Dashboard Agent | AI Innovation Scoring Dashboard</title>
       </Helmet>
 
       <WidgetAnomaly widgetOpen={widgetOpen} setWidgetOpen={setWidgetOpen} />

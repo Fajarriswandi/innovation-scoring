@@ -12,17 +12,17 @@ export default function NotAvailablePage() {
 
     useEffect(() => {
         dispatch(setSmallTitle("Page Not Available"));
-        document.title = "Page Not Available For Demo Version| AI Powered Call Center";
+        document.title = "Page Not Available For Demo Version| AI Innovation Scoring Dashboard";
 
         return () => {
             dispatch(setSmallTitle("Dashboard"));
-            document.title = "AI Powered Call Center";
+            document.title = "AI Innovation Scoring Dashboard";
         };
     }, [dispatch]);
     return (
         <>
             <Helmet>
-                <title>Not Available | AI Powered Call Center</title>
+                <title>Not Available | AI Innovation Scoring Dashboard</title>
             </Helmet>
 
             <Card className="noborderHeader cardNotAvailable">
