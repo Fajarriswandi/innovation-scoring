@@ -8,12 +8,10 @@ import {
   Button,
   Checkbox,
   Typography,
-  message,
 } from "antd";
 import { MailOutlined, LockOutlined, GoogleOutlined } from "@ant-design/icons";
 import { Helmet } from "react-helmet-async";
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 
 const { Title, Text } = Typography;
 
@@ -24,8 +22,7 @@ type LoginFormValues = {
 };
 
 export default function LoginPage() {
-  const navigate = useNavigate();
-  const onFinish = (values: LoginFormValues) => {
+  const onFinish = (_values: LoginFormValues) => {
     // Login logic here
   };
 

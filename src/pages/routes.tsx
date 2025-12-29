@@ -3,6 +3,8 @@ import LoginPage from "@/features/auth/pages/LoginPage";
 import DashboardPage from "@/features/agent/pages/DashboardPage";
 import AppLayout from "@/layouts/AppLayout";
 import BlankPage from "@/features/blank/pages/BlankPage";
+import InnovationsPage from "@/features/blank/pages/InnovationsPage";
+import DetailPage from "@/features/blank/pages/DetailPage";
 
 export default function AppRoutes() {
   return (
@@ -26,6 +28,34 @@ export default function AppRoutes() {
         element={
           <AppLayout>
             <BlankPage />
+          </AppLayout>
+        }
+      />
+
+      {/* Innovations page */}
+      <Route
+        path="/innovations"
+        element={
+          <AppLayout>
+            <InnovationsPage />
+          </AppLayout>
+        }
+      />
+
+      {/* Detail page */}
+      <Route
+        path="/detail/:id"
+        element={
+          <AppLayout>
+            <DetailPage />
+          </AppLayout>
+        }
+      />
+      <Route
+        path="/detail"
+        element={
+          <AppLayout>
+            <DetailPage />
           </AppLayout>
         }
       />

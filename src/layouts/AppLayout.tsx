@@ -127,6 +127,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const routeKey = (() => {
     if (location.pathname.startsWith("/dashboard")) return "dashboard";
     if (location.pathname.startsWith("/blank")) return "blank";
+    if (location.pathname.startsWith("/innovations")) return "innovations";
     return "dashboard";
   })();
 
@@ -134,6 +135,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const map: Record<string, string> = {
       dashboard: "/dashboard",
       blank: "/blank",
+      innovations: "/innovations",
     };
     const to = map[key as string];
     if (to) navigate(to);
@@ -149,6 +151,11 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       key: "blank",
       icon: <Icon icon="solar:document-bold-duotone" width={20} height={20} />,
       label: "Blank Page",
+    },
+    {
+      key: "innovations",
+      icon: <Icon icon="solar:lightbulb-bold-duotone" width={20} height={20} />,
+      label: "Innovations",
     },
   ];
 

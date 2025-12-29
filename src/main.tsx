@@ -9,7 +9,7 @@ import '@/assets/styles/global.scss';
 import { HelmetProvider } from 'react-helmet-async';
 import { App } from 'antd';
 
-const RootShell = () => (
+export const RootShell = () => (
   <HelmetProvider>
     <App>
       <RootApp />
