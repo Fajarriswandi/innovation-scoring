@@ -3,12 +3,12 @@ import { useAppDispatch } from "@/hooks/redux";
 import { setSmallTitle } from "@/store/layoutSlice";
 import { Helmet } from "react-helmet-async";
 
-export default function DashboardPage() {
+export default function BlankPage() {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(setSmallTitle("Innovation Scoring Dashboard"));
-    document.title = "Innovation Scoring Dashboard | AI Innovation Scoring Dashboard";
+    dispatch(setSmallTitle("Blank Page"));
+    document.title = "Blank Page | AI Innovation Scoring Dashboard";
     return () => {
       dispatch(setSmallTitle("Dashboard"));
       document.title = "AI Innovation Scoring Dashboard";
@@ -18,9 +18,9 @@ export default function DashboardPage() {
   return (
     <div>
       <Helmet>
-        <title>Innovation Scoring Dashboard | AI Innovation Scoring Dashboard</title>
+        <title>Blank Page | AI Innovation Scoring Dashboard</title>
       </Helmet>
-      <div>Blank dashboard</div>
     </div>
   );
 }
+

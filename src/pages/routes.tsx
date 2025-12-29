@@ -2,9 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "@/features/auth/pages/LoginPage";
 import DashboardPage from "@/features/agent/pages/DashboardPage";
 import AppLayout from "@/layouts/AppLayout";
-import AnomalyPage from "@/features/anomaly/pages/AnomalyPage";
-import NotAvailablePage from "@/features/notavailable/pages/NotAvailablePage";
-import LiveCallAnalysisPage from "@/features/livecall/pages/LiveCallAnalysisPage";
+import BlankPage from "@/features/blank/pages/BlankPage";
 
 export default function AppRoutes() {
   return (
@@ -22,32 +20,12 @@ export default function AppRoutes() {
         }
       />
 
-      {/* Anomaly Detection */}
+      {/* Blank page */}
       <Route
-        path="/anomaly"
+        path="/blank"
         element={
           <AppLayout>
-            <AnomalyPage />
-          </AppLayout>
-        }
-      />
-
-      {/* Not Available page */}
-      <Route
-        path="/notavailable"
-        element={
-          <AppLayout>
-            <NotAvailablePage />
-          </AppLayout>
-        }
-      />
-
-      {/* Live call analysist */}
-      <Route
-        path="/live-call"
-        element={
-          <AppLayout>
-            <LiveCallAnalysisPage />
+            <BlankPage />
           </AppLayout>
         }
       />

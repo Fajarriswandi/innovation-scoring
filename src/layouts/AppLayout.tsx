@@ -115,7 +115,10 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   }, [isDark]);
 
   const { smallTitle } = useAppSelector((state) => state.layout);
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState<boolean>(() => {
+    const saved = localStorage.getItem("sidebarCollapsed");
+    return saved !== null ? saved === "true" : true;
+  });
   const screens = Grid.useBreakpoint();
 
   const location = useLocation();
@@ -123,22 +126,14 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   const routeKey = (() => {
     if (location.pathname.startsWith("/dashboard")) return "dashboard";
-    if (location.pathname.startsWith("/anomaly")) return "realtime"; // Realtime Log Scanner = anomaly
-    if (location.pathname.startsWith("/live-call")) return "calls";
+    if (location.pathname.startsWith("/blank")) return "blank";
     return "dashboard";
   })();
 
   const onMenuClick: MenuProps['onClick'] = ({ key }) => {
     const map: Record<string, string> = {
       dashboard: "/dashboard",
-      realtime: "/anomaly",
-      // calls: "/live-call",
-      reports: "/notavailable",
-      messages: "/notavailable",
-      customers: "/notavailable",
-      "customers-list": "/notavailable",
-      "customers-segments": "/notavailable",
-      settings: "/notavailable",
+      blank: "/blank",
     };
     const to = map[key as string];
     if (to) navigate(to);
@@ -151,46 +146,9 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       label: "Dashboard",
     },
     {
-      key: "realtime",
-      icon: <Icon icon="streamline-flex:ai-scanner-robot-remix" width={20} height={20} />,
-      label: "Realtime Log Scanner",
-    },
-    // {
-    //   key: "calls",
-    //   icon: <Icon icon="solar:call-chat-rounded-bold-duotone" width={20} height={20} />,
-    //   label: "Calls",
-    // },
-    {
-      key: "reports",
-      icon: <Icon icon="solar:chart-2-bold-duotone" width={20} height={20} />,
-      label: "Reports",
-    },
-    {
-      key: "messages",
-      icon: <Icon icon="duo-icons:message-2" width={20} height={20} />,
-      label: "Messages",
-    },
-    {
-      key: "customers",
-      icon: <Icon icon="solar:users-group-rounded-bold-duotone" width={20} height={20} />,
-      label: "Customers",
-      children: [
-        {
-          key: "customers-list",
-          label: "List",
-          icon: <Icon icon="solar:list-bold-duotone" width={18} height={18} />,
-        },
-        {
-          key: "customers-segments",
-          label: "Segments",
-          icon: <Icon icon="solar:bookmark-square-bold-duotone" width={18} height={18} />,
-        },
-      ],
-    },
-    {
-      key: "settings",
-      icon: <Icon icon="lets-icons:setting-line-duotone" width={20} height={20} />,
-      label: "Settings",
+      key: "blank",
+      icon: <Icon icon="solar:document-bold-duotone" width={20} height={20} />,
+      label: "Blank Page",
     },
   ];
 
@@ -227,7 +185,12 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             top: 15,
           }}
           className="siderGlobal"
-          onBreakpoint={(broken) => setCollapsed(broken)}
+          onBreakpoint={(broken) => {
+            if (broken) {
+              setCollapsed(true);
+              localStorage.setItem("sidebarCollapsed", "true");
+            }
+          }}
           theme="light"
         >
           <div className={`topSider ${collapsed ? "topSider--collapsed" : ""}`}>
@@ -240,7 +203,11 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             <Button
               type="text"
               icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-              onClick={() => setCollapsed(!collapsed)}
+              onClick={() => {
+                const newCollapsed = !collapsed;
+                setCollapsed(newCollapsed);
+                localStorage.setItem("sidebarCollapsed", String(newCollapsed));
+              }}
               style={{ fontSize: 16, width: 60, height: 60 }}
             />
           </div>

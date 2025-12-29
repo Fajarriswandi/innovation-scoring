@@ -26,15 +26,7 @@ type LoginFormValues = {
 export default function LoginPage() {
   const navigate = useNavigate();
   const onFinish = (values: LoginFormValues) => {
-    if (
-      values.email === "reem.alfalasi@digitaldubai.ae" &&
-      values.password === "#dubai2025"
-    ) {
-      message.success("Login successful!");
-      navigate("/dashboard");
-    } else {
-      message.error("Invalid credentials");
-    }
+    // Login logic here
   };
 
   useEffect(() => {
