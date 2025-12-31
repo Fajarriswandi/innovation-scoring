@@ -21,7 +21,7 @@ import {
   Switch,
   ConfigProvider,
 } from "antd";
-import { useLocation, useNavigate } from "react-router-dom";
+import { usePathname, useRouter } from "next/navigation";
 
 import { useAppSelector } from "@/hooks/redux";
 
@@ -53,8 +53,11 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   const [isDark, setIsDark] = useState<boolean>(() => {
-    const saved = localStorage.getItem("theme");
-    return saved === "dark";
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem("theme");
+      return saved === "dark";
+    }
+    return false;
   });
 
   const handleFsChange = () => {
@@ -107,27 +110,38 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   }, []);
 
   React.useEffect(() => {
-    localStorage.setItem("theme", isDark ? "dark" : "light");
-    document.documentElement.setAttribute(
-      "data-theme",
-      isDark ? "dark" : "light"
-    );
+    if (typeof window !== 'undefined') {
+      localStorage.setItem("theme", isDark ? "dark" : "light");
+      document.documentElement.setAttribute(
+        "data-theme",
+        isDark ? "dark" : "light"
+      );
+    }
   }, [isDark]);
 
   const { smallTitle } = useAppSelector((state) => state.layout);
-  const [collapsed, setCollapsed] = useState<boolean>(() => {
-    const saved = localStorage.getItem("sidebarCollapsed");
-    return saved !== null ? saved === "true" : true;
-  });
+  const [collapsed, setCollapsed] = useState<boolean>(true);
+  const [mounted, setMounted] = useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem("sidebarCollapsed");
+      if (saved !== null) {
+        setCollapsed(saved === "true");
+      }
+    }
+  }, []);
   const screens = Grid.useBreakpoint();
 
-  const location = useLocation();
-  const navigate = useNavigate();
+  const pathname = usePathname();
+  const router = useRouter();
 
   const routeKey = (() => {
-    if (location.pathname.startsWith("/dashboard")) return "dashboard";
-    if (location.pathname.startsWith("/blank")) return "blank";
-    if (location.pathname.startsWith("/innovations")) return "innovations";
+    if (pathname?.startsWith("/dashboard")) return "dashboard";
+    if (pathname?.startsWith("/blank")) return "blank";
+    if (pathname?.startsWith("/innovations")) return "innovations";
+    if (pathname?.startsWith("/inbox")) return "inbox";
     return "dashboard";
   })();
 
@@ -136,9 +150,10 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       dashboard: "/dashboard",
       blank: "/blank",
       innovations: "/innovations",
+      inbox: "/inbox",
     };
     const to = map[key as string];
-    if (to) navigate(to);
+    if (to) router.push(to);
   };
 
   const menuItems: MenuProps["items"] = [
@@ -152,12 +167,17 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       icon: <Icon icon="solar:document-bold-duotone" width={20} height={20} />,
       label: "Blank Page",
     },
-    {
-      key: "innovations",
-      icon: <Icon icon="solar:lightbulb-bold-duotone" width={20} height={20} />,
-      label: "Innovations",
-    },
-  ];
+      {
+        key: "innovations",
+        icon: <Icon icon="solar:lightbulb-bold-duotone" width={20} height={20} />,
+        label: "Innovations",
+      },
+      {
+        key: "inbox",
+        icon: <Icon icon="solar:inbox-bold-duotone" width={20} height={20} />,
+        label: "Inbox",
+      },
+    ];
 
   return (
     <ConfigProvider
@@ -184,7 +204,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           collapsedWidth={screens.lg ? 80 : 0}
           trigger={null}
           collapsible
-          collapsed={collapsed}
+          collapsed={mounted ? collapsed : true}
           style={{
             position: "fixed",
             //   height: "100vh",
@@ -195,25 +215,29 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           onBreakpoint={(broken) => {
             if (broken) {
               setCollapsed(true);
-              localStorage.setItem("sidebarCollapsed", "true");
+              if (typeof window !== 'undefined') {
+                localStorage.setItem("sidebarCollapsed", "true");
+              }
             }
           }}
           theme="light"
         >
-          <div className={`topSider ${collapsed ? "topSider--collapsed" : ""}`}>
+            <div className={`topSider ${mounted && collapsed ? "topSider--collapsed" : ""}`}>
             {/* <img
-              src="/src/assets/img/agent-profile.png"
+                src="/assets/img/agent-profile.png"
               alt="Agent Profile"
               style={{ width: 30, borderRadius: "50%" }}
             /> */}
             {/* <h6>Navigation</h6> */}
             <Button
               type="text"
-              icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+              icon={mounted && collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
               onClick={() => {
                 const newCollapsed = !collapsed;
                 setCollapsed(newCollapsed);
-                localStorage.setItem("sidebarCollapsed", String(newCollapsed));
+                if (typeof window !== 'undefined') {
+                  localStorage.setItem("sidebarCollapsed", String(newCollapsed));
+                }
               }}
               style={{ fontSize: 16, width: 60, height: 60 }}
             />
@@ -243,7 +267,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           >
             <div className="headerLeft">
               <img
-                src="/src/assets/img/logo-dd.png"
+                src="/assets/img/logo-dd.png"
                 alt="Agent Profile"
                 style={{ width: "auto", height: 25 }}
               />
@@ -299,7 +323,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 </Tooltip>
               </div>
               <div>
-                <Tooltip title="Other Modul">
+                {/* <Tooltip title="Other Modul">
                   <Button
                     shape="circle"
                     size={"large"}
@@ -307,7 +331,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                     variant="outlined"
                     icon={<Icon icon="solar:widget-6-bold-duotone" width={20} height={20} />}
                   />
-                </Tooltip>
+                </Tooltip> */}
               </div>
             </div>
           </Header>

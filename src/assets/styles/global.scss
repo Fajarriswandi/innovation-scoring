@@ -181,7 +181,7 @@ h6 {
   height: 100%;
   min-height: 400px;
   border-radius: 16px;
-  background-image: url('/src/assets/img/login-hero.jpg');
+  background-image: url('/assets/img/login-hero.png');
   background-size: cover;
   background-position: center;
   display: flex;
@@ -325,7 +325,7 @@ h6 {
 // Costume Sider
 .siderGlobal {
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.8);
+  background: rgb(255, 255, 255);
   backdrop-filter: blur(10px);
   height: 97vh;
 }
@@ -376,7 +376,7 @@ h6 {
   height: 100%;
   min-height: 400px;
   border-radius: 16px;
-  background-image: url("/src/assets/img/login-hero.png");
+  background-image: url("/assets/img/login-hero.png");
   background-size: cover;
   background-position: center;
   display: flex;
@@ -473,7 +473,7 @@ h6 {
       content: "";
       width: 15px;
       height: 15px;
-      background: url('/src/assets/img/approved.png');
+      background: url('/assets/img/approved.png');
       ;
     }
   }
@@ -490,7 +490,7 @@ h6 {
       content: "";
       width: 15px;
       height: 15px;
-      background: url('/src/assets/img/pending.png');
+      background: url('/assets/img/pending.png');
       ;
     }
   }
@@ -508,7 +508,7 @@ h6 {
       content: "";
       width: 15px;
       height: 15px;
-      background: url('/src/assets/img/pending.png');
+      background: url('/assets/img/pending.png');
       ;
     }
   }
@@ -525,7 +525,7 @@ h6 {
       content: "";
       width: 15px;
       height: 15px;
-      background: url('/src/assets/img/pending.png');
+      background: url('/assets/img/pending.png');
       ;
     }
   }
@@ -542,7 +542,7 @@ h6 {
       content: "";
       width: 15px;
       height: 15px;
-      background: url('/src/assets/img/pending.png');
+      background: url('/assets/img/pending.png');
       ;
     }
   }
@@ -2079,7 +2079,7 @@ h6 {
   .ant-select-selector {
     background-color: #F5F7F9 !important;
     border: 1px solid transparent !important;
-    border-radius: 12px !important;
+    // border-radius: 52px !important;
     height: 40px !important;
     
     .ant-select-selection-item {

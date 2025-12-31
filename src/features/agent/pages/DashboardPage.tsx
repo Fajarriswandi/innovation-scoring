@@ -1,5 +1,7 @@
+'use client';
+
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { useAppDispatch } from "@/hooks/redux";
 import { setSmallTitle } from "@/store/layoutSlice";
 import { Helmet } from "react-helmet-async";
@@ -7,7 +9,6 @@ import {
   Typography,
   Avatar,
   Button,
-  Input,
   Space,
   Row,
   Col,
@@ -19,29 +20,18 @@ import {
   Select,
 } from "antd";
 import {
-  SearchOutlined,
-  SortAscendingOutlined,
-  FilterOutlined,
-  UserAddOutlined,
   ShareAltOutlined,
   PlusOutlined,
   MoreOutlined,
-  BookOutlined,
   PaperClipOutlined,
   MessageOutlined,
   BulbOutlined,
   RobotOutlined,
   CheckCircleOutlined,
-  FolderOutlined,
   ClockCircleOutlined,
-  ArrowUpOutlined,
   AppstoreOutlined,
   UnorderedListOutlined,
-  FieldTimeOutlined,
-  BarChartOutlined,
   ReloadOutlined,
-  LikeOutlined,
-  DislikeOutlined,
   WarningOutlined,
   FastForwardOutlined,
   PlayCircleOutlined,
@@ -52,7 +42,6 @@ import {
   EyeOutlined,
   EditOutlined,
 } from "@ant-design/icons";
-import { Icon } from "@iconify/react";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -76,18 +65,10 @@ type KanbanCardProps = {
   status?: string;
 };
 
-type Column = {
-  id: string;
-  title: string;
-  color: string;
-  dotColor: string;
-  count?: number;
-  tasks: KanbanCardProps[];
-  bgColor?: string;
-};
 
 export default function DashboardPage() {
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const [activeView, setActiveView] = useState("Board View");
 
   useEffect(() => {
@@ -113,7 +94,7 @@ export default function DashboardPage() {
       </Helmet>
 
       {/* Header */}
-      <Row justify="space-between" align="middle" style={{ marginBottom: 32 }}>
+      <Row justify="space-between" align="middle" style={{ marginBottom: 10 }}>
         <Col>
           <Space size={12} align="center" style={{ marginBottom: 8 }}>
             <Title level={2} style={{ margin: 0, fontSize: 24, fontWeight: 700 }}>
@@ -147,8 +128,7 @@ export default function DashboardPage() {
         <Col>
           <Space size={16} align="center">
             <Avatar.Group
-              maxCount={3}
-              maxStyle={{ color: "#fff", backgroundColor: "#40ACE2", fontSize: 10 }}
+              max={{ count: 3, style: { color: "#fff", backgroundColor: "#40ACE2", fontSize: 10 } }}
               size="default"
             >
               <Avatar src="https://i.pravatar.cc/150?u=user1" />
@@ -173,15 +153,16 @@ export default function DashboardPage() {
                 backgroundColor: "#40ace2",
                 borderColor: "#40ace2",
               }}
+              onClick={() => router.push("/form-submission")}
             >
-              New Idea
+              New Innovation
             </Button>
           </Space>
         </Col>
       </Row>
 
       {/* Stats Cards */}
-      <Row gutter={[24, 24]} style={{ marginBottom: 40 }}>
+      <Row gutter={[24, 24]} style={{ marginBottom: 15 }}>
         <Col xs={24} sm={12} lg={6}>
           <StatCard
             title="Total Innovations"
@@ -222,12 +203,12 @@ export default function DashboardPage() {
             iconBg="#F9F0FF"
               />
             </Col>
-          </Row>
+      </Row>
 
       {/* Tabs View Switcher */}
       <Card
         style={{
-          marginBottom: 32,
+          marginBottom: 15,
           borderRadius: 16,
           backgroundColor: "rgba(255, 255, 255, 0.5)",
           backdropFilter: "blur(8px)",
@@ -235,7 +216,7 @@ export default function DashboardPage() {
           padding: 4,
           width: "fit-content",
         }}
-        bodyStyle={{ padding: 4 }}
+        styles={{ body: { padding: 4 } }}
       >
         <Space size={0}>
           {views.map((view) => (
@@ -316,7 +297,7 @@ function KanbanBoard() {
               borderRadius: 16,
               marginBottom: 16,
             }}
-            bodyStyle={{ padding: 16 }}
+            styles={{ body: { padding: 16 } }}
           >
             <KanbanCard
               id={4}
@@ -733,6 +714,7 @@ function ColumnHeader({ title, color, count }: { title: string; color: string; c
 
 // Kanban Card Component
 function KanbanCard({
+  id,
   priority,
   title,
   description,
@@ -745,7 +727,7 @@ function KanbanCard({
   customBody,
   isRecommendation,
 }: KanbanCardProps) {
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const handleClick = (e: React.MouseEvent) => {
     // Prevent navigation if clicking on MoreOutlined or other interactive elements
@@ -753,7 +735,11 @@ function KanbanCard({
     if (target.closest('.anticon') || target.closest('button') || target.closest('a')) {
       return;
     }
-    navigate("/detail");
+    if (id) {
+      router.push(`/detail/${id}`);
+    } else {
+      router.push("/detail");
+    }
   };
 
   if (isCustom && customBody) {
@@ -767,7 +753,7 @@ function KanbanCard({
           cursor: "pointer",
           position: "relative",
         }}
-        bodyStyle={{ padding: 16 }}
+        styles={{ body: { padding: 16 } }}
         hoverable
         onClick={handleClick}
       >
@@ -798,7 +784,7 @@ function KanbanCard({
         backgroundColor: isRecommendation ? "#fff" : "#fff",
         position: "relative",
       }}
-      bodyStyle={{ padding: 16 }}
+      styles={{ body: { padding: 16 } }}
       hoverable
       onClick={handleClick}
     >
@@ -871,9 +857,8 @@ function KanbanCard({
         }}
       >
         <Avatar.Group
-          maxCount={3}
+          max={{ count: 3, style: { color: "#fff", backgroundColor: "#40ACE2", fontSize: 10 } }}
           size="small"
-          maxStyle={{ color: "#fff", backgroundColor: "#40ACE2", fontSize: 10 }}
         >
           {avatars?.map((src, i) => (
             <Avatar key={i} src={src} size="small" />
@@ -1014,7 +999,7 @@ const StatusBadge: React.FC<{ status: "Under Review" | "Approved" | "New" | "In 
 };
 
 function ListView() {
-  const navigate = useNavigate();
+  const router = useRouter();
   
   const dataSource: ListViewDataItem[] = [
     {
@@ -1259,24 +1244,6 @@ function ListView() {
     },
   ];
 
-  const getIcon = (symbol: string) => {
-    const icons: { [key: string]: React.ReactNode } = {
-      robot: "🤖",
-      house: "🏠",
-      document: "📄",
-      cube: "📦",
-      vr: "🥽",
-      cloud: "☁️",
-      chart: "📊",
-      shield: "🛡️",
-      collaboration: "👥",
-      invoice: "🧾",
-      payment: "💳",
-      system: "⚙️",
-    };
-    return icons[symbol] || "📋";
-  };
-
   const columns = [
     {
       title: "INNOVATION DETAILS",
@@ -1382,13 +1349,13 @@ function ListView() {
       align: "center" as const,
       fixed: "right" as const,
       width: 80,
-      render: (_: any, record: ListViewDataItem) => {
+      render: (_: unknown, record: ListViewDataItem) => {
         const menu = {
           onClick: (info: { key: string; domEvent: React.MouseEvent<HTMLElement> | React.KeyboardEvent<HTMLElement> }) => {
             info.domEvent.stopPropagation();
             // Handle menu actions here
             if (info.key === "preview") {
-              navigate(`/detail/${record.id}`);
+              router.push(`/detail/${record.id}`);
             } else if (info.key === "edit") {
               console.log("Edit:", record.id);
             } else if (info.key === "reject") {
@@ -1436,7 +1403,7 @@ function ListView() {
         boxShadow: "0 1px 3px rgba(0, 0, 0, 0.05)",
         border: "1px solid #f0f0f0",
       }}
-      bodyStyle={{ padding: 0 }}
+      styles={{ body: { padding: 0 } }}
     >
       <Table
         dataSource={dataSource}
@@ -1446,7 +1413,7 @@ function ListView() {
         scroll={{ x: "max-content" }}
         components={{
           header: {
-            cell: (props: any) => (
+            cell: (props: React.ThHTMLAttributes<HTMLTableCellElement> & { style?: React.CSSProperties }) => (
               <th
                 {...props}
                 style={{
@@ -1472,7 +1439,7 @@ function ListView() {
             if (target.closest('button') || target.closest('.ant-btn') || target.closest('td:last-child') || target.closest('.ant-dropdown')) {
               return;
             }
-            navigate(`/detail/${record.id}`);
+            router.push(`/detail/${record.id}`);
           },
           style: { cursor: "pointer" },
         })}
@@ -1508,9 +1475,7 @@ function ListView() {
                       width: 60,
                     }}
                     suffixIcon={<DownOutlined style={{ fontSize: 16, color: "#9ca3af" }} />}
-                    dropdownStyle={{
-                      borderRadius: 12,
-                    }}
+                    styles={{ popup: { root: { borderRadius: 12 } } }}
                   >
                     <Option value="10">10</Option>
                     <Option value="20">20</Option>
@@ -1579,14 +1544,14 @@ function StatCard({
     <Card
       style={{
         borderRadius: 16,
-        boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+        // boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
         border: "1px solid #f0f0f0",
         height: 128,
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
       }}
-      bodyStyle={{ padding: 20 }}
+      styles={{ body: { padding: 20 } }}
     >
       <div
         style={{

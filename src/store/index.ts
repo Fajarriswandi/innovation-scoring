@@ -6,7 +6,7 @@ export const store = configureStore({
     layout: layoutReducer,
   },
   middleware: (getDefault) => getDefault(),
-  devTools: import.meta.env.DEV,
+  devTools: process.env.NODE_ENV !== 'production',
 });
 
 export type RootState = ReturnType<typeof store.getState>;

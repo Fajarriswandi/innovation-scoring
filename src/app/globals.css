@@ -1,0 +1,271 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Prevent FOUC (Flash of Unstyled Content) */
+html {
+  visibility: hidden;
+}
+
+html.loaded {
+  visibility: visible;
+}
+
+/* Custom Select border radius */
+.ant-select-selector {
+  border-radius: 12px !important;
+}
+
+.ant-select-multiple .ant-select-selector {
+  border-radius: 12px !important;
+}
+
+.ant-select-dropdown {
+  border-radius: 12px !important;
+}
+
+/* Quill Editor Styles */
+.ql-container {
+  border-radius: 0 0 8px 8px !important;
+  border: 1px solid #d9d9d9 !important;
+  border-top: none !important;
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+}
+
+.ql-toolbar {
+  border-radius: 8px 8px 0 0 !important;
+  border: 1px solid #d9d9d9 !important;
+  border-bottom: none !important;
+  background-color: #fafafa;
+}
+
+.ql-toolbar .ql-stroke {
+  stroke: #595959;
+}
+
+.ql-toolbar .ql-fill {
+  fill: #595959;
+}
+
+.ql-toolbar button:hover,
+.ql-toolbar button.ql-active {
+  color: #2563EB;
+}
+
+.ql-toolbar button:hover .ql-stroke,
+.ql-toolbar button.ql-active .ql-stroke {
+  stroke: #2563EB;
+}
+
+.ql-toolbar button:hover .ql-fill,
+.ql-toolbar button.ql-active .ql-fill {
+  fill: #2563EB;
+}
+
+.ql-editor {
+  min-height: 150px;
+}
+
+.ql-editor.ql-blank::before {
+  color: #bfbfbf;
+  font-style: normal;
+}
+
+/* Dark mode support for Innovations Page */
+[data-theme='dark'] .innovations-page-title {
+  color: #f1f5f9 !important;
+}
+
+[data-theme='dark'] .innovations-page-subtitle {
+  color: #94a3b8 !important;
+}
+
+[data-theme='dark'] .innovations-card {
+  background: rgba(17, 25, 40, 0.9) !important;
+  border-color: rgba(148, 163, 184, 0.18) !important;
+}
+
+[data-theme='dark'] .innovations-filter-card {
+  background: rgba(17, 25, 40, 0.9) !important;
+  border-color: rgba(148, 163, 184, 0.18) !important;
+}
+
+[data-theme='dark'] .innovations-input-bg {
+  background-color: rgba(30, 41, 59, 0.6) !important;
+  border-color: rgba(148, 163, 184, 0.18) !important;
+  color: #e2e8f0 !important;
+}
+
+[data-theme='dark'] .innovations-input-bg::placeholder {
+  color: #64748b !important;
+}
+
+[data-theme='dark'] .innovations-text-primary {
+  color: #f1f5f9 !important;
+}
+
+[data-theme='dark'] .innovations-text-secondary {
+  color: #cbd5e1 !important;
+}
+
+[data-theme='dark'] .innovations-text-muted {
+  color: #94a3b8 !important;
+}
+
+[data-theme='dark'] .innovations-table-header {
+  background-color: rgba(17, 25, 40, 0.9) !important;
+  border-bottom-color: rgba(148, 163, 184, 0.18) !important;
+  color: #94a3b8 !important;
+}
+
+[data-theme='dark'] .innovations-table-row {
+  background-color: rgba(17, 25, 40, 0.9) !important;
+}
+
+[data-theme='dark'] .innovations-table-row:hover {
+  background-color: rgba(30, 41, 59, 0.6) !important;
+}
+
+[data-theme='dark'] .innovations-pagination-bg {
+  background-color: rgba(17, 25, 40, 0.9) !important;
+  border-top-color: rgba(148, 163, 184, 0.18) !important;
+}
+
+[data-theme='dark'] .innovations-tag-bg {
+  background-color: rgba(30, 41, 59, 0.6) !important;
+  border-color: rgba(148, 163, 184, 0.18) !important;
+  color: #cbd5e1 !important;
+}
+
+[data-theme='dark'] .innovations-filter-content {
+  border-bottom-color: rgba(148, 163, 184, 0.18) !important;
+}
+
+/* Dark mode support for Form Submission Page */
+[data-theme='dark'] .form-submission-container {
+  background: rgba(17, 25, 40, 0.9) !important;
+  border-color: rgba(148, 163, 184, 0.18) !important;
+}
+
+[data-theme='dark'] .form-submission-title {
+  color: #f1f5f9 !important;
+}
+
+[data-theme='dark'] .form-submission-subtitle {
+  color: #94a3b8 !important;
+}
+
+[data-theme='dark'] .form-submission-text-primary {
+  color: #f1f5f9 !important;
+}
+
+[data-theme='dark'] .form-submission-text-secondary {
+  color: #cbd5e1 !important;
+}
+
+[data-theme='dark'] .form-submission-text-muted {
+  color: #94a3b8 !important;
+}
+
+[data-theme='dark'] .form-submission-step-label {
+  color: #f1f5f9 !important;
+}
+
+[data-theme='dark'] .form-submission-step-number {
+  color: #64748b !important;
+}
+
+[data-theme='dark'] .form-submission-icon-bg {
+  background-color: rgba(59, 130, 246, 0.2) !important;
+  color: #60a5fa !important;
+}
+
+[data-theme='dark'] .form-submission-banner {
+  background-color: rgba(30, 41, 59, 0.6) !important;
+  border-color: rgba(99, 102, 241, 0.3) !important;
+}
+
+[data-theme='dark'] .form-submission-banner-icon {
+  background-color: rgba(17, 25, 40, 0.9) !important;
+}
+
+[data-theme='dark'] .form-submission-banner-title {
+  color: #93c5fd !important;
+}
+
+[data-theme='dark'] .form-submission-banner-text {
+  color: #94a3b8 !important;
+}
+
+[data-theme='dark'] .form-submission-certification-box {
+  background-color: rgba(17, 25, 40, 0.9) !important;
+  border-color: rgba(148, 163, 184, 0.18) !important;
+}
+
+[data-theme='dark'] .form-submission-certification-text {
+  color: #f1f5f9 !important;
+}
+
+[data-theme='dark'] .form-submission-certification-hint {
+  color: #94a3b8 !important;
+}
+
+[data-theme='dark'] .form-submission-upload-area {
+  background-color: rgba(30, 41, 59, 0.6) !important;
+  border-color: rgba(148, 163, 184, 0.3) !important;
+}
+
+[data-theme='dark'] .form-submission-upload-text {
+  color: #cbd5e1 !important;
+}
+
+[data-theme='dark'] .form-submission-upload-hint {
+  color: #94a3b8 !important;
+}
+
+[data-theme='dark'] .form-submission-quill-container {
+  background-color: rgba(17, 25, 40, 0.9) !important;
+}
+
+[data-theme='dark'] .ql-toolbar.ql-snow {
+  background-color: rgba(30, 41, 59, 0.6) !important;
+  border-color: rgba(148, 163, 184, 0.18) !important;
+}
+
+[data-theme='dark'] .ql-container.ql-snow {
+  background-color: rgba(17, 25, 40, 0.9) !important;
+  border-color: rgba(148, 163, 184, 0.18) !important;
+  color: #e2e8f0 !important;
+}
+
+[data-theme='dark'] .ql-editor {
+  color: #e2e8f0 !important;
+}
+
+[data-theme='dark'] .ql-editor.ql-blank::before {
+  color: #64748b !important;
+}
+
+[data-theme='dark'] .ql-toolbar .ql-stroke {
+  stroke: #cbd5e1 !important;
+}
+
+[data-theme='dark'] .ql-toolbar .ql-fill {
+  fill: #cbd5e1 !important;
+}
+
+[data-theme='dark'] .ql-toolbar button:hover,
+[data-theme='dark'] .ql-toolbar button.ql-active {
+  color: #60a5fa !important;
+}
+
+[data-theme='dark'] .ql-toolbar button:hover .ql-stroke,
+[data-theme='dark'] .ql-toolbar button.ql-active .ql-stroke {
+  stroke: #60a5fa !important;
+}
+
+[data-theme='dark'] .ql-toolbar button:hover .ql-fill,
+[data-theme='dark'] .ql-toolbar button.ql-active .ql-fill {
+  fill: #60a5fa !important;
+}

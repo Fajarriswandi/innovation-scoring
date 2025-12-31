@@ -13,6 +13,10 @@ dist
 dist-ssr
 *.local
 
+# Next.js
+.next
+out
+
 # Prevent accidental TS emits inside src
 src/**/*.js
 src/**/*.js.map

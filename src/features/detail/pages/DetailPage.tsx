@@ -1,4 +1,7 @@
-import { useEffect } from "react";
+'use client';
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useAppDispatch } from "@/hooks/redux";
 import { setSmallTitle } from "@/store/layoutSlice";
 import { Helmet } from "react-helmet-async";
@@ -12,8 +15,9 @@ import {
   Progress,
   Row,
   Col,
-  Input,
   Divider,
+  Input,
+  App,
 } from "antd";
 import {
   EditOutlined,
@@ -22,15 +26,9 @@ import {
   CheckCircleFilled,
   QuestionCircleOutlined,
   ThunderboltOutlined,
-  BookOutlined,
   FilePdfOutlined,
   FileImageOutlined,
-  UploadOutlined,
-  EyeOutlined,
-  UserOutlined,
-  CheckCircleOutlined,
   ClockCircleOutlined,
-  FileTextOutlined,
 } from "@ant-design/icons";
 
 const { Title, Text, Paragraph } = Typography;
@@ -38,6 +36,9 @@ const { TextArea } = Input;
 
 export default function DetailPage() {
   const dispatch = useAppDispatch();
+  const router = useRouter();
+  const { modal, message } = App.useApp();
+  const [committeeNotes, setCommitteeNotes] = useState("");
 
   useEffect(() => {
     dispatch(setSmallTitle("Innovation Detail"));
@@ -47,6 +48,60 @@ export default function DetailPage() {
       document.title = "AI Innovation Scoring Dashboard";
     };
   }, [dispatch]);
+
+  const handleApproveForPilot = () => {
+    modal.confirm({
+      title: 'Approve Innovation for Pilot Program',
+      content: 'Are you sure you want to approve this innovation proposal for the pilot program? This action will move the project to the pilot phase and notify the submitter. The innovation will be allocated resources and assigned to the pilot team for implementation.',
+      okText: 'Yes, Approve',
+      okType: 'primary',
+      cancelText: 'Cancel',
+      onOk() {
+        message.success('Innovation approved for pilot program successfully!');
+      },
+    });
+  };
+
+  const handleRequestMoreInfo = () => {
+    router.push('/inbox');
+  };
+
+  const handleRejectProposal = () => {
+    modal.confirm({
+      title: 'Reject Innovation Proposal',
+      content: 'Are you sure you want to reject this innovation proposal? This action cannot be undone. The submitter will be notified of the rejection. Please ensure you have provided clear rationale in the Committee Notes section.',
+      okText: 'Yes, Reject',
+      okType: 'danger',
+      cancelText: 'Cancel',
+      onOk() {
+        message.success('Innovation proposal rejected.');
+      },
+    });
+  };
+
+  const handleSubmitCommitteeNotes = () => {
+    if (!committeeNotes.trim()) {
+      message.warning('Please enter committee notes before submitting.');
+      return;
+    }
+    message.success('Committee notes submitted successfully!');
+    setCommitteeNotes("");
+  };
+
+  const handleEditInnovation = () => {
+    // Store sample data in localStorage to prefill form
+    const sampleData = {
+      title: "AI-Powered Citizen Service Portal",
+      department: "it",
+      lead: "Ahmed Al Mansouri",
+      problem: "Currently, citizens seeking government services face significant challenges including long wait times, limited availability of service representatives, and inconsistent information across different channels. Traditional call centers and service desks struggle to handle the volume of inquiries efficiently, leading to frustrated citizens and increased operational costs. Additionally, the lack of 24/7 availability and language barriers further complicate access to essential government services, particularly for non-Arabic speakers and those with limited technical proficiency.",
+      solution: "Our AI-powered citizen service portal leverages advanced language models integrated with Digital Dubai's comprehensive government knowledge base to provide instant, accurate, and context-aware responses to citizen inquiries. The system will be accessible 24/7 across multiple channels including web chat, mobile app, and voice interfaces, supporting multiple languages. By automating routine inquiries and intelligently routing complex cases to human agents, we can reduce processing time by 60% while maintaining high accuracy. The solution uses our existing blockchain infrastructure for secure data handling and ensures compliance with data privacy regulations, making government services more accessible and efficient for all Dubai residents.",
+      categories: ["ai", "efficiency"],
+      links: "https://www.digitaldubai.ae\nhttps://ai.digitaldubai.ae\nhttps://docs.digitaldubai.ae/api",
+    };
+    localStorage.setItem('editInnovationData', JSON.stringify(sampleData));
+    router.push('/form-submission?edit=true');
+  };
 
   return (
     <div style={{backgroundColor: "#F8FAFC", minHeight: "100vh", borderRadius: 10, padding: 24 }}>
@@ -95,8 +150,9 @@ export default function DetailPage() {
                 borderRadius: 12,
                 boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
               }}
+              onClick={handleEditInnovation}
             >
-              Edit Project
+              Edit Innovation Idea
             </Button>
           </Col>
         </Row>
@@ -182,6 +238,103 @@ export default function DetailPage() {
                   and improve quality of life.
                 </Paragraph>
 
+                {/* Problem Statement Section */}
+                <div style={{ marginTop: 24, marginBottom: 24 }}>
+                  <Title level={4} style={{ fontSize: 14, fontWeight: 700, marginBottom: 12 }}>
+                    The Problem Statement
+                  </Title>
+                  <Paragraph
+                    style={{
+                      color: "#64748b",
+                      fontSize: 14,
+                      lineHeight: 1.6,
+                      margin: 0,
+                    }}
+                  >
+                    Currently, citizens seeking government services face significant challenges including long wait times, 
+                    limited availability of service representatives, and inconsistent information across different channels. 
+                    Traditional call centers and service desks struggle to handle the volume of inquiries efficiently, 
+                    leading to frustrated citizens and increased operational costs. Additionally, the lack of 24/7 availability 
+                    and language barriers further complicate access to essential government services, particularly for 
+                    non-Arabic speakers and those with limited technical proficiency.
+                  </Paragraph>
+                </div>
+
+                {/* Proposed Solution Section */}
+                <div style={{ marginBottom: 24 }}>
+                  <Title level={4} style={{ fontSize: 14, fontWeight: 700, marginBottom: 12 }}>
+                    The Proposed Solution
+                  </Title>
+                  <Paragraph
+                    style={{
+                      color: "#64748b",
+                      fontSize: 14,
+                      lineHeight: 1.6,
+                      margin: 0,
+                    }}
+                  >
+                    Our AI-powered citizen service portal leverages advanced language models integrated with Digital Dubai's 
+                    comprehensive government knowledge base to provide instant, accurate, and context-aware responses to citizen 
+                    inquiries. The system will be accessible 24/7 across multiple channels including web chat, mobile app, 
+                    and voice interfaces, supporting multiple languages. By automating routine inquiries and intelligently 
+                    routing complex cases to human agents, we can reduce processing time by 60% while maintaining high 
+                    accuracy. The solution uses our existing blockchain infrastructure for secure data handling and ensures 
+                    compliance with data privacy regulations, making government services more accessible and efficient for all 
+                    Dubai residents.
+                  </Paragraph>
+                </div>
+
+                {/* Related Links Section */}
+                <div style={{ marginBottom: 24 }}>
+                  <Title level={4} style={{ fontSize: 14, fontWeight: 700, marginBottom: 12 }}>
+                    Related Links
+                  </Title>
+                  <Space direction="vertical" size={8} style={{ width: "100%" }}>
+                    <a 
+                      href="https://www.digitaldubai.ae" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      style={{ 
+                        color: "#2563EB", 
+                        fontSize: 14,
+                        textDecoration: "none",
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.textDecoration = "underline"}
+                      onMouseLeave={(e) => e.currentTarget.style.textDecoration = "none"}
+                    >
+                      https://www.digitaldubai.ae
+                    </a>
+                    <a 
+                      href="https://ai.digitaldubai.ae" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      style={{ 
+                        color: "#2563EB", 
+                        fontSize: 14,
+                        textDecoration: "none",
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.textDecoration = "underline"}
+                      onMouseLeave={(e) => e.currentTarget.style.textDecoration = "none"}
+                    >
+                      https://ai.digitaldubai.ae
+                    </a>
+                    <a 
+                      href="https://docs.digitaldubai.ae/api" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      style={{ 
+                        color: "#2563EB", 
+                        fontSize: 14,
+                        textDecoration: "none",
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.textDecoration = "underline"}
+                      onMouseLeave={(e) => e.currentTarget.style.textDecoration = "none"}
+                    >
+                      https://docs.digitaldubai.ae/api
+                    </a>
+                  </Space>
+                </div>
+
                 {/* Attachments Section */}
                 <div style={{ marginTop: 24 }}>
                   <Title level={4} style={{ fontSize: 14, fontWeight: 700, marginBottom: 16 }}>
@@ -197,7 +350,7 @@ export default function DetailPage() {
                         width: "100%",
                         maxWidth: 300,
                       }}
-                      bodyStyle={{ padding: 16 }}
+                      styles={{ body: { padding: 16 } }}
                     >
                       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                         <div
@@ -242,7 +395,7 @@ export default function DetailPage() {
                         width: "100%",
                         maxWidth: 300,
                       }}
-                      bodyStyle={{ padding: 16 }}
+                      styles={{ body: { padding: 16 } }}
                     >
                       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                         <div
@@ -330,6 +483,8 @@ export default function DetailPage() {
                   borderLeft: "4px solid #A78BFA",
                   position: "relative",
                   overflow: "hidden",
+                  paddingTop: 20,
+                  paddingBottom: 20,
                 }}
               >
                 <div style={{ display: "flex", gap: 16 }}>
@@ -442,7 +597,7 @@ export default function DetailPage() {
                             strokeColor={m.color}
                             showInfo={false}
                             style={{ margin: 0 }}
-                            strokeWidth={8}
+                            stroke={{ lineCap: 'round', lineWidth: 8 }}
                           />
                         </div>
                       ))}
@@ -636,6 +791,7 @@ export default function DetailPage() {
                       borderRadius: 16,
                       boxShadow: "0 4px 12px rgba(37, 99, 235, 0.3)",
                     }}
+                    onClick={handleApproveForPilot}
                   >
                     Approve for Pilot
                   </Button>
@@ -650,11 +806,17 @@ export default function DetailPage() {
                       borderRadius: 16,
                       color: "#475569",
                     }}
+                    onClick={handleRequestMoreInfo}
                   >
                     Request More Info
                   </Button>
                   <div style={{ textAlign: "center", paddingTop: 8 }}>
-                    <Button type="link" danger style={{ fontSize: 14, fontWeight: 700 }}>
+                    <Button 
+                      type="link" 
+                      danger 
+                      style={{ fontSize: 14, fontWeight: 700 }}
+                      onClick={handleRejectProposal}
+                    >
                       Reject Proposal
                     </Button>
                   </div>
@@ -677,7 +839,23 @@ export default function DetailPage() {
                       fontSize: 14,
                     }}
                     rows={4}
+                    value={committeeNotes}
+                    onChange={(e) => setCommitteeNotes(e.target.value)}
                   />
+                  <Button
+                    type="primary"
+                    block
+                    style={{
+                      marginTop: 16,
+                      height: 40,
+                      fontSize: 14,
+                      fontWeight: 700,
+                      borderRadius: 12,
+                    }}
+                    onClick={handleSubmitCommitteeNotes}
+                  >
+                    Submit
+                  </Button>
                 </div>
               </Card>
 

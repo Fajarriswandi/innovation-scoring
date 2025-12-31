@@ -1,5 +1,7 @@
+"use client";
+
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { useAppDispatch } from "@/hooks/redux";
 import { setSmallTitle } from "@/store/layoutSlice";
 import { Helmet } from "react-helmet-async";
@@ -35,14 +37,12 @@ import {
   LeftOutlined,
   RightOutlined,
   DownOutlined,
-  CloseOutlined,
   FastForwardOutlined,
   PlayCircleOutlined,
   CloseCircleOutlined,
   EyeOutlined,
   EditOutlined,
 } from "@ant-design/icons";
-import { Icon } from "@iconify/react";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -146,11 +146,20 @@ const ProgressBar: React.FC<{ value: number }> = ({ value }) => {
 
   return (
     <div style={{ width: 128 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 4 }}>
-        <Text strong style={{ fontSize: 14, color: "#262626" }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 4,
+          marginBottom: 4,
+        }}
+      >
+        <Text strong className="innovations-text-primary" style={{ fontSize: 14 }}>
           {value}
         </Text>
-        <Text style={{ fontSize: 10, color: "#9ca3af", fontWeight: 500 }}>/ 100</Text>
+        <Text className="innovations-text-muted" style={{ fontSize: 10, fontWeight: 500 }}>
+          / 100
+        </Text>
       </div>
       <Progress
         percent={value}
@@ -163,7 +172,9 @@ const ProgressBar: React.FC<{ value: number }> = ({ value }) => {
   );
 };
 
-const RecBadge: React.FC<{ type: Innovation["recommendation"] }> = ({ type }) => {
+const RecBadge: React.FC<{ type: Innovation["recommendation"] }> = ({
+  type,
+}) => {
   const styles = {
     "Fast Track": { bg: "#E8F5E9", color: "#2E7D32", border: "#C8E6C9" },
     Proceed: { bg: "#E8EAF6", color: "#3F51B5", border: "#C5CAE9" },
@@ -171,9 +182,9 @@ const RecBadge: React.FC<{ type: Innovation["recommendation"] }> = ({ type }) =>
   };
 
   const icons = {
-    "Fast Track": <FastForwardOutlined style={{ fontSize: 14 }} />,
-    Proceed: <PlayCircleOutlined style={{ fontSize: 14 }} />,
-    Drop: <CloseCircleOutlined style={{ fontSize: 14 }} />,
+    "Fast Track": <FastForwardOutlined style={{ fontSize: 12 }} />,
+    Proceed: <PlayCircleOutlined style={{ fontSize: 12 }} />,
+    Drop: <CloseCircleOutlined style={{ fontSize: 12 }} />,
   };
 
   const style = styles[type];
@@ -184,11 +195,10 @@ const RecBadge: React.FC<{ type: Innovation["recommendation"] }> = ({ type }) =>
         backgroundColor: style.bg,
         color: style.color,
         borderColor: style.border,
-        borderRadius: 8,
-        padding: "6px 12px",
-        fontSize: 11,
+        borderRadius: 50,
+        padding: "3px 8px",
+        fontSize: 10,
         fontWeight: 700,
-        letterSpacing: 0.5,
         border: `1px solid ${style.border}`,
         display: "inline-flex",
         alignItems: "center",
@@ -201,7 +211,9 @@ const RecBadge: React.FC<{ type: Innovation["recommendation"] }> = ({ type }) =>
   );
 };
 
-const StatusBadge: React.FC<{ status: Innovation["status"] }> = ({ status }) => {
+const StatusBadge: React.FC<{ status: Innovation["status"] }> = ({
+  status,
+}) => {
   const colors = {
     "Under Review": "#FA8C16",
     Approved: "#52c41a",
@@ -219,7 +231,9 @@ const StatusBadge: React.FC<{ status: Innovation["status"] }> = ({ status }) => 
           backgroundColor: colors[status],
         }}
       />
-      <Text style={{ fontSize: 12, fontWeight: 600, color: "#595959" }}>{status}</Text>
+      <Text className="innovations-text-secondary" style={{ fontSize: 12, fontWeight: 600 }}>
+        {status}
+      </Text>
     </div>
   );
 };
@@ -245,10 +259,21 @@ export default function InnovationsPage() {
       sorter: (a: Innovation, b: Innovation) => a.title.localeCompare(b.title),
       render: (_: string, record: Innovation) => (
         <div>
-          <Title level={5} style={{ margin: 0, marginBottom: 4, fontSize: 14, fontWeight: 700 }}>
+          <Title
+            level={5}
+            className="innovations-text-primary"
+            style={{
+              margin: 0,
+              marginBottom: 4,
+              fontSize: 14,
+              fontWeight: 700,
+            }}
+          >
             {record.title}
           </Title>
-          <Text style={{ fontSize: 12, color: "#9ca3af" }}>{record.description}</Text>
+          <Text className="innovations-text-muted" style={{ fontSize: 12 }}>
+            {record.description}
+          </Text>
         </div>
       ),
     },
@@ -256,17 +281,16 @@ export default function InnovationsPage() {
       title: "DEPARTMENT",
       dataIndex: "department",
       key: "department",
-      sorter: (a: Innovation, b: Innovation) => a.department.localeCompare(b.department),
+      sorter: (a: Innovation, b: Innovation) =>
+        a.department.localeCompare(b.department),
       render: (department: string) => (
         <Tag
+          className="innovations-tag-bg"
           style={{
-            backgroundColor: "#F5F7F9",
-            color: "#595959",
             fontSize: 11,
             fontWeight: 600,
-            borderRadius: 12,
-            border: "1px solid #f0f0f0",
-            padding: "4px 12px",
+            borderRadius: 50,
+            padding: "3px 12px",
           }}
         >
           {department}
@@ -284,7 +308,8 @@ export default function InnovationsPage() {
       title: "REC.",
       dataIndex: "recommendation",
       key: "recommendation",
-      sorter: (a: Innovation, b: Innovation) => a.recommendation.localeCompare(b.recommendation),
+      sorter: (a: Innovation, b: Innovation) =>
+        a.recommendation.localeCompare(b.recommendation),
       render: (rec: Innovation["recommendation"]) => <RecBadge type={rec} />,
     },
     {
@@ -294,13 +319,22 @@ export default function InnovationsPage() {
       align: "center" as const,
       sorter: (a: Innovation, b: Innovation) => a.similarity - b.similarity,
       render: (similarity: number) => (
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 6,
+          }}
+        >
           {similarity > 50 ? (
             <WarningOutlined style={{ fontSize: 14, color: "#FA8C16" }} />
           ) : (
             <CheckCircleOutlined style={{ fontSize: 14, color: "#52c41a" }} />
           )}
-          <Text style={{ fontSize: 12, fontWeight: 700, color: "#595959" }}>{similarity}%</Text>
+          <Text className="innovations-text-secondary" style={{ fontSize: 12, fontWeight: 700 }}>
+            {similarity}%
+          </Text>
         </div>
       ),
     },
@@ -308,7 +342,8 @@ export default function InnovationsPage() {
       title: "STATUS",
       dataIndex: "status",
       key: "status",
-      sorter: (a: Innovation, b: Innovation) => a.status.localeCompare(b.status),
+      sorter: (a: Innovation, b: Innovation) =>
+        a.status.localeCompare(b.status),
       render: (status: Innovation["status"]) => <StatusBadge status={status} />,
     },
     {
@@ -317,13 +352,18 @@ export default function InnovationsPage() {
       align: "center" as const,
       fixed: "right" as const,
       width: 80,
-      render: (_: any, record: Innovation) => {
+      render: (_: unknown, record: Innovation) => {
         const menu = {
-          onClick: (info: { key: string; domEvent: React.MouseEvent<HTMLElement> | React.KeyboardEvent<HTMLElement> }) => {
+          onClick: (info: {
+            key: string;
+            domEvent:
+              | React.MouseEvent<HTMLElement>
+              | React.KeyboardEvent<HTMLElement>;
+          }) => {
             info.domEvent.stopPropagation();
             // Handle menu actions here
             if (info.key === "preview") {
-              navigate(`/detail/${record.id}`);
+              router.push(`/detail/${record.id}`);
             } else if (info.key === "edit") {
               console.log("Edit:", record.id);
             } else if (info.key === "reject") {
@@ -364,7 +404,7 @@ export default function InnovationsPage() {
     },
   ];
 
-  const navigate = useNavigate();
+  const router = useRouter();
 
   return (
     <div>
@@ -374,12 +414,30 @@ export default function InnovationsPage() {
 
       <div>
         {/* Top Header */}
-        <Row justify="space-between" align="middle" style={{ marginBottom: 40 }}>
+        <Row
+          justify="space-between"
+          align="middle"
+          style={{ marginBottom: 15 }}
+        >
           <Col>
-            <Title level={1} style={{ margin: 0, fontSize: 36, fontWeight: 800, color: "#0F172A" }}>
+            <Title
+              level={1}
+              className="innovations-page-title"
+              style={{
+                margin: 0,
+                fontSize: 25,
+                fontWeight: 800,
+              }}
+            >
               Innovations
             </Title>
-            <Text style={{ color: "#64748B", marginTop: 4, display: "block", fontWeight: 500 }}>
+            <Text
+              className="innovations-page-subtitle"
+              style={{
+                marginTop: 4,
+                display: "block",
+              }}
+            >
               All submitted ideas evaluated by AI agents
             </Text>
           </Col>
@@ -388,11 +446,7 @@ export default function InnovationsPage() {
               <Button
                 icon={<FilterOutlined />}
                 style={{
-                  borderRadius: 12,
-                  height: 40,
-                  fontWeight: 700,
-                  border: "1px solid #e5e7eb",
-                  boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+                  height: 38,
                 }}
               >
                 Filter
@@ -400,11 +454,7 @@ export default function InnovationsPage() {
               <Button
                 icon={<SortAscendingOutlined />}
                 style={{
-                  borderRadius: 12,
-                  height: 40,
-                  fontWeight: 700,
-                  border: "1px solid #e5e7eb",
-                  boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+                  height: 38,
                 }}
               >
                 Sort
@@ -413,13 +463,9 @@ export default function InnovationsPage() {
                 type="primary"
                 icon={<PlusOutlined />}
                 style={{
-                  borderRadius: 12,
-                  height: 40,
-                  fontWeight: 700,
-                  backgroundColor: "#2563EB",
-                  borderColor: "#2563EB",
-                  boxShadow: "0 4px 12px rgba(37, 99, 235, 0.3)",
+                  height: 38,
                 }}
+                onClick={() => router.push("/form-submission")}
               >
                 New Innovation
               </Button>
@@ -429,116 +475,139 @@ export default function InnovationsPage() {
 
         {/* Filter Bar */}
         <Card
+          className="innovations-filter-card"
           style={{
-            borderRadius: 24,
-            boxShadow: "0 1px 3px rgba(0, 0, 0, 0.05)",
-            border: "1px solid #f0f0f0",
+            borderRadius: 10,
             marginBottom: 24,
           }}
-          bodyStyle={{ padding: 24 }}
+          styles={{ body: { padding: 0 } }}
         >
-          <Row gutter={[16, 16]} align="middle">
-            <Col xs={24} sm={24} md={12} lg={8} flex={1}>
-              <Input
-                prefix={<SearchOutlined style={{ color: "#9ca3af" }} />}
-                placeholder="Search by keyword, ID, or submitte"
-                style={{
-                  borderRadius: 12,
-                  height: 40,
-                  backgroundColor: "#F5F7F9",
-                  border: "transparent",
-                }}
-              />
-            </Col>
-            <Col xs={24} sm={12} md={8} lg={6}>
-              <Select
-                defaultValue="All Departments"
-                style={{
-                  width: "100%",
-                  minWidth: 160,
-                  height: 40,
-                }}
-                suffixIcon={<DownOutlined style={{ fontSize: 16, color: "#9ca3af" }} />}
-                className="filter-select"
-              >
-                <Option value="All Departments">All Departments</Option>
-                <Option value="Logistics">Logistics</Option>
-                <Option value="Marketing">Marketing</Option>
-                <Option value="IT">IT</Option>
-                <Option value="Operations">Operations</Option>
-                <Option value="Sustainability">Sustainability</Option>
-              </Select>
-            </Col>
-            <Col xs={24} sm={12} md={8} lg={6}>
-              <Select
-                defaultValue="Status: All"
-                style={{
-                  width: "100%",
-                  minWidth: 160,
-                  height: 40,
-                }}
-                suffixIcon={<DownOutlined style={{ fontSize: 16, color: "#9ca3af" }} />}
-                className="filter-select"
-              >
-                <Option value="Status: All">Status: All</Option>
-                <Option value="Under Review">Under Review</Option>
-                <Option value="Approved">Approved</Option>
-                <Option value="New">New</Option>
-                <Option value="In Progress">In Progress</Option>
-              </Select>
-            </Col>
-            <Col xs={24} sm={12} md={8} lg={4}>
-              <Select
-                defaultValue="AI Rec: Any"
-                style={{
-                  width: "100%",
-                  minWidth: 160,
-                  height: 40,
-                }}
-                suffixIcon={<DownOutlined style={{ fontSize: 16, color: "#9ca3af" }} />}
-                className="filter-select"
-                placeholder={
-                  <Space size={8}>
-                    <RobotOutlined style={{ fontSize: 16, color: "#595959" }} />
-                    <span>AI Rec: Any</span>
-                  </Space>
-                }
-              >
-                <Option value="AI Rec: Any">
-                  <Space size={8}>
-                    <RobotOutlined style={{ fontSize: 16, color: "#595959" }} />
-                    <span>AI Rec: Any</span>
-                  </Space>
-                </Option>
-                <Option value="Fast Track">Fast Track</Option>
-                <Option value="Proceed">Proceed</Option>
-                <Option value="Drop">Drop</Option>
-              </Select>
-            </Col>
-            <Col xs={24} sm={24} md={12} lg={0} flex={1}>
-              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: 1 }}>
-                  <span>Score</span>
-                  <span>50 - 100</span>
-                </div>
-                <Slider
-                  range
-                  defaultValue={[50, 100]}
-                  min={0}
-                  max={100}
-                  style={{ margin: 0 }}
+          <div
+            style={{ padding: "25px 25px", borderBottom: "1px solid #f0f0f0" }}
+          >
+            <Row gutter={[16, 16]} align="middle">
+              <Col xs={24} sm={24} md={12} lg={8} flex={1}>
+                <Input
+                  prefix={<SearchOutlined className="innovations-text-muted" />}
+                  placeholder="Search by keyword, ID, or submitte"
+                  className="innovations-input-bg"
+                  style={{
+                    borderRadius: 12,
+                    height: 38,
+                  }}
                 />
-              </div>
-            </Col>
-          </Row>
-          
-          {/* Score Slider for Desktop */}
-          <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
-            <Col xs={0} lg={24}>
-              <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-                <div style={{ height: 1, flex: 1, backgroundColor: "#e5e7eb", marginRight: 16 }} />
-                <div style={{ flex: 1, minWidth: 140 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, fontSize: 10, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: 1 }}>
+              </Col>
+
+              <Col xs={24} sm={12} md={8} lg={6}>
+                <Select
+                  defaultValue="Status: All"
+                  style={{
+                    width: "100%",
+                    minWidth: 160,
+                    height: 38,
+                  }}
+                  suffixIcon={
+                    <DownOutlined className="innovations-text-muted" style={{ fontSize: 16 }} />
+                  }
+                  className="filter-select"
+                >
+                  <Option value="Status: All">Status: All</Option>
+                  <Option value="Under Review">Under Review</Option>
+                  <Option value="Approved">Approved</Option>
+                  <Option value="New">New</Option>
+                  <Option value="In Progress">In Progress</Option>
+                </Select>
+              </Col>
+              <Col xs={24} sm={12} md={8} lg={4}>
+                <Select
+                  defaultValue="AI Rec: Any"
+                  style={{
+                    width: "100%",
+                    minWidth: 160,
+                    height: 38,
+                  }}
+                  suffixIcon={
+                    <DownOutlined className="innovations-text-muted" style={{ fontSize: 16 }} />
+                  }
+                  className="filter-select"
+                  placeholder={
+                    <Space size={8}>
+                      <RobotOutlined
+                        className="innovations-text-secondary"
+                        style={{ fontSize: 16 }}
+                      />
+                      <span>AI Rec: Any</span>
+                    </Space>
+                  }
+                >
+                  <Option value="AI Rec: Any">
+                    <Space size={8}>
+                      <RobotOutlined
+                        className="innovations-text-secondary"
+                        style={{ fontSize: 16 }}
+                      />
+                      <span>AI Rec: Any</span>
+                    </Space>
+                  </Option>
+                  <Option value="Fast Track">Fast Track</Option>
+                  <Option value="Proceed">Proceed</Option>
+                  <Option value="Drop">Drop</Option>
+                </Select>
+              </Col>
+              <Col xs={24} sm={12} md={8} lg={6}>
+                <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                  <div style={{ flex: 1, minWidth: 140 }}>
+                    <div
+                    className="innovations-text-muted"
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      marginBottom: 8,
+                      fontSize: 10,
+                      fontWeight: 700,
+                      textTransform: "uppercase",
+                      letterSpacing: 1,
+                    }}
+                  >
+                    <span>Score</span>
+                    <span>50 - 100</span>
+                  </div>
+                    <Slider
+                      range
+                      defaultValue={[50, 100]}
+                      min={0}
+                      max={100}
+                      style={{ margin: 0 }}
+                      trackStyle={[{ backgroundColor: "#2563EB" }]}
+                      handleStyle={[
+                        {
+                          borderColor: "#2563EB",
+                          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
+                        },
+                        {
+                          borderColor: "#2563EB",
+                          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
+                        },
+                      ]}
+                    />
+                  </div>
+                </div>
+              </Col>
+              <Col xs={24} sm={24} md={12} lg={0} flex={1}>
+                <div
+                  style={{ display: "flex", flexDirection: "column", gap: 4 }}
+                >
+                  <div
+                    className="innovations-text-muted"
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      fontSize: 10,
+                      fontWeight: 700,
+                      textTransform: "uppercase",
+                      letterSpacing: 1,
+                    }}
+                  >
                     <span>Score</span>
                     <span>50 - 100</span>
                   </div>
@@ -548,22 +617,30 @@ export default function InnovationsPage() {
                     min={0}
                     max={100}
                     style={{ margin: 0 }}
-                    trackStyle={[{ backgroundColor: "#2563EB" }]}
-                    handleStyle={[
-                      { borderColor: "#2563EB", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)" },
-                      { borderColor: "#2563EB", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)" },
-                    ]}
                   />
                 </div>
-              </div>
-            </Col>
-          </Row>
+              </Col>
+            </Row>
+          </div>
 
           {/* Active Filters */}
-          <div style={{ marginTop: 24, paddingTop: 24, borderTop: "1px solid #f5f5f5" }}>
+          {/* <div
+            style={{
+              marginTop: 0,
+              paddingTop: 15,
+            }}
+          >
             <Row align="middle" gutter={[16, 8]}>
               <Col>
-                <Text style={{ fontSize: 11, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: 1 }}>
+                <Text
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 700,
+                    color: "#9ca3af",
+                    textTransform: "uppercase",
+                    letterSpacing: 1,
+                  }}
+                >
                   Active Filters:
                 </Text>
               </Col>
@@ -599,43 +676,43 @@ export default function InnovationsPage() {
                   >
                     Dept: Logistics
                   </Tag>
-                  <Button type="link" style={{ fontSize: 11, fontWeight: 700, padding: 0, height: "auto" }}>
+                  <Button
+                    type="link"
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 700,
+                      padding: 0,
+                      height: "auto",
+                    }}
+                  >
                     Clear All
                   </Button>
                 </Space>
               </Col>
             </Row>
-          </div>
-        </Card>
+          </div> */}
 
-        {/* Table */}
-        <Card
-          style={{
-            borderRadius: 24,
-            boxShadow: "0 1px 3px rgba(0, 0, 0, 0.05)",
-            border: "1px solid #f0f0f0",
-          }}
-          bodyStyle={{ padding: 0 }}
-        >
           <Table
             dataSource={innovations}
             columns={columns}
             pagination={false}
-            style={{ borderRadius: 24 }}
+            style={{ borderRadius: 0 }}
             scroll={{ x: "max-content" }}
             components={{
               header: {
-                cell: (props: any) => (
+                cell: (
+                  props: React.ThHTMLAttributes<HTMLTableCellElement> & {
+                    style?: React.CSSProperties;
+                  }
+                ) => (
                   <th
                     {...props}
+                    className="innovations-table-header"
                     style={{
                       ...props.style,
-                      backgroundColor: "#fff",
-                      borderBottom: "1px solid #f5f5f5",
-                      padding: "20px 24px",
+                      padding: "15px 15px",
                       fontSize: 10,
                       fontWeight: 700,
-                      color: "#9ca3af",
                       textTransform: "uppercase",
                       letterSpacing: 1,
                     }}
@@ -643,42 +720,59 @@ export default function InnovationsPage() {
                 ),
               },
             }}
-            rowClassName={(_, index) => (index % 2 === 0 ? "table-row-even" : "table-row-odd")}
+            rowClassName={(_, index) =>
+              `innovations-table-row ${index % 2 === 0 ? "table-row-even" : "table-row-odd"}`
+            }
             onRow={(record) => ({
               onClick: (e) => {
                 // Prevent navigation if clicking on button or action column
                 const target = e.target as HTMLElement;
-                if (target.closest('button') || target.closest('.ant-btn') || target.closest('td:last-child') || target.closest('.ant-dropdown')) {
+                if (
+                  target.closest("button") ||
+                  target.closest(".ant-btn") ||
+                  target.closest("td:last-child") ||
+                  target.closest(".ant-dropdown")
+                ) {
                   return;
                 }
-                navigate("/detail");
+                router.push(`/detail/${record.id}`);
               },
               style: { cursor: "pointer" },
             })}
           />
           <div
+            className="innovations-pagination-bg"
             style={{
               padding: "20px 32px",
               display: "flex",
               flexDirection: "column",
               gap: 16,
               borderTop: "1px solid #f5f5f5",
-              backgroundColor: "#FCFDFF",
             }}
           >
             <Row justify="space-between" align="middle">
               <Col>
-                <Text style={{ fontSize: 14, color: "#9ca3af", fontWeight: 500 }}>
-                  Showing <Text strong style={{ color: "#262626" }}>1</Text> to{" "}
-                  <Text strong style={{ color: "#262626" }}>5</Text> of{" "}
-                  <Text strong style={{ color: "#262626" }}>128</Text> results
+                <Text className="innovations-text-muted" style={{ fontSize: 14, fontWeight: 500 }}>
+                  Showing{" "}
+                  <Text strong className="innovations-text-primary">
+                    1
+                  </Text>{" "}
+                  to{" "}
+                  <Text strong className="innovations-text-primary">
+                    5
+                  </Text>{" "}
+                  of{" "}
+                  <Text strong className="innovations-text-primary">
+                    128
+                  </Text>{" "}
+                  results
                 </Text>
               </Col>
               <Col>
                 <Row gutter={24} align="middle">
                   <Col>
                     <Space size={12}>
-                      <Text style={{ fontSize: 14, color: "#9ca3af", fontWeight: 500 }}>
+                      <Text className="innovations-text-muted" style={{ fontSize: 14, fontWeight: 500 }}>
                         Rows per page:
                       </Text>
                       <Select
@@ -686,10 +780,13 @@ export default function InnovationsPage() {
                         style={{
                           width: 60,
                         }}
-                        suffixIcon={<DownOutlined style={{ fontSize: 16, color: "#9ca3af" }} />}
-                        dropdownStyle={{
-                          borderRadius: 12,
-                        }}
+                        suffixIcon={
+                          <DownOutlined
+                            className="innovations-text-muted"
+                            style={{ fontSize: 16 }}
+                          />
+                        }
+                        styles={{ popup: { root: { borderRadius: 12 } } }}
                       >
                         <Option value="10">10</Option>
                         <Option value="20">20</Option>
@@ -704,7 +801,7 @@ export default function InnovationsPage() {
                         type="text"
                         icon={<LeftOutlined />}
                         disabled
-                        style={{ color: "#d9d9d9" }}
+                        className="innovations-text-muted"
                       />
                       <Button
                         type="primary"
@@ -722,37 +819,39 @@ export default function InnovationsPage() {
                       </Button>
                       <Button
                         type="text"
+                        className="innovations-text-secondary"
                         style={{
                           width: 36,
                           height: 36,
                           borderRadius: 8,
                           fontWeight: 700,
-                          color: "#595959",
                         }}
                       >
                         2
                       </Button>
                       <Button
                         type="text"
+                        className="innovations-text-secondary"
                         style={{
                           width: 36,
                           height: 36,
                           borderRadius: 8,
                           fontWeight: 700,
-                          color: "#595959",
                         }}
                       >
                         3
                       </Button>
-                      <Text style={{ padding: "0 8px", color: "#d9d9d9" }}>...</Text>
+                      <Text className="innovations-text-muted" style={{ padding: "0 8px" }}>
+                        ...
+                      </Text>
                       <Button
                         type="text"
+                        className="innovations-text-secondary"
                         style={{
                           width: 36,
                           height: 36,
                           borderRadius: 8,
                           fontWeight: 700,
-                          color: "#595959",
                         }}
                       >
                         8
@@ -760,7 +859,7 @@ export default function InnovationsPage() {
                       <Button
                         type="text"
                         icon={<RightOutlined />}
-                        style={{ color: "#9ca3af" }}
+                        className="innovations-text-muted"
                       />
                     </Space>
                   </Col>
@@ -769,8 +868,17 @@ export default function InnovationsPage() {
             </Row>
           </div>
         </Card>
+
+        {/* Table */}
+        <Card
+          style={{
+            borderRadius: 24,
+            // boxShadow: "0 1px 3px rgba(0, 0, 0, 0.05)",
+            border: "1px solid #f0f0f0",
+          }}
+          styles={{ body: { padding: 0 } }}
+        ></Card>
       </div>
     </div>
   );
 }
-

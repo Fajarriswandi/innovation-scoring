@@ -3,8 +3,9 @@ import LoginPage from "@/features/auth/pages/LoginPage";
 import DashboardPage from "@/features/agent/pages/DashboardPage";
 import AppLayout from "@/layouts/AppLayout";
 import BlankPage from "@/features/blank/pages/BlankPage";
-import InnovationsPage from "@/features/blank/pages/InnovationsPage";
-import DetailPage from "@/features/blank/pages/DetailPage";
+import InnovationsPage from "@/features/innovations/pages/InnovationsPage";
+import DetailPage from "@/features/detail/pages/DetailPage";
+import FormSubmissionPage from "@/features/form-submission/pages/FormSubmissionPage";
 
 export default function AppRoutes() {
   return (
@@ -56,6 +57,16 @@ export default function AppRoutes() {
         element={
           <AppLayout>
             <DetailPage />
+          </AppLayout>
+        }
+      />
+
+      {/* Form Submission page */}
+      <Route
+        path="/form-submission"
+        element={
+          <AppLayout>
+            <FormSubmissionPage />
           </AppLayout>
         }
       />

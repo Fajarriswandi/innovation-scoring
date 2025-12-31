@@ -1,3 +1,5 @@
+'use client';
+
 // src/features/auth/pages/LoginPage.tsx
 import {
   Row,
@@ -12,18 +14,19 @@ import {
 import { MailOutlined, LockOutlined, GoogleOutlined } from "@ant-design/icons";
 import { Helmet } from "react-helmet-async";
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 const { Title, Text } = Typography;
 
-type LoginFormValues = {
-  email: string;
-  password: string;
-  remember?: boolean;
-};
-
 export default function LoginPage() {
-  const onFinish = (_values: LoginFormValues) => {
-    // Login logic here
+  const router = useRouter();
+  
+  const onFinish = () => {
+    router.push("/dashboard");
+  };
+
+  const handleGoogleLogin = () => {
+    router.push("/dashboard");
   };
 
   useEffect(() => {
@@ -41,7 +44,7 @@ export default function LoginPage() {
       </Helmet>
       <Row className="full-height-row" gutter={0}>
         <Col xs={24} md={12} className="pane pane--left">
-          <Card bordered={false} className="login-hero">
+          <Card variant="borderless" className="login-hero">
             <div className="login-hero__text">
               <Title level={1}>
                 Serve <br /> With <br /> Excellence
@@ -58,7 +61,7 @@ export default function LoginPage() {
           <Card className="loginWrapper">
             <div className="login-header">
               <img
-                src="/src/assets/img/logo-dd.png"
+                src="/assets/img/logo-dd.png"
                 alt="Digital Dubai"
                 className="login-logo"
               />
@@ -76,7 +79,6 @@ export default function LoginPage() {
               <Form.Item
                 label="Email"
                 name="email"
-                rules={[{ required: true, message: "Please input your email!" }]}
               >
                 <Input
                   size="large"
@@ -88,9 +90,6 @@ export default function LoginPage() {
               <Form.Item
                 label="Password"
                 name="password"
-                rules={[
-                  { required: true, message: "Please input your password!" },
-                ]}
               >
                 <Input.Password
                   size="large"
@@ -123,7 +122,12 @@ export default function LoginPage() {
               </Form.Item>
 
               <Form.Item>
-                <Button icon={<GoogleOutlined />} size="large" block>
+                <Button 
+                  icon={<GoogleOutlined />} 
+                  size="large" 
+                  block
+                  onClick={handleGoogleLogin}
+                >
                   Login with Google
                 </Button>
               </Form.Item>
