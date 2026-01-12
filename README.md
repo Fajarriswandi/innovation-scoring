@@ -126,6 +126,12 @@ src/
 - TypeScript strict mode enabled
 - ESLint configuration with React and TypeScript rules
 
+## Push ke repo kantor
+### Push ke office
+- git push office main
+## atau
+- git push office master
+
 ## 📄 License
 
 Private project - Digital Dubai

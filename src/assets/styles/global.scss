@@ -1,5 +1,6 @@
 @use "./variables" as *;
 @use "./mixins" as *;
+@use "./global-styles" as *;
 
 .ant-layout {
   font-family: $font-family-base;

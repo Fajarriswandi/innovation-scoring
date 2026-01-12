@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { 
   ConfigProvider, 
@@ -19,52 +19,72 @@ import {
 } from 'antd';
 import { Icon } from '@iconify/react';
 
+// Type untuk Quill instance
+interface QuillInstance {
+  root: {
+    innerHTML: string;
+  };
+  on: (event: string, handler: () => void) => void;
+  getSelection: () => { index: number; length: number } | null;
+  setSelection: (selection: { index: number; length: number } | null) => void;
+}
+
+interface WindowWithQuill extends Window {
+  Quill?: new (element: HTMLElement, options: Record<string, unknown>) => QuillInstance;
+}
+
 // Quill Editor Component
 const QuillEditor = ({ value, onChange, placeholder }: { value?: string; onChange?: (value: string) => void; placeholder?: string }) => {
   const editorRef = useRef<HTMLDivElement>(null);
-  const quillRef = useRef<any>(null);
+  const quillRef = useRef<QuillInstance | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const initializedRef = useRef(false);
+
+  const initQuill = useCallback(() => {
+    if (!editorRef.current || quillRef.current) return;
+    
+    const windowWithQuill = window as WindowWithQuill;
+    const Quill = windowWithQuill.Quill;
+    
+    if (Quill && editorRef.current) {
+      // Clear any existing content first
+      if (editorRef.current.querySelector('.ql-toolbar')) {
+        editorRef.current.innerHTML = '';
+      }
+      
+      quillRef.current = new Quill(editorRef.current, {
+        theme: 'snow',
+        placeholder: placeholder,
+        modules: {
+          toolbar: [
+            [{ 'header': [1, 2, 3, false] }],
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+            [{ 'indent': '-1'}, { 'indent': '+1' }],
+            ['link'],
+            ['clean']
+          ],
+        },
+        formats: ['header', 'bold', 'italic', 'underline', 'strike', 'list', 'bullet', 'indent', 'link']
+      });
+
+      if (value) {
+        quillRef.current.root.innerHTML = value;
+      }
+
+      quillRef.current.on('text-change', () => {
+        if (onChange && quillRef.current) {
+          onChange(quillRef.current.root.innerHTML);
+        }
+      });
+    }
+  }, [onChange, placeholder, value]);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && containerRef.current && editorRef.current && !quillRef.current && !initializedRef.current) {
       initializedRef.current = true;
       
-      const initQuill = () => {
-        const Quill = (window as any).Quill;
-        if (Quill && editorRef.current && !quillRef.current) {
-          // Clear any existing content first
-          if (editorRef.current.querySelector('.ql-toolbar')) {
-            editorRef.current.innerHTML = '';
-          }
-          
-          quillRef.current = new Quill(editorRef.current, {
-            theme: 'snow',
-            placeholder: placeholder,
-            modules: {
-              toolbar: [
-                [{ 'header': [1, 2, 3, false] }],
-                ['bold', 'italic', 'underline', 'strike'],
-                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                [{ 'indent': '-1'}, { 'indent': '+1' }],
-                ['link'],
-                ['clean']
-              ],
-            },
-            formats: ['header', 'bold', 'italic', 'underline', 'strike', 'list', 'bullet', 'indent', 'link']
-          });
-
-          if (value) {
-            quillRef.current.root.innerHTML = value;
-          }
-
-          quillRef.current.on('text-change', () => {
-            if (onChange && quillRef.current) {
-              onChange(quillRef.current.root.innerHTML);
-            }
-          });
-        }
-      };
+      const windowWithQuill = window as WindowWithQuill;
 
       // Load Quill CSS
       if (!document.querySelector('link[href="https://cdn.quilljs.com/1.3.7/quill.snow.css"]')) {
@@ -75,14 +95,14 @@ const QuillEditor = ({ value, onChange, placeholder }: { value?: string; onChang
       }
 
       // Load Quill JS
-      if ((window as any).Quill) {
+      if (windowWithQuill.Quill) {
         // Quill already loaded
         setTimeout(initQuill, 0);
       } else {
         // Load Quill JS
         const existingScript = document.querySelector('script[src="https://cdn.quilljs.com/1.3.7/quill.js"]');
         if (existingScript) {
-          if ((window as any).Quill) {
+          if (windowWithQuill.Quill) {
             setTimeout(initQuill, 0);
           } else {
             existingScript.addEventListener('load', initQuill);
@@ -103,7 +123,7 @@ const QuillEditor = ({ value, onChange, placeholder }: { value?: string; onChang
         initializedRef.current = false;
       }
     };
-  }, []);
+  }, [initQuill]);
 
   useEffect(() => {
     if (quillRef.current && value !== undefined && quillRef.current.root.innerHTML !== value) {

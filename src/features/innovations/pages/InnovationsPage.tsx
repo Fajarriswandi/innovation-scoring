@@ -43,6 +43,7 @@ import {
   EyeOutlined,
   EditOutlined,
 } from "@ant-design/icons";
+import { Colors, Spacing, Typography as Typo, BorderRadius, Shadows, GlobalStyles, combineStyles } from "@/styles/globalStyles";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -139,9 +140,9 @@ const innovations: Innovation[] = [
 // Components
 const ProgressBar: React.FC<{ value: number }> = ({ value }) => {
   const getProgressColor = (val: number) => {
-    if (val >= 80) return "#4CAF50";
-    if (val >= 50) return "#3F51B5";
-    return "#F44336";
+    if (val >= 80) return Colors.success;
+    if (val >= 50) return Colors.info;
+    return Colors.error;
   };
 
   return (
@@ -150,14 +151,20 @@ const ProgressBar: React.FC<{ value: number }> = ({ value }) => {
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 4,
-          marginBottom: 4,
+          gap: Spacing.xs,
+          marginBottom: Spacing.xs,
         }}
       >
-        <Text strong className="innovations-text-primary" style={{ fontSize: 14 }}>
+        <Text strong style={combineStyles(GlobalStyles.textPrimary, {
+          fontSize: Typo.base,
+          color: Colors.textPrimary,
+        })}>
           {value}
         </Text>
-        <Text className="innovations-text-muted" style={{ fontSize: 10, fontWeight: 500 }}>
+        <Text style={combineStyles(GlobalStyles.textMuted, {
+          fontSize: Typo.xs,
+          fontWeight: Typo.medium,
+        })}>
           / 100
         </Text>
       </div>
@@ -176,34 +183,34 @@ const RecBadge: React.FC<{ type: Innovation["recommendation"] }> = ({
   type,
 }) => {
   const styles = {
-    "Fast Track": { bg: "#E8F5E9", color: "#2E7D32", border: "#C8E6C9" },
-    Proceed: { bg: "#E8EAF6", color: "#3F51B5", border: "#C5CAE9" },
-    Drop: { bg: "#FFEBEE", color: "#C62828", border: "#FFCDD2" },
+    "Fast Track": { bg: Colors.successLight, color: Colors.success, border: Colors.successLight },
+    Proceed: { bg: Colors.infoLight, color: Colors.info, border: Colors.infoLight },
+    Drop: { bg: Colors.errorLight, color: Colors.error, border: Colors.errorLight },
   };
 
   const icons = {
-    "Fast Track": <FastForwardOutlined style={{ fontSize: 12 }} />,
-    Proceed: <PlayCircleOutlined style={{ fontSize: 12 }} />,
-    Drop: <CloseCircleOutlined style={{ fontSize: 12 }} />,
+    "Fast Track": <FastForwardOutlined style={{ fontSize: Typo.sm }} />,
+    Proceed: <PlayCircleOutlined style={{ fontSize: Typo.sm }} />,
+    Drop: <CloseCircleOutlined style={{ fontSize: Typo.sm }} />,
   };
 
   const style = styles[type];
 
   return (
     <Tag
-      style={{
+      style={combineStyles({
         backgroundColor: style.bg,
         color: style.color,
         borderColor: style.border,
-        borderRadius: 50,
-        padding: "3px 8px",
-        fontSize: 10,
-        fontWeight: 700,
+        borderRadius: BorderRadius.full,
+        padding: `${Spacing.xs}px ${Spacing.sm}px`,
+        fontSize: Typo.xs,
+        fontWeight: Typo.bold,
         border: `1px solid ${style.border}`,
         display: "inline-flex",
         alignItems: "center",
-        gap: 6,
-      }}
+        gap: Spacing.sm,
+      })}
     >
       {icons[type]}
       {type.toUpperCase()}
@@ -215,23 +222,26 @@ const StatusBadge: React.FC<{ status: Innovation["status"] }> = ({
   status,
 }) => {
   const colors = {
-    "Under Review": "#FA8C16",
-    Approved: "#52c41a",
-    New: "#1890ff",
-    "In Progress": "#FA8C16",
+    "Under Review": Colors.warning,
+    Approved: Colors.success,
+    New: Colors.info,
+    "In Progress": Colors.warning,
   };
 
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+    <div style={{ display: "flex", alignItems: "center", gap: Spacing.sm }}>
       <div
         style={{
           width: 8,
           height: 8,
-          borderRadius: "50%",
+          borderRadius: BorderRadius.full,
           backgroundColor: colors[status],
         }}
       />
-      <Text className="innovations-text-secondary" style={{ fontSize: 12, fontWeight: 600 }}>
+      <Text style={combineStyles(GlobalStyles.textSecondary, {
+        fontSize: Typo.sm,
+        fontWeight: Typo.semibold,
+      })}>
         {status}
       </Text>
     </div>
@@ -261,17 +271,20 @@ export default function InnovationsPage() {
         <div>
           <Title
             level={5}
-            className="innovations-text-primary"
-            style={{
+            style={combineStyles(GlobalStyles.heading4, {
               margin: 0,
-              marginBottom: 4,
-              fontSize: 14,
-              fontWeight: 700,
-            }}
+              marginBottom: Spacing.xs,
+              fontSize: Typo.base,
+              fontWeight: Typo.bold,
+              color: Colors.textPrimary,
+            })}
           >
             {record.title}
           </Title>
-          <Text className="innovations-text-muted" style={{ fontSize: 12 }}>
+          <Text style={combineStyles(GlobalStyles.textMuted, {
+            fontSize: Typo.sm,
+            color: Colors.textMuted,
+          })}>
             {record.description}
           </Text>
         </div>
@@ -285,13 +298,15 @@ export default function InnovationsPage() {
         a.department.localeCompare(b.department),
       render: (department: string) => (
         <Tag
-          className="innovations-tag-bg"
-          style={{
-            fontSize: 11,
-            fontWeight: 600,
-            borderRadius: 50,
-            padding: "3px 12px",
-          }}
+          style={combineStyles({
+            fontSize: Typo.xs,
+            fontWeight: Typo.semibold,
+            borderRadius: BorderRadius.full,
+            padding: `${Spacing.xs}px ${Spacing.md}px`,
+            backgroundColor: Colors.backgroundGray,
+            color: Colors.textSecondary,
+            border: `1px solid ${Colors.borderLight}`,
+          })}
         >
           {department}
         </Tag>
@@ -324,15 +339,18 @@ export default function InnovationsPage() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            gap: 6,
+            gap: Spacing.sm,
           }}
         >
           {similarity > 50 ? (
-            <WarningOutlined style={{ fontSize: 14, color: "#FA8C16" }} />
+            <WarningOutlined style={{ fontSize: Typo.base, color: Colors.warning }} />
           ) : (
-            <CheckCircleOutlined style={{ fontSize: 14, color: "#52c41a" }} />
+            <CheckCircleOutlined style={{ fontSize: Typo.base, color: Colors.success }} />
           )}
-          <Text className="innovations-text-secondary" style={{ fontSize: 12, fontWeight: 700 }}>
+          <Text style={combineStyles(GlobalStyles.textSecondary, {
+            fontSize: Typo.sm,
+            fontWeight: Typo.bold,
+          })}>
             {similarity}%
           </Text>
         </div>
@@ -395,7 +413,7 @@ export default function InnovationsPage() {
             <Button
               type="text"
               icon={<MoreOutlined />}
-              style={{ color: "#d9d9d9" }}
+              style={{ color: Colors.borderDark }}
               onClick={(e) => e.stopPropagation()}
             />
           </Dropdown>
@@ -417,36 +435,38 @@ export default function InnovationsPage() {
         <Row
           justify="space-between"
           align="middle"
-          style={{ marginBottom: 15 }}
+          style={GlobalStyles.marginBottomMd}
         >
           <Col>
             <Title
               level={1}
               className="innovations-page-title"
-              style={{
+              style={combineStyles(GlobalStyles.heading1, {
                 margin: 0,
-                fontSize: 25,
-                fontWeight: 800,
-              }}
+                fontSize: Typo.xxxl,
+                fontWeight: Typo.extrabold,
+              })}
             >
               Innovations
             </Title>
             <Text
               className="innovations-page-subtitle"
-              style={{
-                marginTop: 4,
+              style={combineStyles(GlobalStyles.textMuted, {
+                marginTop: Spacing.xs,
                 display: "block",
-              }}
+                fontSize: Typo.base,
+              })}
             >
               All submitted ideas evaluated by AI agents
             </Text>
           </Col>
           <Col>
-            <Space size={12}>
+            <Space size={Spacing.md}>
               <Button
                 icon={<FilterOutlined />}
                 style={{
                   height: 38,
+                  borderRadius: BorderRadius.md,
                 }}
               >
                 Filter
@@ -455,6 +475,7 @@ export default function InnovationsPage() {
                 icon={<SortAscendingOutlined />}
                 style={{
                   height: 38,
+                  borderRadius: BorderRadius.md,
                 }}
               >
                 Sort
@@ -462,9 +483,10 @@ export default function InnovationsPage() {
               <Button
                 type="primary"
                 icon={<PlusOutlined />}
-                style={{
+                style={combineStyles(GlobalStyles.buttonPrimary, {
                   height: 38,
-                }}
+                  borderRadius: BorderRadius.md,
+                })}
                 onClick={() => router.push("/form-submission")}
               >
                 New Innovation
@@ -476,25 +498,29 @@ export default function InnovationsPage() {
         {/* Filter Bar */}
         <Card
           className="innovations-filter-card"
-          style={{
-            borderRadius: 10,
-            marginBottom: 24,
-          }}
+          style={combineStyles(GlobalStyles.card, {
+            borderRadius: BorderRadius.lg,
+            marginBottom: Spacing.lg,
+            padding:0,
+            // backgroundColor: 'orange',
+          })}
           styles={{ body: { padding: 0 } }}
         >
           <div
-            style={{ padding: "25px 25px", borderBottom: "1px solid #f0f0f0" }}
+            style={{ 
+              padding: `${Spacing.xl}px ${Spacing.xl}px`, 
+              borderBottom: `1px solid ${Colors.borderLight}` 
+            }}
           >
-            <Row gutter={[16, 16]} align="middle">
+            <Row gutter={[Spacing.md, Spacing.md]} align="middle">
               <Col xs={24} sm={24} md={12} lg={8} flex={1}>
                 <Input
-                  prefix={<SearchOutlined className="innovations-text-muted" />}
+                  prefix={<SearchOutlined style={{ color: Colors.textMuted }} />}
                   placeholder="Search by keyword, ID, or submitte"
-                  className="innovations-input-bg"
-                  style={{
-                    borderRadius: 12,
+                  style={combineStyles(GlobalStyles.input, {
+                    borderRadius: BorderRadius.lg,
                     height: 38,
-                  }}
+                  })}
                 />
               </Col>
 
@@ -507,7 +533,7 @@ export default function InnovationsPage() {
                     height: 38,
                   }}
                   suffixIcon={
-                    <DownOutlined className="innovations-text-muted" style={{ fontSize: 16 }} />
+                    <DownOutlined style={{ color: Colors.textMuted, fontSize: Typo.md }} />
                   }
                   className="filter-select"
                 >
@@ -527,14 +553,13 @@ export default function InnovationsPage() {
                     height: 38,
                   }}
                   suffixIcon={
-                    <DownOutlined className="innovations-text-muted" style={{ fontSize: 16 }} />
+                    <DownOutlined style={{ color: Colors.textMuted, fontSize: Typo.md }} />
                   }
                   className="filter-select"
                   placeholder={
                     <Space size={8}>
                       <RobotOutlined
-                        className="innovations-text-secondary"
-                        style={{ fontSize: 16 }}
+                        style={{ color: Colors.textSecondary, fontSize: Typo.md }}
                       />
                       <span>AI Rec: Any</span>
                     </Space>
@@ -543,8 +568,7 @@ export default function InnovationsPage() {
                   <Option value="AI Rec: Any">
                     <Space size={8}>
                       <RobotOutlined
-                        className="innovations-text-secondary"
-                        style={{ fontSize: 16 }}
+                        style={{ color: Colors.textSecondary, fontSize: Typo.md }}
                       />
                       <span>AI Rec: Any</span>
                     </Space>
@@ -555,38 +579,36 @@ export default function InnovationsPage() {
                 </Select>
               </Col>
               <Col xs={24} sm={12} md={8} lg={6}>
-                <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: Spacing.md }}>
                   <div style={{ flex: 1, minWidth: 140 }}>
                     <div
-                    className="innovations-text-muted"
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      marginBottom: 8,
-                      fontSize: 10,
-                      fontWeight: 700,
-                      textTransform: "uppercase",
-                      letterSpacing: 1,
-                    }}
-                  >
-                    <span>Score</span>
-                    <span>50 - 100</span>
-                  </div>
+                      style={combineStyles(GlobalStyles.textUppercase, {
+                        display: "flex",
+                        justifyContent: "space-between",
+                        marginBottom: Spacing.sm,
+                        fontSize: Typo.xs,
+                        fontWeight: Typo.bold,
+                        color: Colors.textMuted,
+                      })}
+                    >
+                      <span>Score</span>
+                      <span>50 - 100</span>
+                    </div>
                     <Slider
                       range
                       defaultValue={[50, 100]}
                       min={0}
                       max={100}
                       style={{ margin: 0 }}
-                      trackStyle={[{ backgroundColor: "#2563EB" }]}
+                      trackStyle={[{ backgroundColor: Colors.info }]}
                       handleStyle={[
                         {
-                          borderColor: "#2563EB",
-                          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
+                          borderColor: Colors.info,
+                          boxShadow: Shadows.md,
                         },
                         {
-                          borderColor: "#2563EB",
-                          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
+                          borderColor: Colors.info,
+                          boxShadow: Shadows.md,
                         },
                       ]}
                     />
@@ -708,14 +730,10 @@ export default function InnovationsPage() {
                   <th
                     {...props}
                     className="innovations-table-header"
-                    style={{
+                    style={combineStyles(GlobalStyles.tableHeader, {
                       ...props.style,
-                      padding: "15px 15px",
-                      fontSize: 10,
-                      fontWeight: 700,
-                      textTransform: "uppercase",
-                      letterSpacing: 1,
-                    }}
+                      padding: `${Spacing.md}px ${Spacing.md}px`,
+                    })}
                   />
                 ),
               },
@@ -742,37 +760,47 @@ export default function InnovationsPage() {
           />
           <div
             className="innovations-pagination-bg"
-            style={{
-              padding: "20px 32px",
+            style={combineStyles({
+              padding: `${Spacing.lg}px ${Spacing.xl}px`,
               display: "flex",
               flexDirection: "column",
-              gap: 16,
-              borderTop: "1px solid #f5f5f5",
-            }}
+              gap: Spacing.md,
+              borderTop: `1px solid ${Colors.borderLight}`,
+              backgroundColor: Colors.backgroundLight,
+              // backgroundColor: 'orange',
+              borderBottomLeftRadius: BorderRadius.lg,
+              borderBottomRightRadius: BorderRadius.lg,
+            })}
           >
             <Row justify="space-between" align="middle">
               <Col>
-                <Text className="innovations-text-muted" style={{ fontSize: 14, fontWeight: 500 }}>
+                <Text style={combineStyles(GlobalStyles.textMuted, {
+                  fontSize: Typo.base,
+                  fontWeight: Typo.medium,
+                })}>
                   Showing{" "}
-                  <Text strong className="innovations-text-primary">
+                  <Text strong style={{ color: Colors.primary }}>
                     1
                   </Text>{" "}
                   to{" "}
-                  <Text strong className="innovations-text-primary">
+                  <Text strong style={{ color: Colors.primary }}>
                     5
                   </Text>{" "}
                   of{" "}
-                  <Text strong className="innovations-text-primary">
+                  <Text strong style={{ color: Colors.primary }}>
                     128
                   </Text>{" "}
                   results
                 </Text>
               </Col>
               <Col>
-                <Row gutter={24} align="middle">
+                <Row gutter={Spacing.lg} align="middle">
                   <Col>
-                    <Space size={12}>
-                      <Text className="innovations-text-muted" style={{ fontSize: 14, fontWeight: 500 }}>
+                    <Space size={Spacing.md}>
+                      <Text style={combineStyles(GlobalStyles.textMuted, {
+                        fontSize: Typo.base,
+                        fontWeight: Typo.medium,
+                      })}>
                         Rows per page:
                       </Text>
                       <Select
@@ -782,11 +810,10 @@ export default function InnovationsPage() {
                         }}
                         suffixIcon={
                           <DownOutlined
-                            className="innovations-text-muted"
-                            style={{ fontSize: 16 }}
+                            style={{ color: Colors.textMuted, fontSize: Typo.md }}
                           />
                         }
-                        styles={{ popup: { root: { borderRadius: 12 } } }}
+                        styles={{ popup: { root: { borderRadius: BorderRadius.lg } } }}
                       >
                         <Option value="10">10</Option>
                         <Option value="20">20</Option>
@@ -796,70 +823,72 @@ export default function InnovationsPage() {
                     </Space>
                   </Col>
                   <Col>
-                    <Space size={4}>
+                    <Space size={Spacing.xs}>
                       <Button
                         type="text"
                         icon={<LeftOutlined />}
                         disabled
-                        className="innovations-text-muted"
+                        style={{ color: Colors.borderDark }}
                       />
                       <Button
                         type="primary"
-                        style={{
+                        style={combineStyles({
                           width: 36,
                           height: 36,
-                          borderRadius: 8,
-                          backgroundColor: "#2563EB",
-                          borderColor: "#2563EB",
-                          fontWeight: 700,
-                          boxShadow: "0 2px 8px rgba(37, 99, 235, 0.3)",
-                        }}
+                          borderRadius: BorderRadius.md,
+                          backgroundColor: Colors.info,
+                          borderColor: Colors.info,
+                          fontWeight: Typo.bold,
+                          boxShadow: Shadows.primary,
+                        })}
                       >
                         1
                       </Button>
                       <Button
                         type="text"
-                        className="innovations-text-secondary"
-                        style={{
+                        style={combineStyles({
                           width: 36,
                           height: 36,
-                          borderRadius: 8,
-                          fontWeight: 700,
-                        }}
+                          borderRadius: BorderRadius.md,
+                          fontWeight: Typo.bold,
+                          color: Colors.textSecondary,
+                        })}
                       >
                         2
                       </Button>
                       <Button
                         type="text"
-                        className="innovations-text-secondary"
-                        style={{
+                        style={combineStyles({
                           width: 36,
                           height: 36,
-                          borderRadius: 8,
-                          fontWeight: 700,
-                        }}
+                          borderRadius: BorderRadius.md,
+                          fontWeight: Typo.bold,
+                          color: Colors.textSecondary,
+                        })}
                       >
                         3
                       </Button>
-                      <Text className="innovations-text-muted" style={{ padding: "0 8px" }}>
+                      <Text style={combineStyles(GlobalStyles.textMuted, {
+                        padding: `0 ${Spacing.sm}px`,
+                      })}>
                         ...
                       </Text>
                       <Button
                         type="text"
-                        className="innovations-text-secondary"
-                        style={{
+                        style={combineStyles({
                           width: 36,
                           height: 36,
-                          borderRadius: 8,
-                          fontWeight: 700,
-                        }}
+                          borderRadius: BorderRadius.md,
+                          fontWeight: Typo.bold,
+                          color: Colors.textSecondary,
+                        })}
                       >
                         8
                       </Button>
                       <Button
                         type="text"
                         icon={<RightOutlined />}
-                        className="innovations-text-muted"
+                        style={{ color: Colors.textMuted }}
                       />
                     </Space>
                   </Col>
@@ -872,7 +901,8 @@ export default function InnovationsPage() {
         {/* Table */}
         <Card
           style={{
-            borderRadius: 24,
+            borderRadius: BorderRadius.lg,
+            
             // boxShadow: "0 1px 3px rgba(0, 0, 0, 0.05)",
             border: "1px solid #f0f0f0",
           }}

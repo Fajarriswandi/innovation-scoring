@@ -142,6 +142,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     if (pathname?.startsWith("/blank")) return "blank";
     if (pathname?.startsWith("/innovations")) return "innovations";
     if (pathname?.startsWith("/inbox")) return "inbox";
+    if (pathname?.startsWith("/evaluation")) return "evaluation";
     return "dashboard";
   })();
 
@@ -151,6 +152,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       blank: "/blank",
       innovations: "/innovations",
       inbox: "/inbox",
+      evaluation: "/evaluation",
     };
     const to = map[key as string];
     if (to) router.push(to);
@@ -176,6 +178,11 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         key: "inbox",
         icon: <Icon icon="solar:inbox-bold-duotone" width={20} height={20} />,
         label: "Inbox",
+      },
+      {
+        key: "evaluation",
+        icon: <Icon icon="solar:clipboard-check-bold-duotone" width={20} height={20} />,
+        label: "Evaluation List",
       },
     ];
 
