@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useAppDispatch } from "@/hooks/redux";
 import { setSmallTitle } from "@/store/layoutSlice";
 import { Helmet } from "react-helmet-async";
@@ -31,6 +32,9 @@ import {
   CheckCircleOutlined,
   CloseCircleOutlined,
   ArrowRightOutlined,
+  FileSearchOutlined,
+  LeftOutlined,
+  RightOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import {
@@ -54,8 +58,10 @@ interface Session {
   key: string;
   sessionId: string;
   channel: "Live Chat" | "Voice" | "Video" | "Email";
+  sessionType: string; // "Voice Interaction", "Chat Interaction", "Hybrid (Voice + Chat)"
   startTime: string;
   lastActivity: string;
+  qualityResult: "Excellent" | "Good" | "Poor" | "Critical";
 }
 
 interface AIRequest {
@@ -99,57 +105,109 @@ const sampleSessions: Session[] = [
     key: "1",
     sessionId: "SESS-2024-001",
     channel: "Live Chat",
+    sessionType: "Chat Interaction",
     startTime: "2024-03-15 10:30:00",
     lastActivity: "2024-03-15 11:15:00",
+    qualityResult: "Excellent",
   },
   {
     key: "2",
     sessionId: "SESS-2024-002",
     channel: "Voice",
+    sessionType: "Voice Interaction",
     startTime: "2024-03-15 09:15:00",
     lastActivity: "2024-03-15 09:45:00",
+    qualityResult: "Good",
   },
   {
     key: "3",
     sessionId: "SESS-2024-003",
     channel: "Video",
+    sessionType: "Hybrid (Voice + Chat)",
     startTime: "2024-03-15 14:20:00",
     lastActivity: "2024-03-15 15:10:00",
+    qualityResult: "Poor",
   },
   {
     key: "4",
     sessionId: "SESS-2024-004",
     channel: "Live Chat",
+    sessionType: "Chat Interaction",
     startTime: "2024-03-15 16:00:00",
     lastActivity: "2024-03-15 16:30:00",
+    qualityResult: "Excellent",
   },
   {
     key: "5",
     sessionId: "SESS-2024-005",
     channel: "Voice",
+    sessionType: "Voice Interaction",
     startTime: "2024-03-15 11:00:00",
     lastActivity: "2024-03-15 11:25:00",
+    qualityResult: "Good",
   },
   {
     key: "6",
     sessionId: "SESS-2024-006",
     channel: "Email",
+    sessionType: "Chat Interaction",
     startTime: "2024-03-15 08:00:00",
     lastActivity: "2024-03-15 08:45:00",
+    qualityResult: "Critical",
   },
   {
     key: "7",
     sessionId: "SESS-2024-007",
     channel: "Live Chat",
+    sessionType: "Chat Interaction",
     startTime: "2024-03-15 13:30:00",
     lastActivity: "2024-03-15 14:00:00",
+    qualityResult: "Good",
   },
   {
     key: "8",
     sessionId: "SESS-2024-008",
     channel: "Video",
+    sessionType: "Hybrid (Voice + Chat)",
     startTime: "2024-03-15 15:00:00",
     lastActivity: "2024-03-15 15:50:00",
+    qualityResult: "Excellent",
+  },
+  {
+    key: "9",
+    sessionId: "SESS-2024-009",
+    channel: "Voice",
+    sessionType: "Voice Interaction",
+    startTime: "2024-03-15 12:00:00",
+    lastActivity: "2024-03-15 12:30:00",
+    qualityResult: "Poor",
+  },
+  {
+    key: "10",
+    sessionId: "SESS-2024-010",
+    channel: "Live Chat",
+    sessionType: "Chat Interaction",
+    startTime: "2024-03-15 17:00:00",
+    lastActivity: "2024-03-15 17:20:00",
+    qualityResult: "Good",
+  },
+  {
+    key: "11",
+    sessionId: "SESS-2024-011",
+    channel: "Voice",
+    sessionType: "Voice Interaction",
+    startTime: "2024-03-15 18:00:00",
+    lastActivity: "2024-03-15 18:15:00",
+    qualityResult: "Excellent",
+  },
+  {
+    key: "12",
+    sessionId: "SESS-2024-012",
+    channel: "Video",
+    sessionType: "Hybrid (Voice + Chat)",
+    startTime: "2024-03-15 19:00:00",
+    lastActivity: "2024-03-15 19:45:00",
+    qualityResult: "Critical",
   },
 ];
 
@@ -185,6 +243,7 @@ const getChannelColor = (channel: string) => {
 
 export default function EvaluationListPage() {
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const { message } = App.useApp();
   const [filteredSessions, setFilteredSessions] =
     useState<Session[]>(sampleSessions);
@@ -222,12 +281,18 @@ export default function EvaluationListPage() {
     const filtered = sampleSessions.filter(
       (session) =>
         session.sessionId.toLowerCase().includes(value.toLowerCase()) ||
-        session.channel.toLowerCase().includes(value.toLowerCase())
+        session.channel.toLowerCase().includes(value.toLowerCase()) ||
+        session.sessionType.toLowerCase().includes(value.toLowerCase())
     );
     setFilteredSessions(filtered);
   };
 
-  // Handle buka drawer untuk evaluasi
+  // Handle navigasi ke halaman detail session
+  const handleViewDetail = (session: Session) => {
+    router.push(`/evaluation/${session.sessionId}`);
+  };
+
+  // Handle buka drawer untuk evaluasi (jika masih diperlukan untuk fungsi lain)
   const handleOpenDrawer = (session: Session) => {
     setSelectedSession(session);
     setDrawerVisible(true);
@@ -306,6 +371,42 @@ export default function EvaluationListPage() {
     }
   };
 
+  // Fungsi untuk mendapatkan style tag quality result
+  const getQualityTagStyle = (quality: Session["qualityResult"]) => {
+    switch (quality) {
+      case "Excellent":
+        return {
+          backgroundColor: Colors.success,
+          color: "#ffffff",
+          borderColor: Colors.success,
+        };
+      case "Good":
+        return {
+          backgroundColor: Colors.success,
+          color: "#ffffff",
+          borderColor: Colors.success,
+        };
+      case "Poor":
+        return {
+          backgroundColor: Colors.error,
+          color: "#ffffff",
+          borderColor: Colors.error,
+        };
+      case "Critical":
+        return {
+          backgroundColor: Colors.error,
+          color: "#ffffff",
+          borderColor: Colors.error,
+        };
+      default:
+        return {
+          backgroundColor: Colors.backgroundGray,
+          color: Colors.textSecondary,
+          borderColor: Colors.borderLight,
+        };
+    }
+  };
+
   // Kolom tabel
   const columns: ColumnsType<Session> = [
     {
@@ -313,6 +414,7 @@ export default function EvaluationListPage() {
       dataIndex: "sessionId",
       key: "sessionId",
       width: 200,
+      sorter: (a: Session, b: Session) => a.sessionId.localeCompare(b.sessionId),
       render: (text: string) => (
         <Text
           strong
@@ -327,23 +429,20 @@ export default function EvaluationListPage() {
       ),
     },
     {
-      title: "CHANNEL",
-      dataIndex: "channel",
-      key: "channel",
-      width: 180,
-      render: (channel: string) => (
-        <Tag
-          color={getChannelColor(channel)}
-          icon={getChannelIcon(channel)}
-          style={combineStyles(getChannelTagStyle(channel), {
-            padding: `${Spacing.xs}px ${Spacing.md}px`,
-            borderRadius: BorderRadius.md,
-            fontWeight: Typo.semibold,
+      title: "SESSION TYPE",
+      dataIndex: "sessionType",
+      key: "sessionType",
+      width: 220,
+      sorter: (a: Session, b: Session) => a.sessionType.localeCompare(b.sessionType),
+      render: (sessionType: string) => (
+        <Text
+          style={combineStyles(GlobalStyles.textSecondary, {
             fontSize: Typo.sm,
+            color: Colors.textSecondary,
           })}
         >
-          {channel}
-        </Tag>
+          {sessionType}
+        </Text>
       ),
     },
     {
@@ -351,6 +450,7 @@ export default function EvaluationListPage() {
       dataIndex: "startTime",
       key: "startTime",
       width: 200,
+      sorter: (a: Session, b: Session) => a.startTime.localeCompare(b.startTime),
       render: (text: string) => (
         <Text
           style={combineStyles(GlobalStyles.textMuted, {
@@ -367,6 +467,7 @@ export default function EvaluationListPage() {
       dataIndex: "lastActivity",
       key: "lastActivity",
       width: 200,
+      sorter: (a: Session, b: Session) => a.lastActivity.localeCompare(b.lastActivity),
       render: (text: string) => (
         <Text
           style={combineStyles(GlobalStyles.textMuted, {
@@ -379,22 +480,44 @@ export default function EvaluationListPage() {
       ),
     },
     {
+      title: "QUALITY RESULT",
+      dataIndex: "qualityResult",
+      key: "qualityResult",
+      width: 150,
+      sorter: (a: Session, b: Session) => a.qualityResult.localeCompare(b.qualityResult),
+      render: (quality: Session["qualityResult"]) => {
+        const tagStyle = getQualityTagStyle(quality);
+        return (
+          <Tag
+            style={combineStyles({
+              ...tagStyle,
+              padding: `${Spacing.xs}px ${Spacing.md}px`,
+              borderRadius: BorderRadius.md,
+              fontWeight: Typo.semibold,
+              fontSize: Typo.sm,
+              border: `1px solid ${tagStyle.borderColor}`,
+            })}
+          >
+            {quality}
+          </Tag>
+        );
+      },
+    },
+    {
       title: "ACTION",
       key: "action",
-      width: 120,
+      width: 100,
       align: "center" as const,
       render: (_, record) => (
         <Button
-          type="primary"
-          onClick={() => handleOpenDrawer(record)}
-          style={combineStyles(GlobalStyles.buttonPrimary, {
-            borderRadius: BorderRadius.md,
-            fontWeight: Typo.semibold,
-            height: 32,
-          })}
-        >
-          Evaluate
-        </Button>
+          type="text"
+          icon={<FileSearchOutlined />}
+          onClick={() => handleViewDetail(record)}
+          style={{
+            color: Colors.primary,
+            fontSize: Typo.lg,
+          }}
+        />
       ),
     },
   ];
@@ -438,14 +561,14 @@ export default function EvaluationListPage() {
           </Col>
           <Col>
             <Search
-              placeholder="Search by Session ID or Channel"
+              placeholder="Search by Session ID, Type, or Channel"
               allowClear
               enterButton={<SearchOutlined />}
               size="large"
               style={combineStyles(GlobalStyles.input, {
                 width: 300,
                 padding: 0,
-                border:0,
+                border: 0,
               })}
               onSearch={handleSearch}
               onChange={(e) => {
@@ -552,10 +675,10 @@ export default function EvaluationListPage() {
                   </Space>
                 </Col>
                 <Col>
-                  <Space>
+                  <Space size={Spacing.xs}>
                     <Button
                       type="text"
-                      icon={<UpOutlined />}
+                      icon={<LeftOutlined />}
                       onClick={() =>
                         setCurrentPage(Math.max(1, currentPage - 1))
                       }
@@ -566,10 +689,92 @@ export default function EvaluationListPage() {
                             ? Colors.borderDark
                             : Colors.textMuted,
                       }}
-                    />
+                    >
+                      Prev
+                    </Button>
+                    {(() => {
+                      const totalPages = Math.ceil(filteredSessions.length / pageSize);
+                      const pages: (number | string)[] = [];
+                      
+                      // Logika untuk menentukan halaman yang ditampilkan
+                      if (totalPages <= 7) {
+                        // Jika total halaman <= 7, tampilkan semua
+                        for (let i = 1; i <= totalPages; i++) {
+                          pages.push(i);
+                        }
+                      } else {
+                        // Selalu tampilkan halaman 1
+                        pages.push(1);
+                        
+                        // Tampilkan ellipsis jika currentPage jauh dari awal
+                        if (currentPage > 3) {
+                          pages.push("ellipsis-start");
+                        }
+                        
+                        // Tampilkan halaman di sekitar currentPage
+                        const start = Math.max(2, currentPage - 1);
+                        const end = Math.min(totalPages - 1, currentPage + 1);
+                        for (let i = start; i <= end; i++) {
+                          if (i !== 1 && i !== totalPages) {
+                            pages.push(i);
+                          }
+                        }
+                        
+                        // Tampilkan ellipsis jika currentPage jauh dari akhir
+                        if (currentPage < totalPages - 2) {
+                          pages.push("ellipsis-end");
+                        }
+                        
+                        // Selalu tampilkan halaman terakhir
+                        pages.push(totalPages);
+                      }
+                      
+                      return pages.map((page, index) => {
+                        if (page === "ellipsis-start" || page === "ellipsis-end") {
+                          return (
+                            <Text
+                              key={`ellipsis-${index}`}
+                              style={combineStyles(GlobalStyles.textMuted, {
+                                padding: `0 ${Spacing.sm}px`,
+                              })}
+                            >
+                              ...
+                            </Text>
+                          );
+                        }
+                        return (
+                          <Button
+                            key={page}
+                            type={currentPage === page ? "primary" : "text"}
+                            onClick={() => setCurrentPage(page as number)}
+                            style={
+                              currentPage === page
+                                ? combineStyles({
+                                    width: 36,
+                                    height: 36,
+                                    borderRadius: BorderRadius.md,
+                                    backgroundColor: Colors.info,
+                                    borderColor: Colors.info,
+                                    fontWeight: Typo.bold,
+                                    boxShadow: Shadows.primary,
+                                  })
+                                : combineStyles({
+                                    width: 36,
+                                    height: 36,
+                                    borderRadius: BorderRadius.md,
+                                    fontWeight: Typo.bold,
+                                    color: Colors.textSecondary,
+                                  })
+                            }
+                          >
+                            {page}
+                          </Button>
+                        );
+                      });
+                    })()}
                     <Button
                       type="text"
-                      icon={<DownOutlined />}
+                      icon={<RightOutlined />}
                       onClick={() =>
                         setCurrentPage(
                           Math.min(
@@ -589,7 +794,9 @@ export default function EvaluationListPage() {
                             ? Colors.borderDark
                             : Colors.textMuted,
                       }}
-                    />
+                    >
+                      Next
+                    </Button>
                   </Space>
                 </Col>
               </Row>

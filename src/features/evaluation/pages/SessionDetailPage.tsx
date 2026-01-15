@@ -14,165 +14,248 @@ import {
   Col,
   Card,
   Button,
-  Modal,
-  Input,
+  Select,
+  Drawer,
   Rate,
-  App,
+  Input,
   Divider,
 } from "antd";
 import {
-  ArrowLeftOutlined,
-  CheckCircleOutlined,
-  StarOutlined,
+  ClockCircleOutlined,
+  UserOutlined,
+  DashboardOutlined,
+  ExportOutlined,
+  ReloadOutlined,
+  FileSearchOutlined,
+  LeftOutlined,
+  RightOutlined,
+  DownOutlined,
+  MoreOutlined,
+  LinkOutlined,
+  DislikeOutlined,
+  LikeOutlined,
+  PlayCircleOutlined,
+  ThunderboltOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
+import { Colors, Spacing, Typography as Typo, BorderRadius, Shadows, GlobalStyles, combineStyles, getRequestTagStyle } from "@/styles/globalStyles";
 
 const { Title, Text } = Typography;
+const { Option } = Select;
 const { TextArea } = Input;
 
 // Type definitions
-type MetadataValue = string | number | boolean | string[] | null | undefined;
-
-interface AIRequest {
+interface EventLog {
   key: string;
-  requestId: string;
+  time: string;
   type: "STT" | "LLM" | "TTS";
-  input: string;
-  output: string;
-  latency: number; // dalam milliseconds
-  requestMetadata: Record<string, MetadataValue>;
-  responseMetadata: Record<string, MetadataValue>;
+  component: string;
+  engine: string;
+  event: string;
+  level: "Info" | "Warning" | "Error";
 }
 
-// Sample data
-const sampleAIRequests: AIRequest[] = [
+// Sample data untuk event logs
+const sampleEventLogs: EventLog[] = [
   {
     key: "1",
-    requestId: "REQ-001",
+    time: "02:33:48",
     type: "STT",
-    input: "User audio input: 'Hello, I need help with my account'",
-    output: "Transcribed text: 'Hello, I need help with my account'",
-    latency: 245,
-    requestMetadata: {
-      audioFormat: "wav",
-      sampleRate: 16000,
-      duration: 2.5,
-      language: "en-US",
-    },
-    responseMetadata: {
-      confidence: 0.95,
-      alternatives: ["Hello, I need help with my account"],
-      processingTime: 245,
-    },
+    component: "Speech Recognition",
+    engine: "Whisper v3",
+    event: "Transcription completed",
+    level: "Info",
   },
   {
     key: "2",
-    requestId: "REQ-002",
+    time: "02:33:50",
     type: "LLM",
-    input: "User query: 'I need help with my account'",
-    output: "AI Response: 'I'd be happy to help you with your account. Could you please provide your account number or email address?'",
-    latency: 1234,
-    requestMetadata: {
-      model: "gpt-4",
-      temperature: 0.7,
-      maxTokens: 500,
-      context: "customer_service",
-    },
-    responseMetadata: {
-      tokensUsed: 45,
-      finishReason: "stop",
-      modelVersion: "gpt-4-0613",
-    },
+    component: "Dialogue Engine",
+    engine: "LiveKit",
+    event: "Intent inferred",
+    level: "Info",
   },
   {
     key: "3",
-    requestId: "REQ-003",
+    time: "02:33:52",
     type: "TTS",
-    input: "Text to convert: 'I'd be happy to help you with your account. Could you please provide your account number or email address?'",
-    output: "Audio output generated successfully",
-    latency: 567,
-    requestMetadata: {
-      voice: "en-US-Neural2-A",
-      speed: 1.0,
-      pitch: 0,
-    },
-    responseMetadata: {
-      audioFormat: "mp3",
-      duration: 4.2,
-      fileSize: 67200,
-    },
+    component: "Speech Synthesis",
+    engine: "ElevenLabs",
+    event: "Audio generated",
+    level: "Info",
   },
   {
     key: "4",
-    requestId: "REQ-004",
-    type: "STT",
-    input: "User audio input: 'My email is john@example.com'",
-    output: "Transcribed text: 'My email is john@example.com'",
-    latency: 198,
-    requestMetadata: {
-      audioFormat: "wav",
-      sampleRate: 16000,
-      duration: 2.1,
-      language: "en-US",
-    },
-    responseMetadata: {
-      confidence: 0.98,
-      alternatives: ["My email is john@example.com"],
-      processingTime: 198,
-    },
+    time: "02:33:55",
+    type: "LLM",
+    component: "Dialogue Engine",
+    engine: "LiveKit",
+    event: "Slot updated",
+    level: "Info",
   },
   {
     key: "5",
-    requestId: "REQ-005",
-    type: "LLM",
-    input: "User query: 'My email is john@example.com'",
-    output: "AI Response: 'Thank you. I found your account. How can I assist you today?'",
-    latency: 987,
-    requestMetadata: {
-      model: "gpt-4",
-      temperature: 0.7,
-      maxTokens: 500,
-      context: "customer_service",
-    },
-    responseMetadata: {
-      tokensUsed: 38,
-      finishReason: "stop",
-      modelVersion: "gpt-4-0613",
-    },
+    time: "02:33:58",
+    type: "STT",
+    component: "Speech Recognition",
+    engine: "Whisper v3",
+    event: "Low confidence",
+    level: "Warning",
   },
   {
     key: "6",
-    requestId: "REQ-006",
+    time: "02:34:00",
+    type: "LLM",
+    component: "Dialogue Engine",
+    engine: "LiveKit",
+    event: "Clarification generated",
+    level: "Info",
+  },
+  {
+    key: "7",
+    time: "02:34:03",
     type: "TTS",
-    input: "Text to convert: 'Thank you. I found your account. How can I assist you today?'",
-    output: "Audio output generated successfully",
-    latency: 523,
-    requestMetadata: {
-      voice: "en-US-Neural2-A",
-      speed: 1.0,
-      pitch: 0,
-    },
-    responseMetadata: {
-      audioFormat: "mp3",
-      duration: 3.8,
-      fileSize: 60800,
-    },
+    component: "Speech Synthesis",
+    engine: "ElevenLabs",
+    event: "Audio generated",
+    level: "Info",
+  },
+  {
+    key: "8",
+    time: "02:34:06",
+    type: "STT",
+    component: "Speech Recognition",
+    engine: "Whisper v3",
+    event: "Transcription completed",
+    level: "Info",
+  },
+  {
+    key: "9",
+    time: "02:34:08",
+    type: "LLM",
+    component: "Dialogue Engine",
+    engine: "LiveKit",
+    event: "Response generated",
+    level: "Info",
+  },
+  {
+    key: "10",
+    time: "02:34:10",
+    type: "TTS",
+    component: "Speech Synthesis",
+    engine: "ElevenLabs",
+    event: "Audio generated",
+    level: "Info",
+  },
+  {
+    key: "11",
+    time: "02:34:12",
+    type: "LLM",
+    component: "Dialogue Engine",
+    engine: "LiveKit",
+    event: "Intent inferred",
+    level: "Info",
+  },
+  {
+    key: "12",
+    time: "02:34:15",
+    type: "STT",
+    component: "Speech Recognition",
+    engine: "Whisper v3",
+    event: "Transcription completed",
+    level: "Info",
+  },
+  {
+    key: "13",
+    time: "02:34:18",
+    type: "LLM",
+    component: "Dialogue Engine",
+    engine: "LiveKit",
+    event: "Response generated",
+    level: "Info",
+  },
+  {
+    key: "14",
+    time: "02:34:20",
+    type: "TTS",
+    component: "Speech Synthesis",
+    engine: "ElevenLabs",
+    event: "Audio generated",
+    level: "Info",
+  },
+  {
+    key: "15",
+    time: "02:34:22",
+    type: "LLM",
+    component: "Dialogue Engine",
+    engine: "LiveKit",
+    event: "Slot updated",
+    level: "Info",
+  },
+  {
+    key: "16",
+    time: "02:34:25",
+    type: "STT",
+    component: "Speech Recognition",
+    engine: "Whisper v3",
+    event: "Low confidence",
+    level: "Warning",
+  },
+  {
+    key: "17",
+    time: "02:34:28",
+    type: "LLM",
+    component: "Dialogue Engine",
+    engine: "LiveKit",
+    event: "Clarification generated",
+    level: "Info",
+  },
+  {
+    key: "18",
+    time: "02:34:30",
+    type: "TTS",
+    component: "Speech Synthesis",
+    engine: "ElevenLabs",
+    event: "Audio generated",
+    level: "Info",
+  },
+  {
+    key: "19",
+    time: "02:34:33",
+    type: "STT",
+    component: "Speech Recognition",
+    engine: "Whisper v3",
+    event: "Transcription completed",
+    level: "Info",
+  },
+  {
+    key: "20",
+    time: "02:34:35",
+    type: "LLM",
+    component: "Dialogue Engine",
+    engine: "LiveKit",
+    event: "Response generated",
+    level: "Info",
+  },
+  {
+    key: "21",
+    time: "02:34:38",
+    type: "TTS",
+    component: "Speech Synthesis",
+    engine: "ElevenLabs",
+    event: "Audio generated",
+    level: "Info",
+  },
+  {
+    key: "22",
+    time: "02:34:40",
+    type: "LLM",
+    component: "Dialogue Engine",
+    engine: "LiveKit",
+    event: "Session completed",
+    level: "Info",
   },
 ];
-
-// Fungsi untuk mendapatkan color badge berdasarkan type
-const getTypeColor = (type: string) => {
-  switch (type) {
-    case "STT":
-      return "blue";
-    case "LLM":
-      return "purple";
-    case "TTS":
-      return "green";
-    default:
-      return "default";
-  }
-};
 
 interface SessionDetailPageProps {
   params?: Promise<{ id: string }>;
@@ -181,404 +264,993 @@ interface SessionDetailPageProps {
 export default function SessionDetailPage({ params }: SessionDetailPageProps) {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const { message } = App.useApp();
   const resolvedParams = params ? use(params) : null;
   const sessionId = resolvedParams?.id || "SESS-2024-001";
 
-  // State untuk form rating
-  const [rating, setRating] = useState<number>(0);
-  const [notes, setNotes] = useState<string>("");
-  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
-  const [metadataModalVisible, setMetadataModalVisible] = useState(false);
-  const [metadataContent, setMetadataContent] = useState<{
-    title: string;
-    data: Record<string, MetadataValue>;
-  } | null>(null);
+  // State untuk pagination
+  const [pageSize, setPageSize] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // State untuk drawer
+  const [drawerVisible, setDrawerVisible] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<EventLog | null>(null);
+
+  // Sample session data
+  const sessionData = {
+    sessionId: sessionId,
+    startTime: "10:00:05 AM",
+    user: "Ahmed",
+    totalLatency: "4.2s",
+  };
 
   useEffect(() => {
     dispatch(setSmallTitle("Session Detail"));
-    document.title = `Session Detail - ${sessionId} | AI Call Center`;
+    document.title = `Session Detail - ${sessionId} | Zafar Labs`;
     return () => {
       dispatch(setSmallTitle("Dashboard"));
-      document.title = "AI Call Center";
+      document.title = "Zafar Labs";
     };
   }, [dispatch, sessionId]);
 
-  // Handle view metadata
-  const handleViewMetadata = (type: "request" | "response", record: AIRequest) => {
-    const data = type === "request" ? record.requestMetadata : record.responseMetadata;
-    setMetadataContent({
-      title: `${type === "request" ? "Request" : "Response"} Metadata - ${record.requestId}`,
-      data,
-    });
-    setMetadataModalVisible(true);
+  // Handle export logs
+  const handleExportLogs = () => {
+    // Implementasi export logs
+    console.log("Export logs");
   };
 
-  // Handle submit rating
-  const handleSubmitRating = () => {
-    if (!selectedRequestId) {
-      message.warning("Pilih request terlebih dahulu untuk memberikan rating");
-      return;
-    }
-    if (rating === 0) {
-      message.warning("Berikan rating terlebih dahulu");
-      return;
-    }
-    message.success(`Rating berhasil disubmit untuk request ${selectedRequestId}`);
-    setRating(0);
-    setNotes("");
-    setSelectedRequestId(null);
+  // Handle reload page
+  const handleReload = () => {
+    window.location.reload();
   };
 
-  // Handle select request untuk rating
-  const handleSelectRequest = (requestId: string) => {
-    setSelectedRequestId(requestId);
+  // Handle buka drawer detail event
+  const handleOpenDetailDrawer = (event: EventLog) => {
+    setSelectedEvent(event);
+    setDrawerVisible(true);
+  };
+
+  // Handle tutup drawer
+  const handleCloseDetailDrawer = () => {
+    setDrawerVisible(false);
+    setSelectedEvent(null);
+  };
+
+  // Fungsi untuk mendapatkan style level tag
+  const getLevelTagStyle = (level: EventLog["level"]) => {
+    switch (level) {
+      case "Info":
+        return {
+          backgroundColor: Colors.infoLight,
+          color: Colors.info,
+          borderColor: Colors.infoLight,
+        };
+      case "Warning":
+        return {
+          backgroundColor: Colors.warningLight,
+          color: Colors.warning,
+          borderColor: Colors.warningLight,
+        };
+      case "Error":
+        return {
+          backgroundColor: Colors.errorLight,
+          color: Colors.error,
+          borderColor: Colors.errorLight,
+        };
+      default:
+        return {
+          backgroundColor: Colors.backgroundGray,
+          color: Colors.textSecondary,
+          borderColor: Colors.borderLight,
+        };
+    }
   };
 
   // Kolom tabel
-  const columns: ColumnsType<AIRequest> = [
+  const columns: ColumnsType<EventLog> = [
     {
-      title: "Request ID",
-      dataIndex: "requestId",
-      key: "requestId",
+      title: "TIME",
+      dataIndex: "time",
+      key: "time",
       width: 120,
-      render: (text: string, record: AIRequest) => (
-        <Button
-          type="link"
-          onClick={() => handleSelectRequest(record.requestId)}
-          style={{
-            fontWeight: 600,
-            color: selectedRequestId === record.requestId ? "#2563EB" : "#1e293b",
-            padding: 0,
-          }}
+      sorter: (a: EventLog, b: EventLog) => a.time.localeCompare(b.time),
+      render: (text: string) => (
+        <Text
+          style={combineStyles(GlobalStyles.textSecondary, {
+            fontSize: Typo.sm,
+            color: Colors.textSecondary,
+          })}
         >
           {text}
-        </Button>
+        </Text>
       ),
     },
     {
-      title: "Type",
+      title: "TYPE",
       dataIndex: "type",
       key: "type",
       width: 100,
-      render: (type: string) => (
+      sorter: (a: EventLog, b: EventLog) => a.type.localeCompare(b.type),
+      render: (type: EventLog["type"]) => (
         <Tag
-          color={getTypeColor(type)}
-          style={{
-            padding: "4px 12px",
-            borderRadius: 8,
-            fontWeight: 700,
-            fontSize: 11,
-            textTransform: "uppercase",
-          }}
+          style={combineStyles(getRequestTagStyle(type), {
+            padding: `${Spacing.xs}px ${Spacing.sm}px`,
+            borderRadius: BorderRadius.md,
+            fontWeight: Typo.semibold,
+            fontSize: Typo.xs,
+            backgroundColor: Colors.backgroundGray,
+            color: Colors.textSecondary,
+            border: `1px solid ${Colors.borderLight}`,
+          })}
         >
           {type}
         </Tag>
       ),
     },
     {
-      title: "Input",
-      dataIndex: "input",
-      key: "input",
-      width: 300,
-      ellipsis: true,
-      render: (text: string) => (
-        <Text
-          style={{
-            color: "#64748b",
-            fontSize: 12,
-            display: "block",
-            maxWidth: 300,
-          }}
-        >
-          {text}
-        </Text>
-      ),
-    },
-    {
-      title: "Output",
-      dataIndex: "output",
-      key: "output",
-      width: 300,
-      ellipsis: true,
-      render: (text: string) => (
-        <Text
-          style={{
-            color: "#64748b",
-            fontSize: 12,
-            display: "block",
-            maxWidth: 300,
-          }}
-        >
-          {text}
-        </Text>
-      ),
-    },
-    {
-      title: "Latency",
-      dataIndex: "latency",
-      key: "latency",
-      width: 120,
-      render: (latency: number) => (
-        <Tag
-          color={latency < 500 ? "green" : latency < 1000 ? "orange" : "red"}
-          style={{
-            padding: "4px 12px",
-            borderRadius: 8,
-            fontWeight: 600,
-            fontSize: 11,
-          }}
-        >
-          {latency}ms
-        </Tag>
-      ),
-    },
-    {
-      title: "Metadata",
-      key: "metadata",
+      title: "COMPONENT",
+      dataIndex: "component",
+      key: "component",
       width: 200,
-      render: (_, record: AIRequest) => (
-        <Space>
-          <Button
-            type="link"
-            size="small"
-            onClick={() => handleViewMetadata("request", record)}
-            style={{ padding: 0, fontSize: 12 }}
+      sorter: (a: EventLog, b: EventLog) => a.component.localeCompare(b.component),
+      render: (text: string) => (
+        <Text
+          style={combineStyles(GlobalStyles.textSecondary, {
+            fontSize: Typo.sm,
+            color: Colors.textSecondary,
+          })}
+        >
+          {text}
+        </Text>
+      ),
+    },
+    {
+      title: "ENGINE",
+      dataIndex: "engine",
+      key: "engine",
+      width: 150,
+      sorter: (a: EventLog, b: EventLog) => a.engine.localeCompare(b.engine),
+      render: (text: string) => (
+        <Text
+          style={combineStyles(GlobalStyles.textSecondary, {
+            fontSize: Typo.sm,
+            color: Colors.textSecondary,
+          })}
+        >
+          {text}
+        </Text>
+      ),
+    },
+    {
+      title: "EVENT",
+      dataIndex: "event",
+      key: "event",
+      width: 250,
+      sorter: (a: EventLog, b: EventLog) => a.event.localeCompare(b.event),
+      render: (text: string) => (
+        <Text
+          style={combineStyles(GlobalStyles.textSecondary, {
+            fontSize: Typo.sm,
+            color: Colors.textSecondary,
+          })}
+        >
+          {text}
+        </Text>
+      ),
+    },
+    {
+      title: "LEVEL",
+      dataIndex: "level",
+      key: "level",
+      width: 120,
+      sorter: (a: EventLog, b: EventLog) => a.level.localeCompare(b.level),
+      render: (level: EventLog["level"]) => {
+        const tagStyle = getLevelTagStyle(level);
+        return (
+          <Tag
+            style={combineStyles({
+              ...tagStyle,
+              padding: `${Spacing.xs}px ${Spacing.sm}px`,
+              borderRadius: BorderRadius.md,
+              fontWeight: Typo.semibold,
+              fontSize: Typo.xs,
+              border: `1px solid ${tagStyle.borderColor}`,
+            })}
           >
-            Request
-          </Button>
-          <Divider type="vertical" style={{ margin: "0 4px" }} />
-          <Button
-            type="link"
-            size="small"
-            onClick={() => handleViewMetadata("response", record)}
-            style={{ padding: 0, fontSize: 12 }}
-          >
-            Response
-          </Button>
-        </Space>
+            {level}
+          </Tag>
+        );
+      },
+    },
+    {
+      title: "DETAIL",
+      key: "detail",
+      width: 100,
+      align: "center" as const,
+      render: (_, record: EventLog) => (
+        <Button
+          type="text"
+          icon={<FileSearchOutlined />}
+          onClick={() => handleOpenDetailDrawer(record)}
+          style={{
+            color: Colors.primary,
+            fontSize: Typo.lg,
+          }}
+        />
       ),
     },
   ];
 
   return (
-    <div style={{ padding: "24px" }}>
+    <div style={GlobalStyles.container}>
       <Helmet>
-        <title>Session Detail - {sessionId} | AI Call Center</title>
+        <title>Session Detail - {sessionId} | Zafar Labs</title>
       </Helmet>
 
-      {/* Header */}
-      <Row justify="space-between" align="middle" style={{ marginBottom: 24 }}>
-        <Col>
-          <Space size={16}>
-            <Button
-              icon={<ArrowLeftOutlined />}
-              onClick={() => router.push("/evaluation")}
-              style={{ borderRadius: 8 }}
-            >
-              Back
-            </Button>
-            <div>
-              <Title level={2} style={{ margin: 0, fontSize: 24, fontWeight: 700 }}>
-                Session Detail
-              </Title>
-              <Text style={{ color: "#94a3b8", fontSize: 12 }}>
-                Session ID: {sessionId}
-              </Text>
-            </div>
-          </Space>
-        </Col>
-      </Row>
-
-      <Row gutter={[24, 24]}>
-        {/* Left Content - AI Requests Table */}
-        <Col xs={24} lg={16}>
-          <Card
-            style={{
-              borderRadius: 12,
-              boxShadow: "0 1px 3px rgba(0, 0, 0, 0.05)",
-              border: "none",
-            }}
-          >
-            <Title level={4} style={{ fontSize: 18, fontWeight: 700, marginBottom: 16 }}>
-              AI Requests
-            </Title>
-            <Table
-              columns={columns}
-              dataSource={sampleAIRequests}
-              pagination={{
-                pageSize: 10,
-                showSizeChanger: true,
-                showTotal: (total) => `Total ${total} requests`,
-                style: { marginTop: 16 },
-              }}
-              scroll={{ x: 1200 }}
-            />
-          </Card>
-        </Col>
-
-        {/* Right Sidebar - Rating Form */}
-        <Col xs={24} lg={8}>
-          <Card
-            style={{
-              borderRadius: 12,
-              boxShadow: "0 1px 3px rgba(0, 0, 0, 0.05)",
-              border: "none",
-              position: "sticky",
-              top: 100,
-            }}
-          >
-            <Title level={4} style={{ fontSize: 18, fontWeight: 700, marginBottom: 24 }}>
-              Rating & Evaluation
-            </Title>
-
-            {selectedRequestId ? (
-              <Space direction="vertical" size={24} style={{ width: "100%" }}>
-                <div>
-                  <Text strong style={{ display: "block", marginBottom: 8, fontSize: 13 }}>
-                    Selected Request
-                  </Text>
-                  <Tag
-                    color="blue"
-                    style={{
-                      padding: "4px 12px",
-                      borderRadius: 8,
-                      fontWeight: 600,
-                      fontSize: 12,
-                    }}
-                  >
-                    {selectedRequestId}
-                  </Tag>
-                </div>
-
-                <div>
-                  <Text strong style={{ display: "block", marginBottom: 12, fontSize: 13 }}>
-                    Rating
-                  </Text>
-                  <Rate
-                    value={rating}
-                    onChange={setRating}
-                    style={{ fontSize: 24 }}
-                  />
-                  {rating > 0 && (
-                    <Text style={{ display: "block", marginTop: 8, color: "#64748b", fontSize: 12 }}>
-                      {rating === 1 && "Sangat Buruk"}
-                      {rating === 2 && "Buruk"}
-                      {rating === 3 && "Cukup"}
-                      {rating === 4 && "Baik"}
-                      {rating === 5 && "Sangat Baik"}
-                    </Text>
-                  )}
-                </div>
-
-                <div>
-                  <Text strong style={{ display: "block", marginBottom: 8, fontSize: 13 }}>
-                    Notes
-                  </Text>
-                  <TextArea
-                    placeholder="Masukkan catatan evaluasi..."
-                    rows={6}
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    style={{
-                      borderRadius: 8,
-                      fontSize: 13,
-                    }}
-                  />
-                </div>
-
-                <Button
-                  type="primary"
-                  icon={<CheckCircleOutlined />}
-                  block
-                  size="large"
-                  onClick={handleSubmitRating}
-                  style={{
-                    height: 48,
-                    borderRadius: 8,
-                    fontWeight: 700,
-                    fontSize: 14,
-                  }}
-                >
-                  Submit Rating
-                </Button>
-
-                <Button
-                  block
-                  onClick={() => {
-                    setSelectedRequestId(null);
-                    setRating(0);
-                    setNotes("");
-                  }}
-                  style={{
-                    height: 40,
-                    borderRadius: 8,
-                    fontWeight: 600,
-                  }}
-                >
-                  Clear Selection
-                </Button>
-              </Space>
-            ) : (
-              <div style={{ textAlign: "center", padding: "40px 0" }}>
-                <StarOutlined
-                  style={{
-                    fontSize: 48,
-                    color: "#cbd5e1",
-                    marginBottom: 16,
-                  }}
-                />
-                <Text
-                  style={{
-                    display: "block",
-                    color: "#94a3b8",
-                    fontSize: 14,
-                    marginBottom: 8,
-                  }}
-                >
-                  Pilih request dari tabel untuk memberikan rating
-                </Text>
-                <Text
-                  style={{
-                    display: "block",
-                    color: "#cbd5e1",
-                    fontSize: 12,
-                  }}
-                >
-                  Klik pada Request ID untuk memilih
-                </Text>
-              </div>
-            )}
-          </Card>
-        </Col>
-      </Row>
-
-      {/* Metadata Modal */}
-      <Modal
-        title={metadataContent?.title || "Metadata"}
-        open={metadataModalVisible}
-        onCancel={() => setMetadataModalVisible(false)}
-        footer={[
-          <Button key="close" onClick={() => setMetadataModalVisible(false)}>
-            Close
-          </Button>,
-        ]}
-        width={600}
+      {/* Table Card */}
+      <Card
+        style={combineStyles(GlobalStyles.card, {
+          borderRadius: BorderRadius.lg,
+          boxShadow: Shadows.sm,
+          border: "none",
+          padding: 0,
+        })}
+        styles={{ body: { padding: 0 } }}
       >
-        <pre
+        {/* Header */}
+        <div
           style={{
-            backgroundColor: "#f8fafc",
-            padding: 16,
-            borderRadius: 8,
-            overflow: "auto",
-            maxHeight: 400,
-            fontSize: 12,
-            fontFamily: "monospace",
+            padding: Spacing.lg,
+            borderBottom: `1px solid ${Colors.borderLight}`,
           }}
         >
-          {JSON.stringify(metadataContent?.data || {}, null, 2)}
-        </pre>
-      </Modal>
+          <Row justify="space-between" align="middle" style={{ marginBottom: Spacing.md }}>
+            <Col>
+              <Title
+                level={2}
+                style={combineStyles(GlobalStyles.heading2, {
+                  margin: 0,
+                  fontSize: Typo.xxl,
+                  fontWeight: Typo.bold,
+                })}
+              >
+                Session #{sessionData.sessionId}
+              </Title>
+            </Col>
+            <Col>
+              <Space size={Spacing.md}>
+                <Button
+                  icon={<ExportOutlined />}
+                  onClick={handleExportLogs}
+                  style={{
+                    borderRadius: BorderRadius.md,
+                    fontWeight: Typo.semibold,
+                  }}
+                >
+                  Export Logs
+                </Button>
+                <Button
+                  type="primary"
+                  icon={<ReloadOutlined />}
+                  onClick={handleReload}
+                  style={combineStyles(GlobalStyles.buttonPrimary, {
+                    borderRadius: BorderRadius.md,
+                    fontWeight: Typo.semibold,
+                  })}
+                >
+                  Reload page
+                </Button>
+              </Space>
+            </Col>
+          </Row>
+
+          {/* Session Metadata */}
+          <Row gutter={[Spacing.xl, Spacing.sm]}>
+            <Col>
+              <Space size={Spacing.sm}>
+                <ClockCircleOutlined style={{ color: Colors.textMuted, fontSize: Typo.base }} />
+                <Text style={combineStyles(GlobalStyles.textMuted, {
+                  fontSize: Typo.sm,
+                })}>
+                  Started {sessionData.startTime}
+                </Text>
+              </Space>
+            </Col>
+            <Col>
+              <Space size={Spacing.sm}>
+                <UserOutlined style={{ color: Colors.textMuted, fontSize: Typo.base }} />
+                <Text style={combineStyles(GlobalStyles.textMuted, {
+                  fontSize: Typo.sm,
+                })}>
+                  User: {sessionData.user}
+                </Text>
+              </Space>
+            </Col>
+            <Col>
+              <Space size={Spacing.sm}>
+                <DashboardOutlined style={{ color: Colors.textMuted, fontSize: Typo.base }} />
+                <Text style={combineStyles(GlobalStyles.textMuted, {
+                  fontSize: Typo.sm,
+                })}>
+                  Total Latency: {sessionData.totalLatency}
+                </Text>
+              </Space>
+            </Col>
+          </Row>
+        </div>
+
+        {/* Table */}
+        <Table
+          columns={columns}
+          dataSource={sampleEventLogs.slice(
+            (currentPage - 1) * pageSize,
+            currentPage * pageSize
+          )}
+          pagination={false}
+          style={{ borderRadius: 0 }}
+          scroll={{ x: "max-content" }}
+          components={{
+            header: {
+              cell: (
+                props: React.ThHTMLAttributes<HTMLTableCellElement> & {
+                  style?: React.CSSProperties;
+                }
+              ) => (
+                <th
+                  {...props}
+                  style={combineStyles(GlobalStyles.tableHeader, {
+                    ...props.style,
+                    padding: `${Spacing.md}px ${Spacing.md}px`,
+                  })}
+                />
+              ),
+            },
+          }}
+          rowClassName={(_, index) =>
+            `table-row-${index % 2 === 0 ? "even" : "odd"}`
+          }
+        />
+
+        {/* Pagination */}
+        <div
+          style={combineStyles({
+            padding: `${Spacing.lg}px ${Spacing.xl}px`,
+            display: "flex",
+            flexDirection: "column",
+            gap: Spacing.md,
+            borderTop: `1px solid ${Colors.borderLight}`,
+            backgroundColor: Colors.backgroundLight,
+            borderBottomLeftRadius: BorderRadius.lg,
+            borderBottomRightRadius: BorderRadius.lg,
+          })}
+        >
+          <Row justify="space-between" align="middle">
+            <Col>
+              <Text
+                style={combineStyles(GlobalStyles.textMuted, {
+                  fontSize: Typo.base,
+                  fontWeight: Typo.medium,
+                })}
+              >
+                Showing{" "}
+                <Text strong style={{ color: Colors.primary }}>
+                  {(currentPage - 1) * pageSize + 1}
+                </Text>{" "}
+                to{" "}
+                <Text strong style={{ color: Colors.primary }}>
+                  {Math.min(currentPage * pageSize, sampleEventLogs.length)}
+                </Text>{" "}
+                of{" "}
+                <Text strong style={{ color: Colors.primary }}>
+                  {sampleEventLogs.length}
+                </Text>{" "}
+                entries
+              </Text>
+            </Col>
+            <Col>
+              <Row gutter={Spacing.lg} align="middle">
+                <Col>
+                  <Space size={Spacing.md}>
+                    <Text
+                      style={combineStyles(GlobalStyles.textMuted, {
+                        fontSize: Typo.base,
+                        fontWeight: Typo.medium,
+                      })}
+                    >
+                      Rows per page:
+                    </Text>
+                    <Select
+                      value={String(pageSize)}
+                      onChange={(value) => {
+                        setPageSize(Number(value));
+                        setCurrentPage(1);
+                      }}
+                      style={{
+                        width: 60,
+                      }}
+                      suffixIcon={
+                        <DownOutlined
+                          style={{ color: Colors.textMuted, fontSize: Typo.md }}
+                        />
+                      }
+                      options={[
+                        { value: "10", label: "10" },
+                        { value: "20", label: "20" },
+                        { value: "50", label: "50" },
+                      ]}
+                    />
+                  </Space>
+                </Col>
+                <Col>
+                  <Space size={Spacing.xs}>
+                    <Button
+                      type="text"
+                      icon={<LeftOutlined />}
+                      onClick={() =>
+                        setCurrentPage(Math.max(1, currentPage - 1))
+                      }
+                      disabled={currentPage === 1}
+                      style={{
+                        color:
+                          currentPage === 1
+                            ? Colors.borderDark
+                            : Colors.textMuted,
+                      }}
+                    >
+                      Prev
+                    </Button>
+                    {(() => {
+                      const totalPages = Math.ceil(sampleEventLogs.length / pageSize);
+                      const pages: (number | string)[] = [];
+
+                      if (totalPages <= 7) {
+                        for (let i = 1; i <= totalPages; i++) {
+                          pages.push(i);
+                        }
+                      } else {
+                        pages.push(1);
+                        if (currentPage > 3) {
+                          pages.push("ellipsis-start");
+                        }
+                        const start = Math.max(2, currentPage - 1);
+                        const end = Math.min(totalPages - 1, currentPage + 1);
+                        for (let i = start; i <= end; i++) {
+                          if (i !== 1 && i !== totalPages) {
+                            pages.push(i);
+                          }
+                        }
+                        if (currentPage < totalPages - 2) {
+                          pages.push("ellipsis-end");
+                        }
+                        pages.push(totalPages);
+                      }
+
+                      return pages.map((page, index) => {
+                        if (page === "ellipsis-start" || page === "ellipsis-end") {
+                          return (
+                            <Text
+                              key={`ellipsis-${index}`}
+                              style={combineStyles(GlobalStyles.textMuted, {
+                                padding: `0 ${Spacing.sm}px`,
+                              })}
+                            >
+                              ...
+                            </Text>
+                          );
+                        }
+                        return (
+                          <Button
+                            key={page}
+                            type={currentPage === page ? "primary" : "text"}
+                            onClick={() => setCurrentPage(page as number)}
+                            style={
+                              currentPage === page
+                                ? combineStyles({
+                                    width: 36,
+                                    height: 36,
+                                    borderRadius: BorderRadius.md,
+                                    backgroundColor: Colors.info,
+                                    borderColor: Colors.info,
+                                    fontWeight: Typo.bold,
+                                    boxShadow: Shadows.primary,
+                                  })
+                                : combineStyles({
+                                    width: 36,
+                                    height: 36,
+                                    borderRadius: BorderRadius.md,
+                                    fontWeight: Typo.bold,
+                                    color: Colors.textSecondary,
+                                  })
+                            }
+                          >
+                            {page}
+                          </Button>
+                        );
+                      });
+                    })()}
+                    <Button
+                      type="text"
+                      icon={<RightOutlined />}
+                      onClick={() =>
+                        setCurrentPage(
+                          Math.min(
+                            Math.ceil(sampleEventLogs.length / pageSize),
+                            currentPage + 1
+                          )
+                        )
+                      }
+                      disabled={
+                        currentPage >=
+                        Math.ceil(sampleEventLogs.length / pageSize)
+                      }
+                      style={{
+                        color:
+                          currentPage >=
+                          Math.ceil(sampleEventLogs.length / pageSize)
+                            ? Colors.borderDark
+                            : Colors.textMuted,
+                      }}
+                    >
+                      Next
+                    </Button>
+                  </Space>
+                </Col>
+              </Row>
+            </Col>
+          </Row>
+        </div>
+      </Card>
+
+      {/* Detail Event Drawer */}
+      <Drawer
+        title={
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <Space>
+              <ReloadOutlined style={{ fontSize: Typo.lg, color: Colors.info }} />
+              <Title
+                level={4}
+                style={combineStyles(GlobalStyles.heading4, {
+                  margin: 0,
+                  fontSize: Typo.lg,
+                  fontWeight: Typo.bold,
+                  color: Colors.textPrimary,
+                })}
+              >
+                Detail Event
+              </Title>
+            </Space>
+            <Button
+              type="text"
+              icon={<MoreOutlined />}
+              style={{ color: Colors.textMuted }}
+            />
+          </div>
+        }
+        placement="right"
+        onClose={handleCloseDetailDrawer}
+        open={drawerVisible}
+        width={350}
+        styles={{
+          body: {
+            padding: Spacing.lg,
+            backgroundColor: "#F8F7F9",
+          },
+          header: {
+            backgroundColor: "#F8F7F9",
+            borderBottom: `1px solid ${Colors.borderLight}`,
+          },
+        }}
+      >
+        {selectedEvent && (
+          <Space direction="vertical" size={Spacing.xl} style={{ width: "100%" }}>
+            {/* STT Event Detail Section */}
+            <div>
+              <Title
+                level={5}
+                style={combineStyles(GlobalStyles.heading5, {
+                  marginBottom: Spacing.md,
+                  fontSize: Typo.xxl,
+                  fontWeight: Typo.extrabold,
+                  color: Colors.textPrimary,
+                  textAlign: "center",
+                })}
+              >
+                {selectedEvent.type} Event Detail
+              </Title>
+              <Space direction="vertical" size={Spacing.sm} style={{ width: "100%" }}>
+                <Space size={Spacing.sm}>
+                  <ClockCircleOutlined style={{ color: Colors.textMuted, fontSize: Typo.base }} />
+                  <Text style={combineStyles(GlobalStyles.textMuted, {
+                    fontSize: Typo.sm,
+                  })}>
+                    {selectedEvent.time}
+                  </Text>
+                </Space>
+                <Space size={Spacing.sm}>
+                  <UserOutlined style={{ color: Colors.textMuted, fontSize: Typo.base }} />
+                  <Text style={combineStyles(GlobalStyles.textMuted, {
+                    fontSize: Typo.sm,
+                  })}>
+                    {selectedEvent.engine}
+                  </Text>
+                </Space>
+                <Space size={Spacing.sm}>
+                  <LinkOutlined style={{ color: Colors.textMuted, fontSize: Typo.base }} />
+                  <Text style={combineStyles(GlobalStyles.textMuted, {
+                    fontSize: Typo.sm,
+                  })}>
+                    {sessionData.sessionId}
+                  </Text>
+                </Space>
+              </Space>
+            </div>
+
+            {/* Data History Section */}
+            <div>
+              <Space style={{ marginBottom: Spacing.md }}>
+                <ThunderboltOutlined style={{ fontSize: Typo.lg, color: Colors.info }} />
+                <Title
+                  level={5}
+                  style={combineStyles(GlobalStyles.heading5, {
+                    margin: 0,
+                    fontSize: Typo.lg,
+                    fontWeight: Typo.bold,
+                    color: Colors.textPrimary,
+                  })}
+                >
+                  Data History
+                </Title>
+              </Space>
+
+              <Card
+                style={combineStyles({
+                  backgroundColor: "#F0F0F0",
+                  borderRadius: BorderRadius.md,
+                  border: "none",
+                  padding: Spacing.md,
+                  marginBottom: Spacing.md,
+                })}
+              >
+                <Space direction="vertical" size={Spacing.md} style={{ width: "100%" }}>
+                  {/* Agent Information and Feedback Tags */}
+                  <Row justify="space-between" align="middle">
+                    <Col>
+                      <Text style={combineStyles(GlobalStyles.textSecondary, {
+                        fontSize: Typo.base,
+                        fontWeight: Typo.medium,
+                        color: Colors.textPrimary,
+                      })}>
+                        Agent - (00:30)
+                      </Text>
+                    </Col>
+                    <Col>
+                      <Space size={Spacing.xs}>
+                        <Tag
+                          icon={<DislikeOutlined />}
+                          style={combineStyles({
+                            padding: `${Spacing.xs}px ${Spacing.sm}px`,
+                            borderRadius: BorderRadius.md,
+                            backgroundColor: Colors.backgroundGray,
+                            color: Colors.textSecondary,
+                            border: `1px solid ${Colors.borderLight}`,
+                            fontSize: Typo.sm,
+                            fontWeight: Typo.medium,
+                            margin: 0,
+                          })}
+                        >
+                          Incorrect
+                        </Tag>
+                        <Tag
+                          icon={<LikeOutlined />}
+                          style={combineStyles({
+                            padding: `${Spacing.xs}px ${Spacing.sm}px`,
+                            borderRadius: BorderRadius.md,
+                            backgroundColor: Colors.backgroundGray,
+                            color: Colors.textSecondary,
+                            border: `1px solid ${Colors.borderLight}`,
+                            fontSize: Typo.sm,
+                            fontWeight: Typo.medium,
+                            margin: 0,
+                          })}
+                        >
+                          Accuracy
+                        </Tag>
+                      </Space>
+                    </Col>
+                  </Row>
+
+                  {/* Audio Player */}
+                  <Space style={{ width: "100%" }}>
+                    <Button
+                      type="primary"
+                      icon={<PlayCircleOutlined />}
+                      style={combineStyles(GlobalStyles.buttonPrimary, {
+                        borderRadius: BorderRadius.full,
+                        width: 40,
+                        height: 40,
+                        minWidth: 40,
+                      })}
+                    />
+                    <div
+                      style={{
+                        flex: 1,
+                        height: 40,
+                        backgroundColor: Colors.background,
+                        borderRadius: BorderRadius.md,
+                        display: "flex",
+                        alignItems: "center",
+                        padding: `0 ${Spacing.sm}px`,
+                        border: `1px solid ${Colors.borderLight}`,
+                      }}
+                    >
+                      {/* Waveform visualization */}
+                      <div
+                        style={{
+                          width: "100%",
+                          height: 20,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: 2,
+                        }}
+                      >
+                        {Array.from({ length: 40 }).map((_, i) => (
+                          <div
+                            key={i}
+                            style={{
+                              width: 2,
+                              height: Math.random() * 15 + 5,
+                              backgroundColor: Colors.primary,
+                              borderRadius: BorderRadius.xs,
+                            }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    <Text style={combineStyles(GlobalStyles.textMuted, {
+                      fontSize: Typo.sm,
+                      minWidth: 35,
+                    })}>
+                      1:23
+                    </Text>
+                    <Text style={combineStyles(GlobalStyles.textMuted, {
+                      fontSize: Typo.sm,
+                      minWidth: 45,
+                    })}>
+                      0.75x
+                    </Text>
+                  </Space>
+
+                  {/* Conversion Result */}
+                  <div>
+                    <Text
+                      strong
+                      style={combineStyles(GlobalStyles.textPrimary, {
+                        display: "block",
+                        marginBottom: Spacing.sm,
+                        fontSize: Typo.sm,
+                        fontWeight: Typo.semibold,
+                        color: Colors.textPrimary,
+                      })}
+                    >
+                      Conversion result
+                    </Text>
+                    <TextArea
+                      value="Good morning, this is the vehicle license extension service. How can I help you?"
+                      readOnly
+                      rows={3}
+                      style={combineStyles({
+                        borderRadius: BorderRadius.md,
+                        fontSize: Typo.sm,
+                        backgroundColor: Colors.background,
+                        border: `1px solid ${Colors.borderLight}`,
+                        color: Colors.textPrimary,
+                      })}
+                    />
+                  </div>
+                </Space>
+              </Card>
+            </div>
+
+            {/* Final Rating Section */}
+            <div>
+              <Space style={{ marginBottom: Spacing.md }}>
+                <ThunderboltOutlined style={{ fontSize: Typo.lg, color: Colors.info }} />
+                <Title
+                  level={5}
+                  style={combineStyles(GlobalStyles.heading5, {
+                    margin: 0,
+                    fontSize: Typo.lg,
+                    fontWeight: Typo.bold,
+                    color: Colors.textPrimary,
+                  })}
+                >
+                  Final Rating
+                </Title>
+                <Space align="center" style={{ marginLeft: "auto" }}>
+                  <Text
+                    style={combineStyles(GlobalStyles.textPrimary, {
+                      fontSize: Typo.xxxl,
+                      fontWeight: Typo.extrabold,
+                      color: Colors.textPrimary,
+                    })}
+                  >
+                    4.5
+                  </Text>
+                  <Rate
+                    value={4.5}
+                    allowHalf
+                    disabled
+                    style={{ fontSize: Typo.lg }}
+                  />
+                </Space>
+              </Space>
+
+              <Space direction="vertical" size={Spacing.lg} style={{ width: "100%" }}>
+                {/* Individual Evaluation Criteria */}
+                {/* Conversion result */}
+                <div>
+                  <Text
+                    strong
+                    style={combineStyles(GlobalStyles.textPrimary, {
+                      display: "block",
+                      marginBottom: Spacing.xs,
+                      fontSize: Typo.base,
+                      fontWeight: Typo.semibold,
+                      color: Colors.textPrimary,
+                    })}
+                  >
+                    Conversion result
+                  </Text>
+                  <Text
+                    style={combineStyles(GlobalStyles.textMuted, {
+                      display: "block",
+                      marginBottom: Spacing.sm,
+                      fontSize: Typo.sm,
+                      lineHeight: Typo.lineHeightRelaxed,
+                      color: Colors.textMuted,
+                    })}
+                  >
+                    Did the AI understand the user's intent correctly? Was the answer factually accurate and contextually appropriate?
+                  </Text>
+                  <Space>
+                    <Text style={combineStyles(GlobalStyles.textMuted, {
+                      fontSize: Typo.sm,
+                    })}>
+                      Overall Rating :
+                    </Text>
+                    <Rate
+                      value={4.5}
+                      allowHalf
+                      disabled
+                      style={{ fontSize: Typo.lg }}
+                    />
+                  </Space>
+                </div>
+
+                {/* Relevance & Coherence */}
+                <div>
+                  <Text
+                    strong
+                    style={combineStyles(GlobalStyles.textPrimary, {
+                      display: "block",
+                      marginBottom: Spacing.xs,
+                      fontSize: Typo.base,
+                      fontWeight: Typo.semibold,
+                      color: Colors.textPrimary,
+                    })}
+                  >
+                    Relevance & Coherence
+                  </Text>
+                  <Text
+                    style={combineStyles(GlobalStyles.textMuted, {
+                      display: "block",
+                      marginBottom: Spacing.sm,
+                      fontSize: Typo.sm,
+                      lineHeight: Typo.lineHeightRelaxed,
+                      color: Colors.textMuted,
+                    })}
+                  >
+                    Was the AI's response relevant to the user's request? Did the answer flow logically and remain consistent throughout?
+                  </Text>
+                  <Space>
+                    <Text style={combineStyles(GlobalStyles.textMuted, {
+                      fontSize: Typo.sm,
+                    })}>
+                      Overall Rating :
+                    </Text>
+                    <Rate
+                      value={4.5}
+                      allowHalf
+                      disabled
+                      style={{ fontSize: Typo.lg }}
+                    />
+                  </Space>
+                </div>
+
+                {/* Tone & Politeness */}
+                <div>
+                  <Text
+                    strong
+                    style={combineStyles(GlobalStyles.textPrimary, {
+                      display: "block",
+                      marginBottom: Spacing.xs,
+                      fontSize: Typo.base,
+                      fontWeight: Typo.semibold,
+                      color: Colors.textPrimary,
+                    })}
+                  >
+                    Tone & Politeness
+                  </Text>
+                  <Text
+                    style={combineStyles(GlobalStyles.textMuted, {
+                      display: "block",
+                      marginBottom: Spacing.sm,
+                      fontSize: Typo.sm,
+                      lineHeight: Typo.lineHeightRelaxed,
+                      color: Colors.textMuted,
+                    })}
+                  >
+                    Was the AI's tone appropriate and respectful? Did the response feel professional and helpful?
+                  </Text>
+                  <Space>
+                    <Text style={combineStyles(GlobalStyles.textMuted, {
+                      fontSize: Typo.sm,
+                    })}>
+                      Overall Rating :
+                    </Text>
+                    <Rate
+                      value={4.5}
+                      allowHalf
+                      disabled
+                      style={{ fontSize: Typo.lg }}
+                    />
+                  </Space>
+                </div>
+
+                {/* Resolution Effectiveness */}
+                <div>
+                  <Text
+                    strong
+                    style={combineStyles(GlobalStyles.textPrimary, {
+                      display: "block",
+                      marginBottom: Spacing.xs,
+                      fontSize: Typo.base,
+                      fontWeight: Typo.semibold,
+                      color: Colors.textPrimary,
+                    })}
+                  >
+                    Resolution Effectiveness
+                  </Text>
+                  <Text
+                    style={combineStyles(GlobalStyles.textMuted, {
+                      display: "block",
+                      marginBottom: Spacing.sm,
+                      fontSize: Typo.sm,
+                      lineHeight: Typo.lineHeightRelaxed,
+                      color: Colors.textMuted,
+                    })}
+                  >
+                    Did the response effectively address the user's need or problem? Was the solution clear and actionable?
+                  </Text>
+                  <Space>
+                    <Text style={combineStyles(GlobalStyles.textMuted, {
+                      fontSize: Typo.sm,
+                    })}>
+                      Overall Rating :
+                    </Text>
+                    <Rate
+                      value={4.5}
+                      allowHalf
+                      disabled
+                      style={{ fontSize: Typo.lg }}
+                    />
+                  </Space>
+                </div>
+              </Space>
+            </div>
+          </Space>
+        )}
+      </Drawer>
     </div>
   );
 }
